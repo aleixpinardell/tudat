@@ -35,7 +35,8 @@ namespace propagators
 enum TranslationalPropagatorType
 {
     cowell = 0,
-    encke = 1
+    encke = 1,
+    dsst
 };
 
 

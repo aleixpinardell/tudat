@@ -40,6 +40,17 @@ enum KeplerianElementIndices
     semiLatusRectumIndex = 0
 };
 
+//! Equinoctial elements indices. [Semianalytic satellite theory, Danielson (1995), Section 2.1]
+enum EquinoctialElementIndices
+{
+    // semiMajorAxisIndex = 0,
+    hIndex = 1,
+    kIndex = 2,
+    pIndex = 3,
+    qIndex = 4,
+    meanLongitudeIndex = 5
+};
+
 //! Modified equinoctial element vector indices.
 enum ModifiedEquinoctialElementVectorIndices
 {

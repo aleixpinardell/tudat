@@ -8,6 +8,9 @@
  #    http://tudat.tudelft.nl/LICENSE.
  #
 
+# Add semi-analytical propagator
+add_subdirectory( "${SRCROOT}${PROPAGATORSDIR}/DSST" )
+
 # Add source files.
 set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/nBodyStateDerivative.cpp"

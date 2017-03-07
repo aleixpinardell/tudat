@@ -8,8 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "jacobiPolynomials.h"
-
+#include "centralBodyPertubed.h"
 
 namespace tudat
 {
@@ -20,12 +19,16 @@ namespace propagators
 namespace dsst
 {
 
-namespace coefficients_factories
+
+//! Update instance's members that are computed from the current auxiliary elements.
+void CentralBodyPerturbedForceModel::updateMembers( )
 {
+    // Direction cosines
+    alpha = aux.alpha;
+    beta  = aux.beta;
+    gamma = aux.gamma;
+}
 
-
-
-} // namespace coefficients_factories
 
 } // namespace dsst
 

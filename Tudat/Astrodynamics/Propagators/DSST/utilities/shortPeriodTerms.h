@@ -15,19 +15,14 @@ namespace propagators
 namespace dsst
 {
 
-/** Additive short period terms contributing to the mean to osculating orbit mapping.
- * <p>
- * Each instance contains a set of several terms that are computed together.
- * </p>
- * @see DSSTForceModel
- */
+//! Additive short period terms contributing to the mean to osculating orbit mapping.
 class ShortPeriodTerms {
 
     /** Evaluate the contributions of the short period terms.
-     * @param meanOrbit mean orbit to which the short period contribution applies
+     * @m meanOrbit mean orbit to which the short period contribution applies
      * @return short period terms contributions
      */
-    virtual v_double value(SpacecraftState spacecraftState);
+    virtual Vectord value(SpacecraftState spacecraftState);
 
     /** Get the prefix for short period coefficients keys.
      * <p>
@@ -56,7 +51,7 @@ class ShortPeriodTerms {
      * @return the selected coefficients of the short periodic variations,
      * in a map where all keys start with {@link #getCoefficientsKeyPrefix()}
      */
-    virtual std::map<std::string, v_double> getCoefficients(AbsoluteDate date, std::set<std::string> selected);
+    virtual std::map<std::string, Vectord> getCoefficients(AbsoluteDate date, std::set<std::string> selected);
 
 };
 

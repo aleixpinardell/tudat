@@ -165,7 +165,7 @@ public:
          // ...
          const int start = degree * (degree + 1) / 2;
 
-         v_double a(degree + 1);
+         SingleVectord a(degree + 1);
          for (int i = 0; i <= degree; ++i) {
              a[i] = boost::rational_cast<double>( coefficients[start + i] );
          }

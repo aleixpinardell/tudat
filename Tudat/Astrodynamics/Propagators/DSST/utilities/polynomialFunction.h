@@ -17,10 +17,10 @@ namespace dsst
 class PolynomialFunction
 {
 private:
-    v_double coefficients;
+    Vectord coefficients;
 
 public:
-    PolynomialFunction(v_double c) {
+    PolynomialFunction(Vectord c) {
         unsigned int n = c.size();
         if (n == 0) {
             throw std::runtime_error( "Empty polynomials coefficients array" );
@@ -28,14 +28,14 @@ public:
         while ((n > 1) && (c[n - 1] == 0)) {
             --n;
         }
-        coefficients = new_v_double(n);
+        coefficients = Vectord(n);
         for ( unsigned int i = 0; i < n; i++ )
         {
             coefficients[i] = c[i];
         }
     }
 
-    static double evaluate(v_double coefficients, double argument) {
+    static double evaluate(Vectord coefficients, double argument) {
         int n = coefficients.size();
         if (n == 0) {
             throw std::runtime_error( "Empty polynomials coefficients array" );
@@ -77,11 +77,11 @@ public:
         const unsigned int highLength = std::max(coefficients.size(), p.coefficients.size());
 
         // build the coefficients array
-        v_double newCoefficients(highLength);
+        Vectord newCoefficients(highLength);
         for (unsigned int i = 0; i < lowLength; ++i) {
             newCoefficients[i] = coefficients[i] + p.coefficients[i];
         }
-        v_double longCoefficients = (coefficients.size() < p.coefficients.size()) ? p.coefficients : coefficients;
+        Vectord longCoefficients = (coefficients.size() < p.coefficients.size()) ? p.coefficients : coefficients;
         for (unsigned int i = lowLength; i < highLength; ++i) {
             newCoefficients[i] = longCoefficients[i];
         }
@@ -97,7 +97,7 @@ public:
      * @return a new polynomial equal to this times {@code p}
      */
     PolynomialFunction multiply(const PolynomialFunction p) {
-        v_double newCoefficients = new_v_double(coefficients.size() + p.coefficients.size() - 1);
+        Vectord newCoefficients = Vectord(coefficients.size() + p.coefficients.size() - 1);
 
         for (int i = 0; i < (int) newCoefficients.size(); ++i) {
             newCoefficients[i] = 0.0;

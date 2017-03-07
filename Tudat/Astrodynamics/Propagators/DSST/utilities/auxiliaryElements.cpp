@@ -19,28 +19,24 @@ namespace propagators
 namespace dsst
 {
 
-//! Constructor.
-AuxiliaryElements::AuxiliaryElements( const SpacecraftState state, const bool retrogradeElements ) {
-
+//! Update the instance's members according to the current equinoctialElements.
+void AuxiliaryElements::updateMembers()
+{
     using namespace tudat::orbital_element_conversions;
     using namespace tudat::mathematical_constants;
     using std::sqrt;
     using std::pow;
 
-    // Central body gravitational parameter
-    mu = state.orbit.getCentralBodyGravitatinalParameter();
-
     // Retrograde factor
     I = retrogradeElements ? -1 : 1;
 
     // Get equinoctial elements
-    const Vector6 equinoctialComponents = state.equinoctialComponents;
-    sma = equinoctialComponents[ semiMajorAxisIndex ];
-    k   = equinoctialComponents[ kIndex ];
-    h   = equinoctialComponents[ hIndex ];
-    p   = equinoctialComponents[ pIndex ];
-    q   = equinoctialComponents[ qIndex ];
-    lm  = equinoctialComponents[ meanLongitudeIndex ];
+    sma = equinoctialElements[ semiMajorAxisIndex ];
+    h   = equinoctialElements[ hIndex ];
+    k   = equinoctialElements[ kIndex ];
+    p   = equinoctialElements[ pIndex ];
+    q   = equinoctialElements[ qIndex ];
+    lm  = equinoctialElements[ meanLongitudeIndex ];
 
     // Define repeated values
     const double h2 = pow( h, 2 );
@@ -52,17 +48,17 @@ AuxiliaryElements::AuxiliaryElements( const SpacecraftState state, const bool re
     ecc = sqrt( h2 + k2 );
 
     // Keplerian mean motion
-    n = sqrt( mu / pow( sma, 3 ) );
+    n = sqrt( mu() / pow( sma, 3 ) );
 
     // Keplerian period
-    period = 2 * PI * sma * sqrt( sma / mu );
+    period = 2 * PI * sma * sqrt( sma / mu() );
 
     // Get eccentric and true longitudes
-    le = getEccentricLongitude( equinoctialComponents );
-    lv = getTrueLongitude( equinoctialComponents );
+    le = getEccentricLongitude( equinoctialElements );
+    lv = getTrueLongitude( equinoctialElements );
 
     // Get A, B and C
-    A = sqrt( mu * sma );
+    A = sqrt( mu() * sma );
     B = sqrt( 1 - h2 - k2 );
     C = 1 + p2 + q2;
 
@@ -72,7 +68,7 @@ AuxiliaryElements::AuxiliaryElements( const SpacecraftState state, const bool re
     g = fgw.col( 1 );
     w = fgw.col( 2 );
 
-    // Get direction cosines
+    // Get direction cosines (for central body, not to be used for third body calculations)
     alpha = f( 2 );
     beta  = g( 2 );
     gamma = w( 2 );

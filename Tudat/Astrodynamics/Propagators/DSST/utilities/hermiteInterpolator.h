@@ -32,13 +32,13 @@ namespace dsst
 class HermiteInterpolator {
 private:
     /** Sample abscissae. */
-    v_double abscissae;
+    Vectord abscissae;
 
     /** Top diagonal of the divided differences array. */
-    vv_double topDiagonal;
+    NestedVectord topDiagonal;
 
     /** Bottom diagonal of the divided differences array. */
-    vv_double bottomDiagonal;
+    NestedVectord bottomDiagonal;
 
 public:
     /** Create an empty interpolator.
@@ -64,12 +64,12 @@ public:
      * @exception MathRuntimeException if the number of derivatives is larger
      * than 20, which prevents computation of a factorial
      */
-    void addSamplePoint(const double x, const vv_double value)
+    void addSamplePoint(const double x, const NestedVectord value)
     {
 
         for (unsigned int i = 0; i < value.size(); ++i) {
 
-            v_double y = value[i];
+            Vectord y = value[i];
             if (i > 1) {
                 double inv = 1.0 / factorial(i);
                 for (unsigned int j = 0; j < y.size(); ++j) {
@@ -80,9 +80,9 @@ public:
             // update the bottom diagonal of the divided differences array
             const unsigned int n = abscissae.size();
             bottomDiagonal.insert(bottomDiagonal.begin() + n - i, y);
-            v_double bottom0 = y;
+            Vectord bottom0 = y;
             for (unsigned int j = i; j < n; ++j) {
-                v_double bottom1 = bottomDiagonal[n - (j + 1)];
+                Vectord bottom1 = bottomDiagonal[n - (j + 1)];
                 const double denom = (x - abscissae[n - (j + 1)]);
                 if ( denom == 0.0 ) {
                     throw std::runtime_error( "Dividing by 0 during addition of sample ploint to interpolator." );
@@ -116,12 +116,12 @@ public:
      * @return interpolated value
      * @exception MathIllegalArgumentException if sample is empty
      */
-    v_double value(double x) {
+    Vectord value(double x) {
 
-        v_double value(topDiagonal[0].size());
+        Vectord value(topDiagonal[0].size());
         double valueCoeff = 1;
         for (unsigned int i = 0; i < topDiagonal.size(); ++i) {
-            v_double dividedDifference = topDiagonal[i];
+            Vectord dividedDifference = topDiagonal[i];
             for (unsigned int k = 0; k < value.size(); ++k) {
                 value[k] += dividedDifference[k] * valueCoeff;
             }

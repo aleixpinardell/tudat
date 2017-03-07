@@ -33,7 +33,7 @@ class ShortPeriodicsInterpolatedCoefficient : public Equatable {
 
 private:
     /** Values of the already computed coefficients.*/
-    vv_double values;
+    NestedVectord values;
 
     /** Grid points.*/
     std::vector<AbsoluteDate> abscissae;
@@ -160,7 +160,7 @@ public:
      * @param date date at which the coefficient should be computed
      * @return value of the coefficient
      */
-    v_double value(const AbsoluteDate date) {
+    Vectord value(const AbsoluteDate date) {
         //Get the closest points from the input date
         const std::vector<int> neighbors = getNeighborsIndices(date);
 
@@ -207,7 +207,7 @@ public:
      * @param date abscissa of the point
      * @param value value of the element
      */
-    void addGridPoint(const AbsoluteDate date, const v_double value) {
+    void addGridPoint(const AbsoluteDate date, const Vectord value) {
         ptrdiff_t pos = find(abscissae.begin(), abscissae.end(), date) - abscissae.begin();
         //If the grid is empty, the value is directly added to both arrays
         if (abscissae.size() == 0) {

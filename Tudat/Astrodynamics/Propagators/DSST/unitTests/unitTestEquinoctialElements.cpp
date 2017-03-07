@@ -18,10 +18,6 @@
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/modifiedEquinoctialElementConversions.h"
 
-#include "Tudat/Astrodynamics/Propagators/DSST/dsst.h"
-
-#include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsfactory.h"
-
 
 namespace tudat
 {
@@ -31,17 +27,16 @@ namespace unit_tests
 
 BOOST_AUTO_TEST_SUITE( test_dsst_propagator )
 
-BOOST_AUTO_TEST_CASE( coefficientsFactory )
+BOOST_AUTO_TEST_CASE( equinoctial_elements )
 {
-    using namespace tudat::propagators::dsst;
     using namespace tudat::orbital_element_conversions;
     using namespace tudat::basic_mathematics;
     using namespace tudat::mathematical_constants;
-    auto tolerance = 100 * std::numeric_limits< double >::epsilon( );
 
-    ////////////////////////////
-    /// EQUINOCTIAL ELEMENTS ///
-    ////////////////////////////
+    using namespace tudat::propagators::dsst;
+    using namespace tudat::propagators::dsst::coefficients_factories;
+
+    auto tolerance = 100 * std::numeric_limits< double >::epsilon( );
 
     // Convert TO equinoctial elements
 
@@ -113,80 +108,6 @@ BOOST_AUTO_TEST_CASE( coefficientsFactory )
 //    std::cout << std::fmod( ectrLongitude - ectrAnomaly + 2 * M_PI, 2 * M_PI ) << std::endl;
 //    std::cout << std::fmod( meanLongitude - meanAnomaly + 2 * M_PI, 2 * M_PI ) << std::endl;
 
-
-
-    ////////////////////////////
-    /// COEFFICIENTS FACTORY ///
-    ////////////////////////////
-
-    CoefficientsFactory coefficientsFactory;
-
-    // K_0^{n,s} and derivatives
-    NSSetPair K0nsAndDerivatives = coefficientsFactory.computeK0nsAndDerivatives( 2.1, 3, 3 );
-    vv_double K0ns = K0nsAndDerivatives.first;
-    vv_double dK0ns = K0nsAndDerivatives.second;
-    // BOOST_CHECK_CLOSE_FRACTION( Qns[2][1], 4.5, epsilon );
-//    for ( auto const &ent : K0ns ) {
-//        for ( auto const &entent : ent ) {
-//            std::cout << entent << ", ";
-//        }
-//        std::cout << "; ";
-//    }
-//    std::cout << std::endl;
-//    for ( auto const &ent : dK0ns ) {
-//        for ( auto const &entent : ent ) {
-//            std::cout << entent << ", ";
-//        }
-//        std::cout << "; ";
-//    }
-//    std::cout << std::endl;
-
-    // Q_{n,s}
-    vv_double Qns = coefficientsFactory.computeQns( 1.5, 4, 4 );
-    BOOST_CHECK_CLOSE_FRACTION( Qns[2][1], 4.5, tolerance );
-//    for ( auto const &ent : Qns ) {
-//        for ( auto const &entent : ent ) {
-//            std::cout << entent << ", ";
-//        }
-//        std::cout << "; ";
-//    }
-//    std::cout << std::endl;
-
-    // d(Q_{n,s}/d(\gamma)
-    vv_double dQns = coefficientsFactory.computeQnsDerivatives( 1.5, 4, 4 );
-    BOOST_CHECK_CLOSE_FRACTION( dQns[3][2], Qns[3][3], tolerance );
-//    for ( auto const &ent : dQns ) {
-//        for ( auto const &entent : ent ) {
-//            std::cout << entent << ", ";
-//        }
-//        std::cout << "; ";
-//    }
-//    std::cout << std::endl;
-
-    // G_s, H_s polynomials
-    Eigen::Matrix2Xd GsHs = coefficientsFactory.computeGsHs( 1.0, 1.0, 1.5, 0.5, 2 );
-    BOOST_CHECK_CLOSE_FRACTION( GsHs(0,2), 3.0, tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( GsHs(1,2), 4.0, tolerance );
-    // std::cout << GsHs << std::endl;
-
-    // G_s derivatives
-    std::map< std::string, Eigen::VectorXd > dGs = coefficientsFactory.computeGsDerivatives( 1.0, 1.0, 1.5, 0.5, 2 );
-    BOOST_CHECK_CLOSE_FRACTION( dGs["h"](2),    -1.0, tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( dGs["k"](2),     7.0, tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( dGs["alpha"](2), 2.0, tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( dGs["beta"](2),  6.0, tolerance );
-
-    // V_{n,s} coefficients
-    NSMap Vns = coefficientsFactory.computeVns(5);
-    BOOST_CHECK_CLOSE_FRACTION( Vns[ NSKey(0,0) ], 1, tolerance );
-    BOOST_CHECK_CLOSE_FRACTION( Vns[ NSKey(3,1) ], -0.125, tolerance );
-//    for ( auto const &ent : Vns ) {
-//        std::cout << ent.first.first << "," << ent.first.second << ": " << ent.second << std::endl;
-//    }
-
-    // V_{n,s}^m coefficient
-    double Vmns = coefficientsFactory.getVmns( 3, 4, 2 );
-    BOOST_CHECK_CLOSE_FRACTION( Vmns, -15, tolerance );
 }
 
 BOOST_AUTO_TEST_SUITE_END( )

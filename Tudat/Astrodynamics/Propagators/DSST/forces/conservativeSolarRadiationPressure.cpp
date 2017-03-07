@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "jacobiPolynomials.h"
+#include "conservativeSolarRadiationPressure.h"
 
 
 namespace tudat
@@ -20,12 +20,7 @@ namespace propagators
 namespace dsst
 {
 
-namespace coefficients_factories
-{
 
-
-
-} // namespace coefficients_factories
 
 } // namespace dsst
 

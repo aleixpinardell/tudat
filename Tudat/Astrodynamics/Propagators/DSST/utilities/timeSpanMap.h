@@ -82,27 +82,20 @@ struct ChronologicalComparator : public std::binary_function<TimeStamped, TimeSt
 
 
 template<class Q, class R>
-Q floor( std::set<Q,R> elements, Q target )
-{
-    typename std::set<Q,R>::iterator it;
-    for ( it = elements.begin(); it != elements.end(); ++it ) {
-        Q element = *it;
-        if ( element == target ) {
+Q floor( std::set<Q,R> elements, Q target ) {
+    for ( auto iter = elements.rbegin(); iter != elements.rend(); ++iter ) {
+        auto element = *iter;
+        if ( element <= target ) {
             return element;
-        }
-        if ( element > target ) {
-            return *(--it);
         }
     }
     return Q();
 }
 
 template<class Q, class R>
-Q ceil( std::set<Q,R> elements, Q target )
-{
-    typename std::set<Q,R>::iterator it;
-    for ( it = elements.begin(); it != elements.end(); ++it ) {
-        Q element = *it;
+Q ceil( std::set<Q,R> elements, Q target ) {
+    for ( auto iter = elements.begin(); iter != elements.end(); ++iter ) {
+        auto element = *iter;
         if ( element >= target ) {
             return element;
         }

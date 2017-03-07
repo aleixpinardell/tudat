@@ -27,20 +27,20 @@ private:
     int order;
 
     /** Number of partial derivatives (including the single 0 order derivative element). */
-    vv_int sizes;
+    NestedVectori sizes;
 
     /** Indirection array of the lower derivative elements. */
-    v_int lowerIndirection;
+    Vectori lowerIndirection;
 
     /** Indirection arrays for multiplication. */
-    vvv_int multIndirection;
+    TripleVectori multIndirection;
 
 
 
-    vv_int compileSizes(const int parameters, const int order, const DSCompiler valueCompiler) {
-        vv_int sizes = new_vv_int(parameters + 1,order + 1);
+    NestedVectori compileSizes(const int parameters, const int order, const DSCompiler valueCompiler) {
+        NestedVectori sizes = NestedVectori(parameters + 1,order + 1);
         if (parameters == 0) {
-            sizes[0] = v_int(order + 1, 1);
+            sizes[0] = Vectori(order + 1, 1);
         } else {
             sizes = valueCompiler.sizes;
             sizes[parameters][0] = 1;
@@ -63,17 +63,17 @@ private:
       * @param derivativeCompiler compiler for the derivative part
       * @return lower derivatives indirection array
       */
-     v_int compileLowerIndirection(const int parameters, const int order,
+     Vectori compileLowerIndirection(const int parameters, const int order,
                                    const DSCompiler valueCompiler, const DSCompiler derivativeCompiler) {
 
          if (parameters == 0 || order <= 1) {
-             return v_int( { 0 } );
+             return Vectori( { 0 } );
          }
 
          // this is an implementation of definition 6 in Dan Kalman's paper.
          const int vSize = valueCompiler.lowerIndirection.size();
          const int dSize = derivativeCompiler.lowerIndirection.size();
-         v_int lowerIndirection(vSize + dSize);
+         Vectori lowerIndirection(vSize + dSize);
 
          for ( int i = 0; i < vSize; i++ )
          {
@@ -101,17 +101,17 @@ private:
      * @param lowerIndirection lower derivatives indirection array
      * @return multiplication indirection array
      */
-    vvv_int compileMultiplicationIndirection(const int parameters, const int order, const DSCompiler valueCompiler,
-                                             const DSCompiler derivativeCompiler, const v_int lowerIndirection) {
+    TripleVectori compileMultiplicationIndirection(const int parameters, const int order, const DSCompiler valueCompiler,
+                                             const DSCompiler derivativeCompiler, const Vectori lowerIndirection) {
 
         if ((parameters == 0) || (order == 0)) {
-            return vvv_int( { { { 1, 0, 0 } } } );
+            return { { { 1, 0, 0 } } };
         }
 
         // this is an implementation of definition 3 in Dan Kalman's paper.
         const int vSize = valueCompiler.multIndirection.size();
         const int dSize = derivativeCompiler.multIndirection.size();
-        vvv_int multIndirection = new_vvv_int(vSize + dSize, 0, 0);
+        TripleVectori multIndirection = TripleVectori(vSize + dSize, 0, 0);
 
         for ( int i = 0; i < vSize; i++ )
         {
@@ -119,20 +119,20 @@ private:
         }
 
         for ( int i = 0; i < dSize; ++i ) {
-            const vv_int dRow = derivativeCompiler.multIndirection[i];
-            vv_int row(dRow.size() * 2);
+            const NestedVectori dRow = derivativeCompiler.multIndirection[i];
+            NestedVectori row(dRow.size() * 2);
             for (unsigned int j = 0; j < dRow.size(); ++j) {
-                row.push_back( v_int( { dRow[j][0], lowerIndirection[dRow[j][1]], vSize + dRow[j][2] } ) );
-                row.push_back( v_int( { dRow[j][0], vSize + dRow[j][1], lowerIndirection[dRow[j][2]] } ) );
+                row.push_back( Vectori( { dRow[j][0], lowerIndirection[dRow[j][1]], vSize + dRow[j][2] } ) );
+                row.push_back( Vectori( { dRow[j][0], vSize + dRow[j][1], lowerIndirection[dRow[j][2]] } ) );
             }
 
             // combine terms with similar derivation orders
-            vv_int combined(row.size());
+            NestedVectori combined(row.size());
             for ( int j = 0; j < (int) row.size(); ++j ) {
-                v_int termJ = row[j];
+                Vectori termJ = row[j];
                 if (termJ[0] > 0) {
                     for (unsigned int k = j + 1; k < row.size(); ++k) {
-                        v_int termK = row[k];
+                        Vectori termK = row[k];
                         if (termJ[1] == termK[1] && termJ[2] == termK[2]) {
                             // combine termJ and termK
                             termJ[0] += termK[0];
@@ -164,7 +164,7 @@ private:
      * than the instance limits
      */
     static int getPartialDerivativeIndex(
-            const int parameters, const int order, const vv_int sizes, const v_int orders)
+            const int parameters, const int order, const NestedVectori sizes, const Vectori orders)
     {
 
         // the value is obtained by diving into the recursive Dan Kalman's structure
@@ -282,11 +282,11 @@ public:
     }
 
 
-    void multiply(const v_double lhs, const int lhsOffset, const v_double rhs,
-                  const int rhsOffset, v_double &result, const int resultOffset)
+    void multiply(const Vectord lhs, const int lhsOffset, const Vectord rhs,
+                  const int rhsOffset, Vectord &result, const int resultOffset)
     {
         for (unsigned int i = 0; i < multIndirection.size(); ++i) {
-            const vv_int mappingI = multIndirection[i];
+            const NestedVectori mappingI = multIndirection[i];
             double r = 0;
             for (unsigned int j = 0; j < mappingI.size(); ++j) {
                 r += mappingI[j][0] *
@@ -298,7 +298,7 @@ public:
     }
 
 
-    int getPartialDerivativeIndex(const v_int orders) const
+    int getPartialDerivativeIndex(const Vectori orders) const
     {
         if ( (int) orders.size() != getFreeParameters() )
         {

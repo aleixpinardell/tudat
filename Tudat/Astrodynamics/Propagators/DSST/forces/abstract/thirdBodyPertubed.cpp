@@ -8,8 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "jacobiPolynomials.h"
-
+#include "thirdBodyPertubed.h"
 
 namespace tudat
 {
@@ -20,12 +19,21 @@ namespace propagators
 namespace dsst
 {
 
-namespace coefficients_factories
+
+//! Update instance's members that are computed from the current auxiliary elements.
+void ThirdBodyPerturbedForceModel::updateMembers( )
 {
+    // Distance from center of mass of the central body to the 3rd body
+    r3 = thirdBody.getPositionFrom( aux.centralBody );
+    R3 = r3.norm();
 
+    // Direction cosines
+    const Eigen::Vector3d bodyDir = r3 / R3;
+    alpha = bodyDir.dot( aux.f );
+    beta  = bodyDir.dot( aux.g );
+    gamma = bodyDir.dot( aux.w );
+}
 
-
-} // namespace coefficients_factories
 
 } // namespace dsst
 

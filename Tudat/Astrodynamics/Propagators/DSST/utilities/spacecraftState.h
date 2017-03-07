@@ -2,7 +2,8 @@
 #define TUDAT_DSST_SPACECRAFTSTATE_H
 
 #include "Tudat/Astrodynamics/Propagators/DSST/dsst.h"
-#include "Tudat/Astrodynamics/Propagators/DSST/utilities/orbit.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/forces/forceModel.h"
+#include "orbit.h"
 
 
 namespace tudat
@@ -14,11 +15,12 @@ namespace propagators
 namespace dsst
 {
 
+
 class SpacecraftState {
 public:
-    const Orbit orbit;
+    Orbit orbit;
 
-    Vector6 equinoctialComponents;
+    Eigen::Vector6d equinoctialComponents;
 
     SpacecraftState(const Orbit orbit) : orbit(orbit) { }
 

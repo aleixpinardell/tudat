@@ -24,16 +24,8 @@ namespace dsst
 {
 
 //! Constructor.
-DSSTThirdBody::DSSTThirdBody( const std::string bodyName, const Vector3 bodyPosition,
-                              const double gravitationalParameter /*, const double distance*/ ):
-    bodyName(bodyName), bodyPosition(bodyPosition), gm(gravitationalParameter), R3(bodyPosition.norm()),
-    maxAR3Pow(INT_MIN), maxEccPow(INT_MIN)
-{
-    Vns = CoefficientsFactory().computeVns( MAX_POWER );
-}
-
-
-std::vector<ShortPeriodTerms> DSSTThirdBody::initialize( AuxiliaryElements auxiliaryElements, const bool meanOnly )
+DSSTThirdBody::DSSTThirdBody( const ThirdBody &thirdBody, AuxiliaryElements &auxiliaryElements ) :
+    thirdBody( thirdBody ), auxiliaryElements( auxiliaryElements )
 {
     // Initializes specific parameters.
     initializeStep( auxiliaryElements );
@@ -46,27 +38,27 @@ std::vector<ShortPeriodTerms> DSSTThirdBody::initialize( AuxiliaryElements auxil
     // Utilities for truncation
     // Set a lower bound for eccentricity
     const double eo2  = std::max( 0.0025, ecc / 2.0 );
-    const double x2o2 = XX / 2.;
+    const double x2o2 = Chi2 / 2.;
     std::vector< double > eccPwr( MAX_POWER );
     std::vector< double > chiPwr( MAX_POWER );
     eccPwr[0] = 1.0;
-    chiPwr[0] = X;
+    chiPwr[0] = Chi;
     for ( int i = 1; i < MAX_POWER; i++ ) {
         eccPwr[i] = eccPwr[i - 1] * eo2;
         chiPwr[i] = chiPwr[i - 1] * x2o2;
     }
 
     // Auxiliary quantities.
-    const double ao2rxx = aor / (2.0 * XX);
-    double xmuarn       = ao2rxx * ao2rxx * gm / (X * R3);
+    const double ao2rxx = aor / (2.0 * Chi2);
+    double xmuarn       = ao2rxx * ao2rxx * gm / (Chi * R3);
     double term         = 0.0;
 
     // Compute max power for a/R3 and e.
-    maxAR3Pow = 2;
-    maxEccPow = 0;
-    int n     = 2;
-    int m     = 2;
-    int nsmd2 = 0;
+    maxAR3Pow          = 2;
+    maxEccPow          = 0;
+    unsigned int n     = 2;
+    unsigned int m     = 2;
+    unsigned int nsmd2 = 0;
 
     do {
         // Upper bound for Tnm.
@@ -74,7 +66,7 @@ std::vector<ShortPeriodTerms> DSSTThirdBody::initialize( AuxiliaryElements auxil
                 ( factorial( n + m ) / ( factorial( nsmd2 ) * factorial( nsmd2 + m ) ) ) *
                 ( factorial( n + m + 1 ) / ( factorial( m ) * factorial( n + 1 ) ) ) *
                 ( factorial( n - m + 1 ) / factorial( n + 1 ) ) *
-                eccPwr[ m ] * upper_bounds::getDnl( XX, chiPwr[ m ], n + 2, m );
+                eccPwr[ m ] * upper_bounds::getDnl( Chi2, chiPwr[ m ], n + 2, m );
 
         if ( term < tol ) {
             if (m == 0) {
@@ -105,7 +97,8 @@ std::vector<ShortPeriodTerms> DSSTThirdBody::initialize( AuxiliaryElements auxil
     maxFreqF = maxAR3Pow + 1;
     maxEccPowShort = MAX_ECCPOWER_SP;
 
-    Qns = CoefficientsFactory().computeQns( gamma, maxAR3Pow, std::max( maxEccPow, maxEccPowShort ) );
+    QnsFactory = coefficients_factories::QnsCoefficientsFactory(
+                gamma, maxAR3Pow, std::max( maxEccPow, maxEccPowShort ) );
 
     const int jMax = maxAR3Pow + 1;
 
@@ -135,7 +128,7 @@ void DSSTThirdBody::initializeStep( const AuxiliaryElements auxiliaryElements )
     R3 = bodyPosition.norm();
 
     // Direction cosines
-    const Vector3 bodyDir = bodyPosition / R3;
+    const Eigen::Vector3d bodyDir = bodyPosition / R3;
     alpha = bodyDir.dot( auxiliaryElements.f );
     beta  = bodyDir.dot( auxiliaryElements.g );
     gamma = bodyDir.dot( auxiliaryElements.w );
@@ -147,17 +140,17 @@ void DSSTThirdBody::initializeStep( const AuxiliaryElements auxiliaryElements )
     meanMotion = auxiliaryElements.n;
 
     //\Chi^{-2}
-    BB = B * B;
+    B2 = B * B;
     //\Chi^{-3}
-    BBB = BB * B;
+    B3 = B * B2;
 
     //b = 1 / (1 + B)
     b = 1.0 / (1.0 + B);
 
     // \Chi
-    X = 1.0 / B;
-    XX = X * X;
-    XXX = X * XX;
+    Chi = 1.0 / B;
+    Chi2 = Chi * Chi;
+    Chi3 = Chi * Chi2;
     // -2 * a / A
     m2aoA = -2.0 * a / A;
     // B / A
@@ -173,33 +166,30 @@ void DSSTThirdBody::initializeStep( const AuxiliaryElements auxiliaryElements )
     muoR3 = gm / R3;
 
     //h * \Chi³
-    hXXX = h * XXX;
+    hChi3 = h * Chi3;
     //k * \Chi³
-    kXXX = k * XXX;
+    kChi3 = k * Chi3;
 }
 
 
 
-v_double DSSTThirdBody::getMeanElementRates( )
+Eigen::Vector6d DSSTThirdBody::getMeanElementRates( )
 {
-    // Qns coefficients
-    Qns = CoefficientsFactory().computeQns( gamma, maxAR3Pow, maxEccPow );
-
     // a / R3 up to power maxAR3Pow
     const double aoR3 = a / R3;
     aoR3Pow[ 0 ] = 1.0;
-    for ( int i = 1; i <= maxAR3Pow; i++ ) {
+    for ( unsigned int i = 1; i <= maxAR3Pow; i++ ) {
         aoR3Pow[ i ] = aoR3 * aoR3Pow[ i - 1 ];
     }
 
     // Compute potential U derivatives
-    const v_double dU  = computeUDerivatives();
-    const double dUda  = dU[0];
-    const double dUdk  = dU[1];
-    const double dUdh  = dU[2];
-    const double dUdAl = dU[3];
-    const double dUdBe = dU[4];
-    const double dUdGa = dU[5];
+    const Eigen::Vector6d dU = computeUDerivatives();
+    const double dUda  = dU( 0 );
+    const double dUdk  = dU( 1 );
+    const double dUdh  = dU( 2 );
+    const double dUdAl = dU( 3 );
+    const double dUdBe = dU( 4 );
+    const double dUdGa = dU( 5 );
 
     // Compute cross derivatives [Eq. 2.2-(8)]
     // U(alpha,gamma) = alpha * dU/dgamma - gamma * dU/dalpha
@@ -210,85 +200,83 @@ v_double DSSTThirdBody::getMeanElementRates( )
     const double pUAGmIqUBGoAB = ( p * UAlphaGamma - I * q * UBetaGamma ) * ooAB;
 
     // Compute mean elements rates [Eq. 3.1-(1)]
-    v_double meanElementRates;
-    meanElementRates = { 0.0,                                                               // da
-                         BoA * dUdk + k * pUAGmIqUBGoAB,                                    // dk
-                         -BoA * dUdh - h * pUAGmIqUBGoAB,                                    // dh
-                         mCo2AB * UBetaGamma,                                               // dq
-                         mCo2AB * UAlphaGamma * I,                                          // dp
-                         m2aoA * dUda + BoABpo * ( h * dUdh + k * dUdk ) + pUAGmIqUBGoAB }; // dlambda
+    Eigen::Vector6d meanElementRates;
+    meanElementRates << 0.0,                                                                // da / dt
+                        BoA * dUdk + k * pUAGmIqUBGoAB,                                     // dh / dt
+                        -BoA * dUdh - h * pUAGmIqUBGoAB,                                    // dk / dt
+                        mCo2AB * UBetaGamma,                                                // dp / dt
+                        mCo2AB * UAlphaGamma * I,                                           // dq / dt
+                        m2aoA * dUda + BoABpo * ( h * dUdh + k * dUdk ) + pUAGmIqUBGoAB;    // d\lambda / dt
     return meanElementRates;
 }
 
 
-v_double DSSTThirdBody::computeUDerivatives()
+Eigen::Vector6d DSSTThirdBody::computeUDerivatives()
 {
-    // Gs and Hs coefficients
-    Eigen::Matrix2Xd GsHs = CoefficientsFactory().computeGsHs( k, h, alpha, beta, maxEccPow );
+    using namespace coefficients_factories;
 
-    // Gs partial derivatives
-    std::map< std::string, Eigen::VectorXd > dGs =
-            CoefficientsFactory().computeGsDerivatives( k, h, alpha, beta, maxEccPow );
-
-    // Initialise U.
+    // Initialise mean potential function
     U = 0.0;
 
     // Potential derivatives
-    double dUda  = 0.0;
-    double dUdk  = 0.0;
-    double dUdh  = 0.0;
-    double dUdAl = 0.0;
-    double dUdBe = 0.0;
-    double dUdGa = 0.0;
+    Eigen::Vector6d dU;
 
-    // Get kernels of Hansen coefficients and their derivatives
-    const NSSetPair K0nsAndDerivatives = CoefficientsFactory().computeK0nsAndDerivatives( X, maxAR3Pow, maxEccPow );
-    const vv_double K0ns  = K0nsAndDerivatives.first;
-    const vv_double dK0ns = K0nsAndDerivatives.second;
+    // Vns coefficients
+    VnsFactory.setOrder( maxAR3Pow );
+    VnsFactory.setSuborder( maxEccPow );
+    DoubleVectord Vns = VnsFactory.getCoefficients();
 
-    for ( int s = 0; s <= maxEccPow; s++ ) {
+    // K0ns coefficients and derivatives with respect to \Chi
+    K0nsCoefficientsFactory K0nsFactory( Chi, maxAR3Pow, maxEccPow );
+    DoubleVectord K0ns = K0nsFactory.getCoefficients();
+    DoubleVectord dK0ns = K0nsFactory.getDerivatives();
+
+    // Qns coefficients and derivatives with respect to \gamma
+    QnsFactory.setSuborder( maxEccPow );
+    DoubleVectord Qns = QnsFactory.getCoefficients();
+    DoubleVectord dQns = QnsFactory.getDerivatives();
+
+    // Gs coefficients and partial derivatives with respect to h, k, \alpha and \beta
+    GsHsCoefficientsFactory GsFactory( h, k, alpha, beta, maxEccPow );
+    SingleVectord Gs        = GsFactory.getGsCoefficients();
+    SingleVectord Hs        = GsFactory.getHsCoefficients();
+    SingleVectord dGsdh     = GsFactory.getGsHDerivatives();
+    SingleVectord dGsdk     = GsFactory.getGsKDerivatives();
+    SingleVectord dGsdalpha = GsFactory.getGsAlphaDerivatives();
+    SingleVectord dGsdbeta  = GsFactory.getGsBetaDerivatives();
+
+    for ( unsigned int s = 0; s <= maxEccPow; s++ ) {
         // Get the current Gs coefficient
-        const double gs = GsHs( 0, s );
+        const double G = Gs( s );
 
-        // Compute Gs partial derivatives
-        double dGsdh  = dGs[ "h" ]( s );
-        double dGsdk  = dGs[ "k" ]( s );
-        double dGsdAl = dGs[ "alpha" ]( s );
-        double dGsdBe = dGs[ "beta" ]( s );
-
-        // Kronecker symbol (2 - delta(0,s))
+        // Kronecker symbol ( 2 - delta_{0,s} )
         const double delta0s = ( s == 0 ) ? 1.0 : 2.0;
 
-        for ( int n = std::max( 2, s ); n <= maxAR3Pow; n++ ) {
-            // (n - s) must be even
-            if ( (n - s) % 2 == 0 ) {
-                // Extract data from previous computation :
-                const double kns   = K0ns[n][s];
-                const double dkns  = dK0ns[n][s];
+        for ( unsigned int n = std::max( 2, (int) s ); n <= maxAR3Pow; n++ ) {
+            // Vns is zero for odd ( n - s ), thus only consider when ( n - s ) is even
+            if ( ( n - s ) % 2 == 0 ) {
+                // Coefficients for current n and s
+                const double K0  =  K0ns( n, s );
+                const double dK0 = dK0ns( n, s );
+                const double V   = Vns( n, s );
 
-                const double vns   = Vns[ NSKey(n, s) ];
-                const double coef0 = delta0s * aoR3Pow[n] * vns;
-                const double coef1 = coef0 * Qns[n][s];
-                const double coef2 = coef1 * kns;
-                // dQns/dGamma = Q(n, s + 1) from Equation 3.1-(8)
-                // for n = s, Q(n, n + 1) = 0. (Cefola & Broucke, 1975)
-                const double dqns = ( n == s ) ? 0. : Qns[n][s + 1];
+                // Other terms
+                const double coef0 = delta0s * aoR3Pow[n] * V;
+                const double coef1 = coef0 * Qns( n, s );
+                const double coef2 = coef1 * K0;
 
                 //Compute U:
-                U += coef2 * gs;
+                U += coef2 * G;
 
-                // Compute dU / da :
-                dUda += coef2 * n * gs;
-                // Compute dU / dh
-                dUdh += coef1 * (kns * dGsdh + hXXX * gs * dkns);
-                // Compute dU / dk
-                dUdk += coef1 * (kns * dGsdk + kXXX * gs * dkns);
-                // Compute dU / dAlpha
-                dUdAl += coef2 * dGsdAl;
-                // Compute dU / dBeta
-                dUdBe += coef2 * dGsdBe;
-                // Compute dU / dGamma
-                dUdGa += coef0 * kns * dqns * gs;
+                Eigen::Vector6d dUterm;
+                dUterm << coef2 * n * G,                                    // dU / da
+                          coef1 * ( K0 * dGsdh( s ) + hChi3 * G * dK0 ),    // dU / dh
+                          coef1 * ( K0 * dGsdk( s ) + kChi3 * G * dK0 ),    // dU / dk
+                          coef2 * dGsdalpha( s ),                           // dU / dalpha
+                          coef2 * dGsdbeta( s ),                            // dU / dbeta
+                          coef0 * K0 * dQns( n, s ) * G;                    // dU / dgamma
+
+                dU += dUterm;
             }
         }
     }
@@ -297,13 +285,9 @@ v_double DSSTThirdBody::computeUDerivatives()
     U *= muoR3;
 
     // Return U derivatives
-    v_double UDerivatives = { dUda  * muoR3 / a,
-                             dUdk  * muoR3,
-                             dUdh  * muoR3,
-                             dUdAl * muoR3,
-                             dUdBe * muoR3,
-                             dUdGa * muoR3 };
-    return UDerivatives;
+    dU *= muoR3;
+    dU( 0 ) /= a;
+    return dU;
 }
 
 
@@ -317,13 +301,15 @@ void DSSTThirdBody::updateShortPeriodTerms( std::vector< SpacecraftState > meanS
 
         // a / R3 up to power maxAR3Pow
         const double aoR3 = a / R3;
-        aoR3Pow[0] = 1.;
-        for (int i = 1; i <= maxAR3Pow; i++) {
+        aoR3Pow[0] = 1.0;
+        for ( unsigned int i = 1; i <= maxAR3Pow; i++ ) {
             aoR3Pow[i] = aoR3 * aoR3Pow[i - 1];
         }
 
         // Qns coefficients
-        Qns = CoefficientsFactory().computeQns(gamma, maxAR3Pow, std::max(maxEccPow, maxEccPowShort));
+        QnsFactory.setSuborder( std::max( maxEccPow, maxEccPowShort ) );
+        DoubleVectord Qns = QnsFactory.getCoefficients();
+
         const GeneratingFunctionCoefficients gfCoefs =
                 GeneratingFunctionCoefficients(*this, maxAR3Pow, MAX_ECCPOWER_SP, maxAR3Pow + 1);
 
@@ -344,7 +330,7 @@ void DSSTThirdBody::updateShortPeriodTerms( std::vector< SpacecraftState > meanS
         //Compute the C<sub>i</sub><sup>j</sup> and S<sub>i</sub><sup>j</sup> coefficients.
         for (unsigned int j = 1; j < slot.cij.size(); j++) {
             // First compute the C<sub>i</sub><sup>j</sup> coefficients
-            v_double currentCij(6);
+            SingleVectord currentCij(6);
 
             // Compute the cross derivatives operator :
             const double SAlphaGammaCj   = alpha * gfCoefs.getdSdgammaCj(j) - gamma * gfCoefs.getdSdalphaCj(j);
@@ -365,7 +351,7 @@ void DSSTThirdBody::updateShortPeriodTerms( std::vector< SpacecraftState > meanS
             slot.cij[j].addGridPoint(meanState.getDate(), currentCij);
 
             // Compute the S<sub>i</sub><sup>j</sup> coefficients
-            v_double currentSij(6);
+            SingleVectord currentSij(6);
 
             // Compute the cross derivatives operator :
             const double SAlphaGammaSj   = alpha * gfCoefs.getdSdgammaSj(j) - gamma * gfCoefs.getdSdalphaSj(j);
@@ -387,7 +373,7 @@ void DSSTThirdBody::updateShortPeriodTerms( std::vector< SpacecraftState > meanS
 
             if (j == 1) {
                 //Compute the C⁰ coefficients using Danielson 2.5.2-15a.
-                v_double value(6);
+                SingleVectord value(6);
                 for (int i = 0; i < 6; ++i) {
                     value[i] = currentCij[i] * k / 2. + currentSij[i] * h / 2.;
                 }
@@ -405,8 +391,8 @@ void DSSTThirdBody::updateShortPeriodTerms( std::vector< SpacecraftState > meanS
 DSSTThirdBody::FourierCjSjCoefficients::FourierCjSjCoefficients(
         DSSTThirdBody &owner, const int nMax, const int sMax, const int jMax ) :
     owner(&owner), gns(GnsCoefficients(owner, nMax, sMax)), wnsjEtomjmsCoefficient(WnsjEtomjmsCoefficient(owner)),
-    ABDECoefficients(CjSjAlphaBetaKH(owner)), cj(new_vv_double(7, jMax + 1)), sj(new_vv_double(7, jMax + 1)),
-    cjlambda(new_v_double(jMax)), sjlambda(new_v_double(jMax)), nMax(nMax), sMax(sMax), jMax(jMax)
+    ABDECoefficients(CjSjAlphaBetaKH(owner)), cj(DoubleVectord(7, jMax + 1)), sj(DoubleVectord(7, jMax + 1)),
+    cjlambda(SingleVectord(jMax)), sjlambda(SingleVectord(jMax)), nMax(nMax), sMax(sMax), jMax(jMax)
 {
     computeCoefficients();
 }
@@ -437,12 +423,12 @@ void DSSTThirdBody::FourierCjSjCoefficients::computeCoefficients()
                 if ((n - s) % 2 == 0) {
                     // compute the coefficient e<sup>-|j-s|</sup>*w<sub>j</sub><sup>n+1, s</sup>
                     // and its derivatives
-                    const v_double wjnp1semjms =
+                    const SingleVectord wjnp1semjms =
                             wnsjEtomjmsCoefficient.computeWjnsEmjmsAndDeriv(j, s, n + 1);
 
                     // compute the coefficient e<sup>-|j-s|</sup>*w<sub>-j</sub><sup>n+1, s</sup>
                     // and its derivatives
-                    const v_double wmjnp1semjms =
+                    const SingleVectord wmjnp1semjms =
                             wnsjEtomjmsCoefficient.computeWjnsEmjmsAndDeriv(-j, s, n + 1);
 
                     // compute common factors
@@ -517,11 +503,11 @@ void DSSTThirdBody::FourierCjSjCoefficients::computeCoefficients()
                     if (n >= j && j < jMax) {
                         // compute the coefficient e<sup>-|j-s|</sup>*w<sub>j</sub><sup>n, s</sup>
                         // and its derivatives
-                        const v_double wjnsemjms = wnsjEtomjmsCoefficient.computeWjnsEmjmsAndDeriv(j, s, n);
+                        const SingleVectord wjnsemjms = wnsjEtomjmsCoefficient.computeWjnsEmjmsAndDeriv(j, s, n);
 
                         // compute the coefficient e<sup>-|j-s|</sup>*w<sub>-j</sub><sup>n, s</sup>
                         // and its derivatives
-                        const v_double wmjnsemjms = wnsjEtomjmsCoefficient.computeWjnsEmjmsAndDeriv(-j, s, n);
+                        const SingleVectord wmjnsemjms = wnsjEtomjmsCoefficient.computeWjnsEmjmsAndDeriv(-j, s, n);
 
                         //Compute C<sup>j</sup><sub>,λ</sub>
                         cjlambda[j] += gns.getGns(n, s) * (wjnsemjms[0] * ABDECoefficients.getCoefD() +
@@ -559,7 +545,7 @@ DSSTThirdBody::WnsjEtomjmsCoefficient::WnsjEtomjmsCoefficient( DSSTThirdBody &ow
     c2 = c * c;
 
     //b² * χ
-    const double b2Chi = owner.b * owner.b * owner.X;
+    const double b2Chi = owner.b * owner.b * owner.Chi;
     //Compute derivatives of b
     dbdh = owner.h * b2Chi;
     dbdk = owner.k * b2Chi;
@@ -573,28 +559,28 @@ DSSTThirdBody::WnsjEtomjmsCoefficient::WnsjEtomjmsCoefficient( DSSTThirdBody &ow
     dcdk = owner.ecc * dbdk + owner.b * dedk;
 
     //Compute the powers (1 - c²)<sup>n</sup> and (1 + c²)<sup>n</sup>
-    omc2tn = new_v_double(owner.maxAR3Pow + owner.maxFreqF + 2);
-    opc2tn = new_v_double(owner.maxAR3Pow + owner.maxFreqF + 2);
+    omc2tn = SingleVectord(owner.maxAR3Pow + owner.maxFreqF + 2);
+    opc2tn = SingleVectord(owner.maxAR3Pow + owner.maxFreqF + 2);
     const double omc2 = 1. - c2;
     const double opc2 = 1. + c2;
     omc2tn[0] = 1.;
     opc2tn[0] = 1.;
-    for (int i = 1; i <= owner.maxAR3Pow + owner.maxFreqF + 1; i++) {
+    for ( unsigned int i = 1; i <= owner.maxAR3Pow + owner.maxFreqF + 1; i++ ) {
         omc2tn[i] = omc2tn[i - 1] * omc2;
         opc2tn[i] = opc2tn[i - 1] * opc2;
     }
 
     //Compute the powers of b
-    btjms = new_v_double(owner.maxAR3Pow + owner.maxFreqF + 1);
+    btjms = SingleVectord(owner.maxAR3Pow + owner.maxFreqF + 1);
     btjms[0] = 1.;
-    for (int i = 1; i <= owner.maxAR3Pow + owner.maxFreqF; i++) {
+    for ( unsigned int i = 1; i <= owner.maxAR3Pow + owner.maxFreqF; i++ ) {
         btjms[i] = btjms[i - 1] * owner.b;
     }
 }
 
-v_double DSSTThirdBody::WnsjEtomjmsCoefficient::computeWjnsEmjmsAndDeriv( const int j, const int s, const int n )
+SingleVectord DSSTThirdBody::WnsjEtomjmsCoefficient::computeWjnsEmjmsAndDeriv( const int j, const int s, const int n )
 {
-    v_double wjnsemjms = {0., 0., 0.};
+    SingleVectord wjnsemjms = {0., 0., 0.};
 
     // |j|
     const int absJ = std::abs(j);
@@ -625,7 +611,7 @@ v_double DSSTThirdBody::WnsjEtomjmsCoefficient::computeWjnsEmjmsAndDeriv( const 
     const double coef2 = sign * btjms[absJmS];
     // P<sub>l</sub><sup>|j-s|, |j+s|</sup>(χ)
     const DerivativeStructure jac =
-            JacobiPolynomials::getValue(l, absJmS, absJpS, DerivativeStructure(1, 1, 0, owner->X));
+            JacobiPolynomials::getValue(l, absJmS, absJpS, DerivativeStructure(1, 1, 0, owner->Chi));
 
     // the derivative of coef1 by c
     const double dcoef1dc = -coef1 * 2. * c * (((double) n) / opc2tn[1] + ((double) l) / omc2tn[1]);
@@ -644,9 +630,9 @@ v_double DSSTThirdBody::WnsjEtomjmsCoefficient::computeWjnsEmjmsAndDeriv( const 
     // the jacobi polinomial value
     const double jacobi = jac.getValue();
     // the derivative of the Jacobi polynomial by h
-    const double djacobidh = jac.getPartialDerivative({1}) * owner->hXXX;
+    const double djacobidh = jac.getPartialDerivative({1}) * owner->hChi3;
     // the derivative of the Jacobi polynomial by k
-    const double djacobidk = jac.getPartialDerivative({1}) * owner->kXXX;
+    const double djacobidk = jac.getPartialDerivative({1}) * owner->kChi3;
 
     //group the above coefficients to limit the mathematical operations
     const double term1 = factCoef * coef1 * coef2;
@@ -676,9 +662,9 @@ DSSTThirdBody::GnsCoefficients::GnsCoefficients(DSSTThirdBody &owner, const int 
 
     const int rows    = nMax + 1;
     const int columns = sMax + 1;
-    this->gns          = new_vv_double(rows,columns);
-    this->dgnsda       = new_vv_double(rows,columns);
-    this->dgnsdgamma   = new_vv_double(rows,columns);
+    this->gns          = DoubleVectord(rows,columns);
+    this->dgnsda       = DoubleVectord(rows,columns);
+    this->dgnsdgamma   = DoubleVectord(rows,columns);
 
     // Generate the coefficients
     generateCoefficients();
@@ -687,6 +673,7 @@ DSSTThirdBody::GnsCoefficients::GnsCoefficients(DSSTThirdBody &owner, const int 
 
 void DSSTThirdBody::GnsCoefficients::generateCoefficients()
 {
+    /*
     for (int s = 0; s <= sMax; s++) {
         // The n index is always at least the maximum between 2 and s
         const int minN = std::max(2, s);
@@ -697,10 +684,10 @@ void DSSTThirdBody::GnsCoefficients::generateCoefficients()
                 const double delta0s = (s == 0) ? 1. : 2.;
                 const double vns   = owner->Vns[ NSKey(n, s) ];
                 const double coef0 = delta0s * owner->aoR3Pow[n] * vns * owner->muoR3;
-                const double coef1 = coef0 * owner->Qns[n][s];
+                const double coef1 = coef0 * owner->Qns( n, s );
                 // dQns/dGamma = Q(n, s + 1) from Equation 3.1-(8)
                 // for n = s, Q(n, n + 1) = 0. (Cefola & Broucke, 1975)
-                const double dqns = (n == s) ? 0. : owner->Qns[n][s + 1];
+                const double dqns = (n == s) ? 0. : owner->Qns( n, s + 1 );
 
                 //Compute the coefficient and its derivatives.
                 this->gns[n][s] = coef1;
@@ -714,6 +701,7 @@ void DSSTThirdBody::GnsCoefficients::generateCoefficients()
             }
         }
     }
+    */
 }
 
 
@@ -771,7 +759,7 @@ void DSSTThirdBody::CjSjAlphaBetaKH::computeCoefficients(const int j, const int 
 DSSTThirdBody::GeneratingFunctionCoefficients::GeneratingFunctionCoefficients(
         DSSTThirdBody &owner, const int nMax, const int sMax, const int jMax) :
     owner(&owner), jMax(jMax), cjsjFourier(FourierCjSjCoefficients(owner, nMax, sMax, jMax)),
-    cjCoefs(new_vv_double(8,jMax + 1)), sjCoefs(new_vv_double(8,jMax + 1))
+    cjCoefs(DoubleVectord(8,jMax + 1)), sjCoefs(DoubleVectord(8,jMax + 1))
 {
      computeGeneratingFunctionCoefficients();
 }
@@ -779,7 +767,7 @@ DSSTThirdBody::GeneratingFunctionCoefficients::GeneratingFunctionCoefficients(
 void DSSTThirdBody::GeneratingFunctionCoefficients::computeGeneratingFunctionCoefficients()
 {
     // Compute potential U and derivatives
-    const v_double dU  = owner->computeUDerivatives();
+    const Eigen::Vector6d dU  = owner->computeUDerivatives();
 
     //Compute the C<sup>j</sup> coefficients
     for (int j = 1; j <= jMax; j++) {
@@ -807,21 +795,21 @@ void DSSTThirdBody::GeneratingFunctionCoefficients::computeGeneratingFunctionCoe
         if (j == 1) {
             //Additional terms for C<sup>j</sup> coefficients
             cjCoefs[0][j] += - owner->h * owner->U;
-            cjCoefs[1][j] += - owner->h * dU[0];
-            cjCoefs[2][j] += - owner->h * dU[1];
-            cjCoefs[3][j] += -(owner->h * dU[2] + owner->U + cjsjFourier.getC0Lambda());
-            cjCoefs[4][j] += - owner->h * dU[3];
-            cjCoefs[5][j] += - owner->h * dU[4];
-            cjCoefs[6][j] += - owner->h * dU[5];
+            cjCoefs[1][j] += - owner->h * dU( 0 );
+            cjCoefs[2][j] += - owner->h * dU( 1 );
+            cjCoefs[3][j] += -(owner->h * dU( 2 ) + owner->U + cjsjFourier.getC0Lambda());
+            cjCoefs[4][j] += - owner->h * dU( 3 );
+            cjCoefs[5][j] += - owner->h * dU( 4 );
+            cjCoefs[6][j] += - owner->h * dU( 5 );
 
             //Additional terms for S<sup>j</sup> coefficients
             sjCoefs[0][j] += owner->k * owner->U;
-            sjCoefs[1][j] += owner->k * dU[0];
-            sjCoefs[2][j] += owner->k * dU[1] + owner->U + cjsjFourier.getC0Lambda();
-            sjCoefs[3][j] += owner->k * dU[2];
-            sjCoefs[4][j] += owner->k * dU[3];
-            sjCoefs[5][j] += owner->k * dU[4];
-            sjCoefs[6][j] += owner->k * dU[5];
+            sjCoefs[1][j] += owner->k * dU( 0 );
+            sjCoefs[2][j] += owner->k * dU( 1 ) + owner->U + cjsjFourier.getC0Lambda();
+            sjCoefs[3][j] += owner->k * dU( 2 );
+            sjCoefs[4][j] += owner->k * dU( 3 );
+            sjCoefs[5][j] += owner->k * dU( 4 );
+            sjCoefs[6][j] += owner->k * dU( 5 );
         }
     }
 }
@@ -855,7 +843,7 @@ DSSTThirdBody::Slot DSSTThirdBody::ThirdBodyShortPeriodicCoefficients::createSlo
 }
 
 
-v_double DSSTThirdBody::ThirdBodyShortPeriodicCoefficients::value(const SpacecraftState spacecraftState)
+SingleVectord DSSTThirdBody::ThirdBodyShortPeriodicCoefficients::value(const SpacecraftState spacecraftState)
 {
     // select the coefficients slot
     Slot slot = slotz.get(spacecraftState.getDate());
@@ -864,7 +852,7 @@ v_double DSSTThirdBody::ThirdBodyShortPeriodicCoefficients::value(const Spacecra
     const double F = orbital_element_conversions::getEccentricLongitude( spacecraftState.equinoctialComponents );
 
     //initialize the short periodic contribution with the corresponding C⁰ coeficient
-    v_double shortPeriodic = slot.cij[0].value(spacecraftState.getDate());
+    SingleVectord shortPeriodic = slot.cij[0].value(spacecraftState.getDate());
 
     // Add the cos and sin dependent terms
     for (int j = 1; j <= maxFreqF; j++) {
@@ -872,8 +860,8 @@ v_double DSSTThirdBody::ThirdBodyShortPeriodicCoefficients::value(const Spacecra
         const double cosjF = std::cos(j * F);
         const double sinjF = std::sin(j * F);
 
-        const v_double c = slot.cij[j].value(spacecraftState.getDate());
-        const v_double s = slot.sij[j].value(spacecraftState.getDate());
+        const SingleVectord c = slot.cij[j].value(spacecraftState.getDate());
+        const SingleVectord s = slot.sij[j].value(spacecraftState.getDate());
         for (int i = 0; i < 6; i++) {
             shortPeriodic[i] += c[i] * cosjF + s[i] * sinjF;
         }
@@ -882,13 +870,13 @@ v_double DSSTThirdBody::ThirdBodyShortPeriodicCoefficients::value(const Spacecra
     return shortPeriodic;
 }
 
-std::map<std::string, v_double> DSSTThirdBody::ThirdBodyShortPeriodicCoefficients::getCoefficients(
+std::map<std::string, SingleVectord> DSSTThirdBody::ThirdBodyShortPeriodicCoefficients::getCoefficients(
         const AbsoluteDate date, const std::set<std::string> selected )
 {
     // select the coefficients slot
     Slot slot = slotz.get(date);
 
-    std::map<std::string, v_double> coefficients; // FIXME (2 * maxFreqF + 1)
+    std::map<std::string, SingleVectord> coefficients; // FIXME (2 * maxFreqF + 1)
     storeIfSelected(coefficients, selected, slot.cij[0].value(date), "c", {0});
     for (int j = 1; j <= maxFreqF; j++) {
         storeIfSelected(coefficients, selected, slot.cij[j].value(date), "c", {j});
@@ -899,8 +887,8 @@ std::map<std::string, v_double> DSSTThirdBody::ThirdBodyShortPeriodicCoefficient
 
 
 void DSSTThirdBody::ThirdBodyShortPeriodicCoefficients::storeIfSelected(
-        std::map<std::string, v_double> &map, const std::set<std::string> selected,
-        const v_double value, const std::string id, const std::vector<int> indices )
+        std::map<std::string, SingleVectord> &map, const std::set<std::string> selected,
+        const SingleVectord value, const std::string id, const std::vector<int> indices )
 {
     std::stringstream keyBuilder;
     keyBuilder << getCoefficientsKeyPrefix() << id;

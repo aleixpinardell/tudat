@@ -28,21 +28,21 @@ namespace upper_bounds
 double getDnl( const double xx, const double xpl, const int n, const int l ) {
     const int lp2 = l + 2;
     if ( n > lp2 ) {
-	const int ll = l * l;
-	double dM = xpl;
-	double dL = dM;
-	double dB = ( l + 1 ) * xx * xpl;
-	for ( int j = l + 3; j <= n; j++ ) {
-	    const int jm1 = j - 1;
-	    dL = dM;
-	    dM = dB;
-	    dB = jm1 * xx * ( ( 2 * j - 3 ) * dM - ( j - 2 ) * dL) / ( jm1 * jm1 - ll );
-	}
-	return dB;
+        const int ll = l * l;
+        double dM = xpl;
+        double dL = dM;
+        double dB = ( l + 1 ) * xx * xpl;
+        for ( int j = l + 3; j <= n; j++ ) {
+            const int jm1 = j - 1;
+            dL = dM;
+            dM = dB;
+            dB = jm1 * xx * ( ( 2 * j - 3 ) * dM - ( j - 2 ) * dL) / ( jm1 * jm1 - ll );
+        }
+        return dB;
     } else if ( n == lp2 ) {
-	return  ( l + 1 ) * xx * xpl;
+        return  ( l + 1 ) * xx * xpl;
     } else {
-	return xpl;
+        return xpl;
     }
 }
 
@@ -62,40 +62,40 @@ double getRnml(const double gamma, const int n, const int l, const int m, const 
 
     // If index > 0
     if ( n > l ) {
-	const int lp1 = l + 1;
+        const int lp1 = l + 1;
 
-	double dpnml  = lp1 * eps;
-	double pnml   = dpnml * gamma - m;
+        double dpnml  = lp1 * eps;
+        double pnml   = dpnml * gamma - m;
 
-	// If index > 1
-	if ( n > l + 1 ) {
-	    const int ll  = l * l;
-	    const int ml  = m * l;
-	    const int mm  = m * m;
+        // If index > 1
+        if ( n > l + 1 ) {
+            const int ll  = l * l;
+            const int ml  = m * l;
+            const int mm  = m * m;
 
-	    double pn1ml  = 1.;
-	    double dpn1ml = 0.;
-	    double pn2ml  = 1.;
-	    double dpn2ml = 0.;
-	    for ( int in = l + 2; in <= n; in++ ) {
-		const int nm1   = in - 1;
-		const int tnm1  = in + nm1;
-		const int nnlnl = nm1 * (in * in - ll);
-		const int nnmnm = in * (nm1 * nm1 - mm);
-		const int c2nne = tnm1 * in * nm1 * eps;
-		const int c2nml = tnm1 * ml;
-		const double coef = c2nne * gamma - c2nml;
+            double pn1ml  = 1.;
+            double dpn1ml = 0.;
+            double pn2ml  = 1.;
+            double dpn2ml = 0.;
+            for ( int in = l + 2; in <= n; in++ ) {
+                const int nm1   = in - 1;
+                const int tnm1  = in + nm1;
+                const int nnlnl = nm1 * (in * in - ll);
+                const int nnmnm = in * (nm1 * nm1 - mm);
+                const int c2nne = tnm1 * in * nm1 * eps;
+                const int c2nml = tnm1 * ml;
+                const double coef = c2nne * gamma - c2nml;
 
-		pn2ml  = pn1ml;
-		dpn2ml = dpn1ml;
-		pn1ml  = pnml;
-		dpn1ml = dpnml;
-		pnml   = (coef * pn1ml  - nnmnm * pn2ml) / nnlnl;
-		dpnml  = (coef * dpn1ml - nnmnm * dpn2ml + c2nne * pn1ml) / nnlnl;
-	    }
-	}
-	// Bound for index > 0
-	rBound *= std::sqrt( pnml * pnml + dpnml * dpnml * sinisq / ((n - l) * (n + lp1)) );
+                pn2ml  = pn1ml;
+                dpn2ml = dpn1ml;
+                pn1ml  = pnml;
+                dpn1ml = dpnml;
+                pnml   = (coef * pn1ml  - nnmnm * pn2ml) / nnlnl;
+                dpnml  = (coef * dpn1ml - nnmnm * dpn2ml + c2nne * pn1ml) / nnlnl;
+            }
+        }
+        // Bound for index > 0
+        rBound *= std::sqrt( pnml * pnml + dpnml * dpnml * sinisq / ((n - l) * (n + lp1)) );
     }
 
     return rBound;

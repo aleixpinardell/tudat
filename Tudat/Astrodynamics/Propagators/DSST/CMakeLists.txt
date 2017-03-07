@@ -18,9 +18,16 @@
 set(DSST_PROPAGATOR_SOURCES
     "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/auxiliaryElements.cpp"
     "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/coefficientsFactory.cpp"
-    "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/jacobiPolynomials.cpp"
+#    "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/jacobiPolynomials.cpp"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/osculatingToMean.cpp"
     "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/upperBounds.cpp"
-    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/thirdBody.cpp"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/abstract/centralBodyPertubed.cpp"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/abstract/thirdBodyPertubed.cpp"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/abstract/conservative.cpp"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/abstract/sphericHarmoicGravity.cpp"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/abstract/conservativeThirdBodyPertubed.cpp"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/zonalSphericHarmoicGravity.cpp"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/thirdBodyCentralGravity.cpp"
 )
 
 # Add header files.
@@ -33,17 +40,25 @@ set(DSST_PROPAGATOR_HEADERS
     "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/derivativeStructure.h"
     "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/DSCompiler.h"
     "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/hermiteInterpolator.h"
-    "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/jacobiPolynomials.h"
+#    "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/jacobiPolynomials.h"
     "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/orbit.h"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/osculatingToMean.h"
     "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/polynomialFunction.h"
-    "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/polynomialUtil.h"
+#    "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/polynomialUtil.h"
     "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/shortPeriodicsInterpolatedCoefficient.h"
     "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/shortPeriodTerms.h"
     "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/spacecraftState.h"
     "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/timeSpanMap.h"
     "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/upperBounds.h"
-    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/forceModel.h"
-    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/thirdBody.h"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/abstract/forceModel.h"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/abstract/centralBodyPertubed.h"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/abstract/thirdBodyPertubed.h"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/abstract/conservative.h"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/abstract/sphericHarmoicGravity.h"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/abstract/conservativeThirdBodyPertubed.h"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/zonalSphericHarmoicGravity.h"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/thirdBodyCentralGravity.h"
+    "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/forceModelTypes.h"
 )
 
 # Add static libraries.
@@ -57,7 +72,7 @@ macro(setup_executable_target target_name CUSTOM_OUTPUT_PATH)
   install(TARGETS ${target_name} RUNTIME DESTINATION "${BINROOT}/applications")
 endmacro(setup_executable_target)
 
-add_executable(test_DSST "${SRCROOT}${PROPAGATORSDIR}/DSST/unitTestDSST.cpp")
+add_executable(test_DSST "${SRCROOT}${PROPAGATORSDIR}/DSST/unitTests/unitTestDSST.cpp")
 setup_executable_target(test_DSST "${SRCROOT}")
 target_link_libraries(test_DSST dsst_propagator tudat_propagators tudat_basic_astrodynamics tudat_basic_mathematics ${Boost_LIBRARIES} )
 

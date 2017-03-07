@@ -20,24 +20,37 @@ namespace propagators
 namespace dsst
 {
 
+
 class DSSTThirdBody : public DSSTForceModel
 {
+private:
+    Body & thirdBody;
+
 public:
     //! Constructor.
     /** Simple constructor.
      * \param gravitationalParameter Gravitational parameter of the third body [m^3/s^2].
      * \param distance Distance to the thrid body [m]
      */
-    DSSTThirdBody( const std::string bodyName, const Vector3 bodyPosition,
-                   const double gravitationalParameter /*, const double distance*/ );
+    DSSTThirdBody( const Body &thirdBody, AuxiliaryElements &auxiliaryElements );
 
     std::vector< ShortPeriodTerms > initialize( AuxiliaryElements auxiliaryElements , const bool meanOnly );
 
-    void initializeStep( const AuxiliaryElements auxiliaryElements );
+    void update( AuxiliaryElements &auxiliaryElements );
 
-    v_double getMeanElementRates( );
+    Eigen::Vector6d getMeanElementRates( );
 
-    v_double computeUDerivatives( );
+    Eigen::Vector6d computeUDerivatives( );
+
+    //! Get the position of the third body with respect to the central body [ m, m, m ]
+    Eigen::Vector3d getPositionFromCentralBody() const {
+        return thirdBody.getPosition() - auxiliaryElements.centralBody.getPosition();
+    }
+
+    //! Get the distance between the third body and the central body [ m ]
+    double getDistanceFromCentralBody() const {
+        return getPositionFromCentralBody().norm();
+    }
 
 
 private:
@@ -68,7 +81,7 @@ private:
     std::string bodyName;
 
     //! Position of the third body
-    Vector3 bodyPosition;
+    Eigen::Vector3d bodyPosition;
 
     //! Standard gravitational parameter μ for the body in m³/s²
     double gm;
@@ -76,20 +89,17 @@ private:
     //! Distance from center of mass of the central body to the 3rd body
     double R3;
 
-    //! V_ns coefficients
-    NSMap Vns;
-
     // Equinoctial elements (according to DSST notation)
     //! a
     double a;
-    //! e_x
-    double k;
     //! e_y
     double h;
-    //! h_x
-    double q;
+    //! e_x
+    double k;
     //! h_y
     double p;
+    //! h_x
+    double q;
 
     //! Eccentricity
     double ecc;
@@ -110,19 +120,19 @@ private:
     //! C = 1 + p² + q²
     double C;
     //! B²
-    double BB;
+    double B2;
     //! B³
-    double BBB;
+    double B3;
 
     //! The mean motion (n)
     double meanMotion;
 
     //! \Chi = 1 / sqrt(1 - e²) = 1 / B
-    double X;
+    double Chi;
     //! \Chi²
-    double XX;
+    double Chi2;
     //! \Chi³
-    double XXX;
+    double Chi3;
     //! -2 * a / A
     double m2aoA;
     //! B / A
@@ -135,30 +145,42 @@ private:
     double BoABpo;
 
     //! Max power for a/R3 in the serie expansion
-    int    maxAR3Pow;
+    unsigned int maxAR3Pow = INT_MIN;
 
     //! Max power for e in the serie expansion
-    int    maxEccPow;
+    unsigned int maxEccPow = INT_MIN;
 
     //! Max power for e in the serie expansion (for short periodics)
-    int    maxEccPowShort;
+    unsigned int maxEccPowShort;
 
     //! Max frequency of F
-    int    maxFreqF;
+    unsigned int maxFreqF;
 
     /* FIXME
     //! An array that contains the objects needed to build the Hansen coefficients. The index is s
     const HansenThirdBodyLinear[] hansenObjects;
     */
 
-    //! The current value of the U function. Needed for the short periodic contribution
+    //! The current value of the mean disturbing function. Needed for the short periodic contribution
     double U;
 
+    //! Vns coefficients
+    coefficients_factories::VnsCoefficientsFactory VnsFactory;
+
+    /*
+    //! K0ns coefficients
+    coefficients_factories::K0nsCoefficientsFactory K0nsFactory;
+    */
+
     //! Qns coefficients
-    vv_double Qns;
+    coefficients_factories::QnsCoefficientsFactory QnsFactory;
+    // DoubleVectord Qns;
+
+    //! Gs coefficients
+    coefficients_factories::GsHsCoefficientsFactory GsFactory;
 
     //! a / R3 up to power maxAR3Pow
-    v_double aoR3Pow;
+    SingleVectord aoR3Pow;
 
     //! mu3 / R3
     double muoR3;
@@ -167,10 +189,10 @@ private:
     double b;
 
     //! h * \Chi³
-    double hXXX;
+    double hChi3;
 
     //! k * \Chi³
-    double kXXX;
+    double kChi3;
 
 
 
@@ -197,13 +219,13 @@ private:
         int sMax;
 
         /** The coefficients G<sub>n,s</sub>. */
-        vv_double gns;
+        DoubleVectord gns;
 
         /** The derivatives of the coefficients G<sub>n,s</sub> by a. */
-        vv_double dgnsda;
+        DoubleVectord dgnsda;
 
         /** The derivatives of the coefficients G<sub>n,s</sub> by γ. */
-        vv_double dgnsdgamma;
+        DoubleVectord dgnsdgamma;
 
         /**
          * Compute the coefficient G<sub>n,s</sub> and its derivatives.
@@ -317,14 +339,14 @@ private:
 
         /** The values (1 - c²)<sup>n</sup>. <br />
          * The maximum possible value for the power is N + 1 */
-        v_double omc2tn;
+        SingleVectord omc2tn;
 
         /** The values (1 + c²)<sup>n</sup>. <br />
          * The maximum possible value for the power is N + 1 */
-        v_double opc2tn;
+        SingleVectord opc2tn;
 
         /** The values b<sup>|j-s|</sup>. */
-        v_double btjms;
+        SingleVectord btjms;
 
     public:
         /**
@@ -341,7 +363,7 @@ private:
          * @return an array containing the value of the coefficient at index 0, the derivative by k
          * at index 1 and the derivative by h at index 2
          */
-        v_double computeWjnsEmjmsAndDeriv(const int j, const int s, const int n);
+        SingleVectord computeWjnsEmjmsAndDeriv(const int j, const int s, const int n);
 
     };
 
@@ -382,21 +404,21 @@ private:
         /** The coeficient sign(j-s) * C<sub>s</sub>(α, β) * S<sub>|j-s|</sub>(k, h)
      * + S<sub>s</sub>(α, β) * C<sub>|j-s|</sub>(k, h)
      * and its derivative by k, h, α and β. */
-        v_double coefAandDeriv = new_v_double(5);
+        SingleVectord coefAandDeriv = SingleVectord(5);
 
         /** The coeficient C<sub>s</sub>(α, β) * S<sub>j+s</sub>(k, h)
      * - S<sub>s</sub>(α, β) * C<sub>j+s</sub>(k, h)
      * and its derivative by k, h, α and β. */
-        v_double coefBandDeriv = new_v_double(5);
+        SingleVectord coefBandDeriv = SingleVectord(5);
 
         /** The coeficient C<sub>s</sub>(α, β) * C<sub>|j-s|</sub>(k, h)
      * - sign(j-s) * S<sub>s</sub>(α, β) * S<sub>|j-s|</sub>(k, h)
      * and its derivative by k, h, α and β. */
-        v_double coefDandDeriv = new_v_double(5);
+        SingleVectord coefDandDeriv = SingleVectord(5);
 
         /** The coeficient C<sub>s</sub>(α, β) * C<sub>j+s</sub>(k, h) + S<sub>s</sub>(α, β) * S<sub>j+s</sub>(k, h)
      * and its derivative by k, h, α and β. */
-        v_double coefEandDeriv = new_v_double(5);
+        SingleVectord coefEandDeriv = SingleVectord(5);
 
     public:
         /**
@@ -611,7 +633,7 @@ private:
          * - dC<sup>j</sup> / dγ <br/>
          * </p>
          */
-        vv_double cj;
+        DoubleVectord cj;
 
         /** The S<sup>j</sup> coefficients and their derivatives.
          * <p>
@@ -625,21 +647,21 @@ private:
          * - dS<sup>j</sup> / dγ <br/>
          * </p>
          */
-        vv_double sj;
+        DoubleVectord sj;
 
         /** The Coefficients C<sup>j</sup><sub>,λ</sub>.
          * <p>
          * See Danielson 4.2-21
          * </p>
          */
-        v_double cjlambda;
+        SingleVectord cjlambda;
 
         /** The Coefficients S<sup>j</sup><sub>,λ</sub>.
          * <p>
          * See Danielson 4.2-21
          * </p>
          */
-        v_double sjlambda;
+        SingleVectord sjlambda;
 
         /** Maximum value for n. */
         int nMax;
@@ -905,7 +927,7 @@ private:
          * - dS / dλ
          * </p>
          */
-        vv_double cjCoefs;
+        DoubleVectord cjCoefs;
 
         /** The coefficients S<sup>j</sup> of the function S and its derivatives.
          * <p>
@@ -921,7 +943,7 @@ private:
          * - dS / dλ
          * </p>
          */
-        vv_double sjCoefs;
+        DoubleVectord sjCoefs;
 
         /**
          * Compute the coefficients for the generating function S and its derivatives.
@@ -1162,7 +1184,7 @@ private:
         Slot createSlot(const std::vector< SpacecraftState > meanStates);
 
         /** {@inheritDoc} */
-        v_double value(const SpacecraftState spacecraftState);
+        SingleVectord value(const SpacecraftState spacecraftState);
 
         /** {@inheritDoc} */
         std::string getCoefficientsKeyPrefix() {
@@ -1177,7 +1199,7 @@ private:
          * in the cj and sj coefficients.
          * </p>
          */
-        std::map<std::string, v_double> getCoefficients(
+        std::map<std::string, SingleVectord> getCoefficients(
                 const AbsoluteDate date, const std::set<std::string> selected);
 
     private:
@@ -1189,8 +1211,8 @@ private:
          * @param id coefficient identifier
          * @param indices list of coefficient indices
          */
-        void storeIfSelected(std::map<std::string, v_double> &map, const std::set<std::string> selected,
-                             const v_double value, const std::string id, const std::vector<int> indices);
+        void storeIfSelected(std::map<std::string, SingleVectord> &map, const std::set<std::string> selected,
+                             const SingleVectord value, const std::string id, const std::vector<int> indices);
 
 
         /** Internal class used only for serialization. */

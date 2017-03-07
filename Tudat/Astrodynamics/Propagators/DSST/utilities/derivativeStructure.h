@@ -17,7 +17,7 @@ class DerivativeStructure {
 private:
     DSCompiler compiler;
 
-    v_double data;
+    Vectord data;
 
 
 public:
@@ -117,7 +117,7 @@ public:
       * @exception MathIllegalArgumentException if sum of derivation orders is larger
       * than the instance limits
       */
-     double getPartialDerivative(const v_int orders) const
+     double getPartialDerivative(const Vectori orders) const
      {
          return data[compiler.getPartialDerivativeIndex(orders)];
      }

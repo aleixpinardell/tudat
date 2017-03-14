@@ -371,7 +371,7 @@ Eigen::Vector6d convertEquinoctialToModifiedEquinoctialElements(
     using namespace tudat::basic_mathematics;
 
     // Set tolerance.
-    const double tolerance = 20.0 * std::numeric_limits< double >::epsilon( );
+    // const double tolerance = 20.0 * std::numeric_limits< double >::epsilon( );
 
     // Declare converted equinoctial elements.
     Eigen::Matrix< double, 6, 1 > modifiedEquinoctialElements;
@@ -382,7 +382,7 @@ Eigen::Vector6d convertEquinoctialToModifiedEquinoctialElements(
     const double k =      equinoctialElements( kIndex );
     const double p =      equinoctialElements( pIndex );
     const double q =      equinoctialElements( qIndex );
-    const double lambda = equinoctialElements( meanLongitudeIndex );
+    // const double lambda = equinoctialElements( fastVariableIndex );
 
     // Compute eccentricity
     const double e2 = pow( h, 2 ) + pow( k, 2 );
@@ -393,7 +393,7 @@ Eigen::Vector6d convertEquinoctialToModifiedEquinoctialElements(
     modifiedEquinoctialElements( gElementIndex      ) = h;
     modifiedEquinoctialElements( hElementIndex      ) = q;
     modifiedEquinoctialElements( kElementIndex      ) = p;
-    modifiedEquinoctialElements( trueLongitudeIndex ) = getTrueLongitude( equinoctialElements );
+    modifiedEquinoctialElements( trueLongitudeIndex ) = getTrueLongitudeFromMean( equinoctialElements );
 
     return modifiedEquinoctialElements;
 }
@@ -439,7 +439,7 @@ Eigen::Vector6d convertModifiedEquinoctialToEquinoctialElements(
     equinoctialElements( kIndex             ) = f;
     equinoctialElements( pIndex             ) = k;
     equinoctialElements( qIndex             ) = h;
-    equinoctialElements( meanLongitudeIndex ) = L - trueAnomaly + M;
+    equinoctialElements( fastVariableIndex ) = L - trueAnomaly + M;
 
     return modifiedEquinoctialElements;
 }

@@ -1,7 +1,7 @@
-#ifndef TUDAT_DSST_UPPERBOUNDS_H
-#define TUDAT_DSST_UPPERBOUNDS_H
+#ifndef TUDAT_PROPAGATORS_DSST_UPPERBOUNDS_H
+#define TUDAT_PROPAGATORS_DSST_UPPERBOUNDS_H
 
-#include "Tudat/Astrodynamics/Propagators/DSST/dsst.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/utilities/vectors.h"
 
 
 namespace tudat
@@ -51,4 +51,4 @@ double getRnml(const double gamma, const int n, const int l, const int m, const 
 
 } // namespace tudat
 
-#endif // TUDAT_DSST_UPPERBOUNDS_H
+#endif // TUDAT_PROPAGATORS_DSST_UPPERBOUNDS_H

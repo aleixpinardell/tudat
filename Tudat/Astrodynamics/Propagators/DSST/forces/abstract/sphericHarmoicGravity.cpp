@@ -11,8 +11,6 @@
 #include "sphericHarmoicGravity.h"
 #include "Tudat/Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 
-#include "tudat/Tudat/Astrodynamics/Propagators/DSST/utilities/jacobiPolynomials.h"
-
 namespace tudat
 {
 
@@ -22,17 +20,20 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 
 //! Update instance's members based on current auxiliary elements.
-void SphericalHarmonicGravityForceModel::updateMembers( )
+void SphericalHarmonicGravity::updateMembers( )
 {
-    CentralBodyPerturbedForceModel::updateMembers();
-    ConservativeForceModel::updateMembers();
+    CentralBodyPerturbed::updateMembers();
+    Conservative::updateMembers();
 }
 
 
 //! Set the values of N and S for the series expansion of the disturbing potential.
-void SphericalHarmonicGravityForceModel::determineTruncationValues() {
+void SphericalHarmonicGravity::determineTruncationValues() {
     N = shDegree;
     // Compute the max eccentricity power for the mean element rate expansion
     if ( N == 2 ) {
@@ -40,7 +41,7 @@ void SphericalHarmonicGravityForceModel::determineTruncationValues() {
     } else {
         // Utilities for truncation
         const double ax2or = 2 * a / R;
-        double xmuran = mu() / a;
+        double xmuran = mu / a;
         // Set a lower bound for eccentricity
         const double eo2  = std::max( 0.0025, ecc / 2.0 );
         const double x2o2 = Chi2 / 2.;
@@ -123,6 +124,8 @@ void SphericalHarmonicGravityForceModel::determineTruncationValues() {
 
 }
 
+
+} // namespace force_models
 
 } // namespace dsst
 

@@ -1,8 +1,11 @@
-#ifndef TUDAT_DSST_AUXILIARYELEMENTS_H
-#define TUDAT_DSST_AUXILIARYELEMENTS_H
+#ifndef TUDAT_PROPAGATORS_DSST_AUXILIARYELEMENTS_H
+#define TUDAT_PROPAGATORS_DSST_AUXILIARYELEMENTS_H
 
-#include "Tudat/Astrodynamics/Propagators/DSST/dsst.h"
-#include "coefficientsFactory.h"
+#include <boost/make_shared.hpp>
+
+#include "Tudat/Astrodynamics/Propagators/DSST/utilities/body.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/utilities/vectors.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsFactories.h"
 
 
 namespace tudat
@@ -14,65 +17,401 @@ namespace propagators
 namespace dsst
 {
 
+
+enum ElementSet
+{
+    automatic  = 0,  // direct for inclination ≤ 135 deg, retrograde for inclination > 135 deg
+    direct     = 1,  // suitable for any inclination not close to 180 deg
+    retrograde = 2   // suitable for any inclination not close to 0 deg
+};
+
+
+//! Class containing equinoctial elements and functionality to efficiently transform between mean, true and eccentric
+class EquinoctialElements
+{
+public:
+
+    //! Empty constructor
+    EquinoctialElements( ) { }
+
+    //! Basic constructor
+    EquinoctialElements( const Eigen::Vector6d &components, const orbital_element_conversions::FastVariableType type,
+                         const bool retrograde )
+    {
+        setComponents( components, type, retrograde );
+    }
+
+    //! Construct from Keplerian elements
+    static EquinoctialElements fromKeplerian( const Eigen::Vector6d &components,
+                                              const orbital_element_conversions::FastVariableType type,
+                                              const ElementSet set = automatic ) {
+        using namespace orbital_element_conversions;
+        using namespace mathematical_constants;
+        bool retro = set == retrograde;
+        if ( set == automatic ) {
+            retro = components( inclinationIndex ) > 0.75 * PI;
+        }
+        EquinoctialElements elements( convertKeplerianToEquinoctialElements( components, type, retro ), type, retro );
+        elements.keplerianElements = components;
+        elements.keplerianNeedUpdate = false;
+        return elements;
+    }
+
+    //! Construct from Cartesian elements
+    static EquinoctialElements fromCartesian( const Eigen::Vector6d &components, const double gravitationalParameter,
+                                              const orbital_element_conversions::FastVariableType type,
+                                              const ElementSet set = automatic ) {
+        using namespace orbital_element_conversions;
+        using namespace mathematical_constants;
+        bool retro = set == retrograde;
+        Eigen::Vector6d keplerianElements;
+        if ( set == automatic ) {
+            keplerianElements = convertCartesianToKeplerianElements( components, gravitationalParameter );
+            retro = keplerianElements( inclinationIndex ) > 0.75 * PI;
+        }
+        EquinoctialElements elements( convertCartesianToEquinoctialElements(
+                                          components, gravitationalParameter, type, retro ), type, retro );
+        elements.cartesianElements = components;
+        elements.cartesianNeedUpdate = false;
+        if ( set == automatic ) {
+            elements.keplerianElements = keplerianElements;
+            elements.keplerianNeedUpdate = false;
+        }
+        return elements;
+    }
+
+    //! Computes Cartesian elements from the current set of equinoctial elements
+    Eigen::Vector6d toCartesian( const double gravitationalParameter ) {
+        using namespace orbital_element_conversions;
+        if ( cartesianNeedUpdate ) {
+            cartesianElements = convertEquinoctialToCartesianElements(
+                        getComponents(), gravitationalParameter, fastVariableType, retrogradeSet );
+            cartesianNeedUpdate = false;
+        }
+        return cartesianElements;
+    }
+
+    //! Computes Keplerian elements from the current set of equinoctial elements
+    Eigen::Vector6d toKeplerian( ) {
+        using namespace orbital_element_conversions;
+        if ( keplerianNeedUpdate ) {
+            keplerianElements =
+                    convertEquinoctialToKeplerianElements( getComponents(), fastVariableType, retrogradeSet );
+            keplerianNeedUpdate = false;
+        }
+        return keplerianElements;
+    }
+
+
+    //! Set components, with the type of the provided fast variable specified by `type`
+    void setComponents( const Eigen::Vector6d &components, const orbital_element_conversions::FastVariableType type,
+                        const bool retrograde = false )
+    {
+        using namespace orbital_element_conversions;
+
+        a = components( semiMajorAxisIndex );
+        h = components( hIndex );
+        k = components( kIndex );
+        p = components( pIndex );
+        q = components( qIndex );
+
+        lmean = TUDAT_NAN;
+        lecc  = TUDAT_NAN;
+        ltrue = TUDAT_NAN;
+
+        switch ( type ) {
+        case meanType:
+            lmean = components( fastVariableIndex );
+            break;
+        case eccentricType:
+            lecc  = components( fastVariableIndex );
+            break;
+        case trueType:
+            ltrue = components( fastVariableIndex );
+            break;
+        default:
+            throw std::runtime_error( "Unrecognized fast variable type." );
+            break;
+        }
+
+        fastVariableType = type;
+        retrogradeSet = retrograde;
+
+        cartesianNeedUpdate = true;
+        keplerianNeedUpdate = true;
+    }
+
+    //! Get components, with the type of the returned fast variable specified by `type`
+    Eigen::Vector6d getComponents( const orbital_element_conversions::FastVariableType type )
+    {
+        using namespace orbital_element_conversions;
+
+        double fastVariable;
+        switch ( type ) {
+        case meanType:
+            fastVariable = getMeanLongitude();
+            break;
+        case eccentricType:
+            fastVariable = getEccentricLongitude();
+            break;
+        case trueType:
+            fastVariable = getTrueLongitude();
+            break;
+        default:
+            throw std::runtime_error( "Unrecognized fast variable type." );
+            break;
+        }
+
+        Eigen::Vector6d components;
+        components << a, h, k, p, q, fastVariable;
+        return components;
+    }
+
+    //! Get components defined by the last call to setComponents()
+    Eigen::Vector6d getComponents( )
+    {
+        return getComponents( fastVariableType );
+    }
+
+    //! Get component using paranthesis notation
+    double operator() ( int component ) {
+        using namespace orbital_element_conversions;
+
+        if ( component == fastVariableIndex ) {
+            component = fastVariableType;
+        }
+        switch ( component ) {
+        case semiMajorAxisIndex: return a; break;
+        case hIndex:             return h; break;
+        case kIndex:             return k; break;
+        case pIndex:             return p; break;
+        case qIndex:             return q; break;
+        case meanType:           return getMeanLongitude();      break;
+        case eccentricType:      return getEccentricLongitude(); break;
+        case trueType:           return getTrueLongitude();      break;
+        default:                 throw  std::runtime_error( "Unrecognized equinoctial elements component."); break;
+        }
+    }
+
+    bool isRetrograde() {
+        return retrogradeSet;
+    }
+
+    orbital_element_conversions::FastVariableType getFastVariableType() {
+        return fastVariableType;
+    }
+
+    //! Default assignment operator
+    EquinoctialElements & operator = ( const EquinoctialElements & ) = default;
+
+    //! Comparison operator
+    bool operator == ( EquinoctialElements &other ) {
+        return getComponents() == other.getComponents() && isRetrograde() == other.isRetrograde();
+    }
+
+    //! Negative comparison operator
+    bool operator != ( EquinoctialElements &other ) {
+        return ! ( *this == other );
+    }
+
+
+private:
+
+    //! Fast variable type
+    orbital_element_conversions::FastVariableType fastVariableType;
+
+    //! Set of orbital elements used
+    bool retrogradeSet;
+
+
+    //! Semi-major axis
+    double a = TUDAT_NAN;
+
+    //! Sine component of the eccentricity vector
+    double h = TUDAT_NAN;
+
+    //! Cosine component of the eccentricity vector
+    double k = TUDAT_NAN;
+
+    //! Sine component of the ascending node vector
+    double p = TUDAT_NAN;
+
+    //! Cosine component of the ascending node vector
+    double q = TUDAT_NAN;
+
+
+    //! Mean longitude
+    double lmean = TUDAT_NAN;
+
+    //! Eccentric longitude
+    double lecc = TUDAT_NAN;
+
+    //! True longitude
+    double ltrue = TUDAT_NAN;
+
+    //! Compute the mean longitude, if needed, and return its value
+    double getMeanLongitude() {
+        using namespace orbital_element_conversions;
+        if ( lmean != lmean ) {  // lmean is not a number
+            if ( lecc != lecc ) {  // lecc is not a number
+                lecc = getEccentricLongitudeFromTrue( getComponents( trueType) );
+            }
+            lmean = getMeanLongitudeFromEccentric( getComponents( eccentricType ) );
+        }
+        return lmean;
+    }
+
+    //! Compute the eccentric longitude, if needed, and return its value
+    double getEccentricLongitude() {
+        using namespace orbital_element_conversions;
+        if ( lecc != lecc ) {  // lecc is not a number
+            if ( lmean == lmean ) {  // lmean is a number
+                lecc = getEccentricLongitudeFromMean( getComponents( meanType) );
+            } else {
+                lecc = getEccentricLongitudeFromTrue( getComponents( trueType) );
+            }
+        }
+        return lecc;
+    }
+
+    //! Compute the true longitude, if needed, and return its value
+    double getTrueLongitude() {
+        using namespace orbital_element_conversions;
+        if ( ltrue != ltrue ) {  // ltrue is not a number
+            if ( lecc != lecc ) {  // lecc is not a number
+                lecc = getEccentricLongitudeFromMean( getComponents( meanType) );
+            }
+            ltrue = getTrueLongitudeFromEccentric( getComponents( eccentricType ) );
+        }
+        return ltrue;
+    }
+
+
+    bool cartesianNeedUpdate = true;
+    Eigen::Vector6d cartesianElements;
+
+    bool keplerianNeedUpdate = true;
+    Eigen::Vector6d keplerianElements;
+
+};
+
+
+//! Class to be created at the beginning of the DSST propagation, used by all perturbations
 class AuxiliaryElements
 {
 public:
+
+    //! Constructor.
+    /*!
+     * Simple constructor.
+     * \param propagatedBody A reference to the propagated body.
+     * \param centralBody A reference to the central body.
+     * with inclinations close to 180 degrees). Default is false, which avoids singularities for equatorial orbits.
+     */
+    AuxiliaryElements( boost::shared_ptr< Body > propagatedBody, boost::shared_ptr< CelestialBody > centralBody ) :
+        propagatedBody( propagatedBody ), centralBody( centralBody ) { }
+
+
     //! Reference to the central body
-    const Body &centralBody;
+    boost::shared_ptr< Body > propagatedBody;
+
+    //! Reference to the central body
+    boost::shared_ptr< CelestialBody > centralBody;
+
 
     //! Date, in seconds since J2000
     double epoch;
 
     //! Mean equinoctial elements
-    Eigen::Vector6d equinoctialElements;
+    EquinoctialElements equinoctialElements;
 
-    //! Whether retrograde elements are being used
-    bool retrogradeElements;
+
+
+    //! Update to a new state.
+    void updateState( const double epoch, const EquinoctialElements elements )
+    {
+        this->epoch = epoch;
+        equinoctialElements = elements;
+        updateMembers();
+    }
+
+    //! Update elements.
+    void updateElements( EquinoctialElements elements ) {
+        updateState( epoch, elements );
+    }
+
+
+    //! Update to a new state.
+    void updateState( const double epoch, const Eigen::Vector6d components,
+                      const orbital_element_conversions::FastVariableType type, const bool retro )
+    {
+        updateState( epoch, EquinoctialElements( components, type, retro ) );
+    }
+
+    //! Update to a new state.
+    void updateState( const double epoch, const Eigen::Vector6d components )
+    {
+        updateState( epoch, EquinoctialElements( components, equinoctialElements.getFastVariableType(),
+                     equinoctialElements.isRetrograde() ) );
+    }
+
+
+    //! Update elements's components.
+    void updateComponents( const Eigen::Vector6d components,
+                                   const orbital_element_conversions::FastVariableType type, const bool retro ) {
+        updateState( epoch, components, type, retro );
+    }
+
+    //! Update elements's components.
+    void updateComponents( const Eigen::Vector6d components ) {
+        updateComponents( components, equinoctialElements.getFastVariableType(),
+                                  equinoctialElements.isRetrograde() );
+    }
+
+
+    //! Add vector to the current element's components and update epoch
+    void updateStateByAdding( const double epoch, const Eigen::Vector6d vector,
+              const orbital_element_conversions::FastVariableType type = orbital_element_conversions::meanType ) {
+        updateState( epoch, equinoctialElements.getComponents( type ) + vector );
+    }
+
+    //! Add vector to the current element's components, but don't unpdate epoch
+    void updateComponentsByAdding( const Eigen::Vector6d vector,
+              const orbital_element_conversions::FastVariableType type = orbital_element_conversions::meanType ) {
+        updateStateByAdding( epoch, vector );
+    }
+
+
+
+private:
 
     //! Update the instance's members according to the current equinoctialElements.
     void updateMembers();
 
-    //! Update to a new state.
-    /*!
-     * Updates instance's members using a new state.
-     * \param epoch The new time in seconds since J2000.
-     * \param equinoctialElements A vector containing the new equinoctial elements.
-     * \param useRetrogradeElements Whether to use the retrograde set of elements (to avoid singularities for orbits
-     * with inclinations close to 180 degrees). Default is false, which avoids singularities for equatorial orbits.
-     */
-    void updateState( const double epoch, const Eigen::Vector6d &equinoctialElements,
-                      const bool useRetrogradeElements = false ) {
-        this->epoch               = epoch;
-        this->equinoctialElements = equinoctialElements;
-        this->retrogradeElements  = useRetrogradeElements;
-        updateMembers();
-    }
 
-    //! Constructor.
-    /*!
-     * Simple constructor.
-     * \param centralBody A reference to the central body.
-     * \param epoch The current time in seconds since J2000.
-     * \param equinoctialElements A vector containing the current equinoctial elements.
-     * \param useRetrogradeElements Whether to use the retrograde set of elements (to avoid singularities for orbits
-     * with inclinations close to 180 degrees). Default is false, which avoids singularities for equatorial orbits.
-     */
-    AuxiliaryElements( Body &centralBody, const double epoch, const Eigen::Vector6d &equinoctialElements,
-                       const bool useRetrogradeElements = false ) :
-        centralBody( centralBody ) {
-        updateState( epoch, equinoctialElements, useRetrogradeElements );
-    }
+public:
 
+    // Properties that depend on a referenced object (i.e. bodies) may change with time. However, they need to be
+    // assumed constant over an integration step in order to be able to average the equations of motion.
+    // Thus, they are stored (computed only once per step, used many times) and updated by updateMembers().
 
-    // Properties that depend on a referenced object (i.e. thirdBody) are not stored but accessed every time.
+    //! Propagated body's mass
+    double mass;
+
+    //! Propagated body's cross-sectional area
+    double area;
+
+    //! Propagated body's drag coefficient
+    double CD;
+
+    //! Propagated body's radiation pressure coefficient
+    // double CR;
 
     //! Central body's gravitational parameter
-    double mu() {
-        return centralBody.getGravitationalParameter();
-    }
+    double mu;
 
 
-    // Properties that depend on a stored object (i.e. equinoctialElements) are stored and updated by updateState().
+    // Properties that depend on a stored object (i.e. equinoctialElements) are stored and updated by updateMembers().
     // In this way, they are only computed once for each integration step, even though they are used many times.
 
     //! Retrograde factor I
@@ -85,7 +424,7 @@ public:
     double n;
 
     //! Keplerian period
-    double period;
+    // double period;
 
     //! Semi-major axis
     double sma;
@@ -103,13 +442,19 @@ public:
     double q;
 
     //! Mean longitude
-    double lm;
-
-    //! True longitude
-    double lv;
+    double meanLongitude() {
+        return equinoctialElements( orbital_element_conversions::meanType );
+    }
 
     //! Eccentric longitude
-    double le;
+    double eccentricLongitude() {
+        return equinoctialElements( orbital_element_conversions::eccentricType );
+    }
+
+    //! True longitude
+    double trueLongitude() {
+        return equinoctialElements( orbital_element_conversions::trueType );
+    }
 
     //! A = sqrt(μ * a)
     double A;
@@ -155,4 +500,4 @@ public:
 
 } // namespace tudat
 
-#endif // TUDAT_DSST_AUXILIARYELEMENTS_H
+#endif // TUDAT_PROPAGATORS_DSST_AUXILIARYELEMENTS_H

@@ -1,6 +1,7 @@
-#ifndef TUDAT_DSST_OSCULATINGTOMEAN_H
-#define TUDAT_DSST_OSCULATINGTOMEAN_H
+#ifndef TUDAT_PROPAGATORS_DSST_OSCULATINGTOMEAN_H
+#define TUDAT_PROPAGATORS_DSST_OSCULATINGTOMEAN_H
 
+#include "Tudat/Astrodynamics/Propagators/DSST/utilities/vectors.h"
 #include "Tudat/Astrodynamics/Propagators/DSST/forces/abstract/forceModel.h"
 
 
@@ -13,6 +14,9 @@ namespace propagators
 namespace dsst
 {
 
+namespace element_conversions
+{
+
 //! Transform osculating to mean elements.
 /*!
  * Transforms the equinoctial elements contained by osculatingAuxiliaryElements from osculating to mean.
@@ -21,8 +25,10 @@ namespace dsst
  * \param forceModels The force models generating the short period terms needed to do the transformation.
  */
 void transformOsculatingToMeanElements( AuxiliaryElements &osculatingAuxiliaryElements,
-                    std::vector< boost::shared_ptr< ForceModel > > &forceModels );
+                    std::vector< boost::shared_ptr< force_models::ForceModel > > &forceModels );
 
+
+} // namespace element_conversions
 
 } // namespace dsst
 
@@ -30,4 +36,4 @@ void transformOsculatingToMeanElements( AuxiliaryElements &osculatingAuxiliaryEl
 
 } // namespace tudat
 
-#endif // TUDAT_DSST_OSCULATINGTOMEAN_H
+#endif // TUDAT_PROPAGATORS_DSST_OSCULATINGTOMEAN_H

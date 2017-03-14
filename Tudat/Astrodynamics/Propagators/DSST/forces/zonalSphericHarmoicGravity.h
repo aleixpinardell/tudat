@@ -1,11 +1,9 @@
-#ifndef TUDAT_DSST_ZONALSPHERICHARMONICGRAVITY_H
-#define TUDAT_DSST_ZONALSPHERICHARMONICGRAVITY_H
-
-#include "Tudat/Astrodynamics/Propagators/DSST/dsst.h"
+#ifndef TUDAT_PROPAGATORS_DSST_FORCEMODELS_ZONALSPHERICHARMONICGRAVITY_H
+#define TUDAT_PROPAGATORS_DSST_FORCEMODELS_ZONALSPHERICHARMONICGRAVITY_H
 
 #include "abstract/sphericHarmoicGravity.h"
 
-#include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsfactory.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsFactories.h"
 
 
 namespace tudat
@@ -17,9 +15,12 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 
 //! Final class for the contribution of the zonal terms of the spherical harmonic expansion of a gravity
-class ZonalSphericalHarmonicGravityForceModel final : public SphericalHarmonicGravityForceModel
+class ZonalSphericalHarmonicGravity final : public SphericalHarmonicGravity
 {
 public:
 
@@ -27,10 +28,10 @@ public:
     /** Simple constructor.
      * \param auxiliaryElements Auxiliary elements used to compute the mean element rates and short period terms.
      */
-    ZonalSphericalHarmonicGravityForceModel( AuxiliaryElements &auxiliaryElements, double referenceRadius,
+    ZonalSphericalHarmonicGravity( AuxiliaryElements &auxiliaryElements, double referenceRadius,
                                        std::vector< double > &Jterms ) :
         ForceModel( auxiliaryElements ),
-        SphericalHarmonicGravityForceModel( auxiliaryElements, referenceRadius, Jterms ) { }
+        SphericalHarmonicGravity( auxiliaryElements, referenceRadius, Jterms ) { }
 
 
 private:
@@ -54,10 +55,12 @@ private:
 };
 
 
+} // namespace force_models
+
 } // namespace dsst
 
 } // namespace propagators
 
 } // namespace tudat
 
-#endif // TUDAT_DSST_ZONALSPHERICHARMONICGRAVITY_H
+#endif // TUDAT_PROPAGATORS_DSST_FORCEMODELS_ZONALSPHERICHARMONICGRAVITY_H

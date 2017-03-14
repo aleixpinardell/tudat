@@ -1,10 +1,12 @@
-#ifndef TUDAT_DSST_FORCEMODELTYPES_H
-#define TUDAT_DSST_FORCEMODELTYPES_H
+#ifndef TUDAT_PROPAGATORS_DSST_FORCEMODELS_AVAILABLEFORCEMODELS_H
+#define TUDAT_PROPAGATORS_DSST_FORCEMODELS_AVAILABLEFORCEMODELS_H
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 
 #include "zonalSphericHarmoicGravity.h"
 #include "thirdBodyCentralGravity.h"
+#include "atmosphericDrag.h"
+#include "conservativeSolarRadiationPressure.h"
 
 namespace tudat
 {
@@ -15,9 +17,12 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 /*
 //! Function to identify the derived class type of an acceleration model.
-tudat::basic_astrodynamics::AvailableAcceleration getForceModelType(
+tudat::basic_astrodynamics::AvailableAcceleration getType(
         const boost::shared_ptr< ForceModel > forceModel )
 {
     using namespace tudat::basic_astrodynamics;
@@ -42,10 +47,12 @@ tudat::basic_astrodynamics::AvailableAcceleration getForceModelType(
 }
 */
 
+} // namespace force_models
+
 } // namespace dsst
 
 } // namespace propagators
 
 } // namespace tudat
 
-#endif // TUDAT_DSST_FORCEMODELTYPES_H
+#endif // TUDAT_PROPAGATORS_DSST_FORCEMODELS_AVAILABLEFORCEMODELS_H

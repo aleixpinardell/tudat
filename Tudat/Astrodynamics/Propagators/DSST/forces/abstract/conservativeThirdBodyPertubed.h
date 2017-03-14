@@ -1,12 +1,10 @@
-#ifndef TUDAT_DSST_CONSERVATIVETHIRDBODYPERTURBED_H
-#define TUDAT_DSST_CONSERVATIVETHIRDBODYPERTURBED_H
-
-#include "Tudat/Astrodynamics/Propagators/DSST/dsst.h"
+#ifndef TUDAT_PROPAGATORS_DSST_FORCEMODELS_CONSERVATIVETHIRDBODYPERTURBED_H
+#define TUDAT_PROPAGATORS_DSST_FORCEMODELS_CONSERVATIVETHIRDBODYPERTURBED_H
 
 #include "thirdBodyPertubed.h"
 #include "conservative.h"
 
-#include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsfactory.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsfactories.h"
 
 
 namespace tudat
@@ -18,9 +16,11 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 //! Abstract class for perturbations caused by third bodies that can be modelled as a potential
-class ConservativeThirdBodyPerturbedForceModel :
-    public ThirdBodyPerturbedForceModel, public ConservativeForceModel
+class ConservativeThirdBodyPerturbed : public ThirdBodyPerturbed, public Conservative
 {
 protected:
 
@@ -29,23 +29,24 @@ protected:
      * \param auxiliaryElements Auxiliary elements used to compute the mean element rates and short period terms.
      * \param thirdBody The third body exerting the acceleration.
      */
-    ConservativeThirdBodyPerturbedForceModel( AuxiliaryElements &auxiliaryElements, Body &thirdBody ) :
-        ForceModel(                   auxiliaryElements ),
-        ThirdBodyPerturbedForceModel( auxiliaryElements, thirdBody ),
-        ConservativeForceModel(       auxiliaryElements ) { }
+    ConservativeThirdBodyPerturbed( AuxiliaryElements &auxiliaryElements,
+                                    boost::shared_ptr< CelestialBody > thirdBody ) :
+        ForceModel( auxiliaryElements ),
+        ThirdBodyPerturbed( auxiliaryElements, thirdBody ),
+        Conservative( auxiliaryElements ) { }
 
 
 private:
 
     void setUp() {
-        ConservativeForceModel::setUp();
+        Conservative::setUp();
     }
 
     //! Update instance's members that are computed from the current auxiliary elements.
     void updateMembers( ) {
-    ThirdBodyPerturbedForceModel::updateMembers();
-    ConservativeForceModel::updateMembers();
-	Ufactor = computeUfactor();
+        ThirdBodyPerturbed::updateMembers();
+        Conservative::updateMembers();
+        Ufactor = computeUfactor();
     }
 
     //! Set the values of N and S for the series expansion of the disturbing potential.
@@ -96,10 +97,12 @@ private:
 };
 
 
+} // namespace force_models
+
 } // namespace dsst
 
 } // namespace propagators
 
 } // namespace tudat
 
-#endif // TUDAT_DSST_CONSERVATIVETHIRDBODYPERTURBED_H
+#endif // TUDAT_PROPAGATORS_DSST_FORCEMODELS_CONSERVATIVETHIRDBODYPERTURBED_H

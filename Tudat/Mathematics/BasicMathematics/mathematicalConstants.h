@@ -35,7 +35,7 @@ namespace mathematical_constants
  * The constant E is base of the natural logarithm, and is also known as Napier's constant.
  * \sa Wolfram MathWorld, Constant: http://mathworld.wolfram.com/e.html.
  */
-const static double E = std::exp( 1.0 );
+const static double F = std::exp( 1.0 );
 
 //! The Golden ratio \f$\approx\f$ 1.6180.
 /*!

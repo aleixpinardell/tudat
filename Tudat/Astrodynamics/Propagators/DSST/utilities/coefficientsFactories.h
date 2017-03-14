@@ -1,7 +1,7 @@
-#ifndef TUDAT_DSST_COEFFICIENTSFACTORY_H
-#define TUDAT_DSST_COEFFICIENTSFACTORY_H
+#ifndef TUDAT_PROPAGATORS_DSST_COEFFICIENTSFACTORIES_H
+#define TUDAT_PROPAGATORS_DSST_COEFFICIENTSFACTORIES_H
 
-#include "Tudat/Astrodynamics/Propagators/DSST/dsst.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/utilities/vectors.h"
 
 namespace tudat
 {
@@ -889,4 +889,4 @@ extern coefficients_factories::FactorialsFactory factorial;
 
 } // namespace tudat
 
-#endif // TUDAT_DSST_COEFFICIENTSFACTORY_H
+#endif // TUDAT_PROPAGATORS_DSST_COEFFICIENTSFACTORIES_H

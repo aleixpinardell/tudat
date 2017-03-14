@@ -1,12 +1,10 @@
-#ifndef TUDAT_DSST_SPHERICHARMONICGRAVITY_H
-#define TUDAT_DSST_SPHERICHARMONICGRAVITY_H
-
-#include "Tudat/Astrodynamics/Propagators/DSST/dsst.h"
+#ifndef TUDAT_PROPAGATORS_DSST_FORCEMODELS_SPHERICHARMONICGRAVITY_H
+#define TUDAT_PROPAGATORS_DSST_FORCEMODELS_SPHERICHARMONICGRAVITY_H
 
 #include "centralBodyPertubed.h"
 #include "conservative.h"
 
-#include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsfactory.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsfactories.h"
 #include "Tudat/Astrodynamics/Propagators/DSST/utilities/upperBounds.h"
 
 
@@ -19,10 +17,13 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 //! Abstract class for gravity perturbations expressed as a spheric harmonic expansion.
 //! Zonal and tesseral terms are treated differently, so derived classes will implement these terms separately.
-class SphericalHarmonicGravityForceModel :
-        public CentralBodyPerturbedForceModel, public ConservativeForceModel
+class SphericalHarmonicGravity :
+        public CentralBodyPerturbed, public Conservative
 {
 protected:
 
@@ -30,13 +31,12 @@ protected:
     /** Simple constructor.
      * \param auxiliaryElements Auxiliary elements used to compute the mean element rates and short period terms.
      */
-    SphericalHarmonicGravityForceModel( AuxiliaryElements &auxiliaryElements, double referenceRadius,
-                                            NestedVectord Jterms ) :
-          ForceModel(                     auxiliaryElements	),
-          CentralBodyPerturbedForceModel( auxiliaryElements	),
-          ConservativeForceModel(	      auxiliaryElements	),
-          R(                                  referenceRadius   ),
-          Jterms(                             Jterms            )
+    SphericalHarmonicGravity( AuxiliaryElements &auxiliaryElements, double referenceRadius, NestedVectord Jterms ) :
+          ForceModel( auxiliaryElements	),
+          CentralBodyPerturbed( auxiliaryElements ),
+          Conservative( auxiliaryElements ),
+          R( referenceRadius ),
+          Jterms( Jterms )
     {
         shDegree = Jterms.size() + 1;
         shOrder = 0;
@@ -56,7 +56,7 @@ protected:
 private:
 
     void setUp() {
-        ConservativeForceModel::setUp();
+        Conservative::setUp();
     }
 
     //! Update instance's members based on current auxiliary elements.
@@ -114,10 +114,12 @@ protected:
 };
 
 
+} // namespace force_models
+
 } // namespace dsst
 
 } // namespace propagators
 
 } // namespace tudat
 
-#endif // TUDAT_DSST_SPHERICHARMONICGRAVITY_H
+#endif // TUDAT_PROPAGATORS_DSST_FORCEMODELS_SPHERICHARMONICGRAVITY_H

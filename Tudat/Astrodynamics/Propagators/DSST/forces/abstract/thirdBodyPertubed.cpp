@@ -19,12 +19,18 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 
 //! Update instance's members that are computed from the current auxiliary elements.
-void ThirdBodyPerturbedForceModel::updateMembers( )
+void ThirdBodyPerturbed::updateMembers( )
 {
+    // Third body's gravitational parameter
+    mu3 = thirdBody->getGravitationalParameter();
+
     // Distance from center of mass of the central body to the 3rd body
-    r3 = thirdBody.getPositionFrom( aux.centralBody );
+    r3 = thirdBody->getPositionFrom( aux.centralBody );
     R3 = r3.norm();
 
     // Direction cosines
@@ -34,6 +40,8 @@ void ThirdBodyPerturbedForceModel::updateMembers( )
     gamma = bodyDir.dot( aux.w );
 }
 
+
+} // namespace force_models
 
 } // namespace dsst
 

@@ -1,5 +1,5 @@
-#ifndef TUDAT_DSST_THIRDBODYPERTURBED_H
-#define TUDAT_DSST_THIRDBODYPERTURBED_H
+#ifndef TUDAT_PROPAGATORS_DSST_FORCEMODELS_THIRDBODYPERTURBED_H
+#define TUDAT_PROPAGATORS_DSST_FORCEMODELS_THIRDBODYPERTURBED_H
 
 #include "forceModel.h"
 
@@ -12,14 +12,16 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 
 //! Abstract class for perturbations cuased by third bodies
-class ThirdBodyPerturbedForceModel : public virtual ForceModel {
+class ThirdBodyPerturbed : public virtual ForceModel {
 protected:
 
-    ThirdBodyPerturbedForceModel( AuxiliaryElements &auxiliaryElements, Body &thirdBody ) :
-    ForceModel( auxiliaryElements ),
-    thirdBody     ( thirdBody	  ) { }
+    ThirdBodyPerturbed( AuxiliaryElements &auxiliaryElements, boost::shared_ptr< CelestialBody > thirdBody ) :
+    ForceModel( auxiliaryElements ), thirdBody( thirdBody ) { }
 
 
     //! Set up the force model.
@@ -31,7 +33,10 @@ protected:
     virtual void updateMembers( );
 
     //! The third body exerting the acceleration
-    Body &thirdBody;
+    boost::shared_ptr< CelestialBody > thirdBody;
+
+    //! Standard gravitational parameter μ for the third body in m³/s²
+    double mu3;
 
     //! Position of the third body from the centre of mass of the central body
     Eigen::Vector3d r3;
@@ -39,14 +44,11 @@ protected:
     //! Distance from center of mass of the central body to the 3rd body
     double R3;
 
-    //! Standard gravitational parameter μ for the third body in m³/s²
-    double mu3() {
-        return thirdBody.getGravitationalParameter();
-    }
-
 };
 
 
+
+} // namespace force_models
 
 } // namespace dsst
 
@@ -54,4 +56,4 @@ protected:
 
 } // namespace tudat
 
-#endif // TUDAT_DSST_THIRDBODYPERTURBED_H
+#endif // TUDAT_PROPAGATORS_DSST_FORCEMODELS_THIRDBODYPERTURBED_H

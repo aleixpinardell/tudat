@@ -1,10 +1,10 @@
-#ifndef TUDAT_DSST_FORCEMODEL_H
-#define TUDAT_DSST_FORCEMODEL_H
+#ifndef TUDAT_PROPAGATORS_DSST_FORCEMODELS_FORCEMODEL_H
+#define TUDAT_PROPAGATORS_DSST_FORCEMODELS_FORCEMODEL_H
 
 // #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 // #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
-#include "Tudat/Astrodynamics/Propagators/DSST/dsst.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/utilities/vectors.h"
 #include "Tudat/Astrodynamics/Propagators/DSST/utilities/auxiliaryElements.h"
 
 namespace tudat
@@ -14,6 +14,9 @@ namespace propagators
 {
 
 namespace dsst
+{
+
+namespace force_models
 {
 
 //! Base abstract class for all force models in T
@@ -54,7 +57,7 @@ protected:
         lastUpdateElements( auxiliaryElements.equinoctialElements ) { }
 
 
-    const AuxiliaryElements &aux;
+    AuxiliaryElements &aux;
 
     //! Retrograde factor I
     const int &I;
@@ -105,7 +108,7 @@ private:
     //! Can include any code that needs to be run only once during the instance's lifetime.
     virtual void setUp() = 0;
 
-    Eigen::Vector6d lastUpdateElements;
+    EquinoctialElements lastUpdateElements;
 
     //! Update instance's members that are computed from the current auxiliary elements.
     virtual void updateMembers( ) = 0;
@@ -140,10 +143,12 @@ private:
 
 
 
+} // namespace force_models
+
 } // namespace dsst
 
 } // namespace propagators
 
 } // namespace tudat
 
-#endif // TUDAT_DSST_FORCEMODEL_H
+#endif // TUDAT_PROPAGATORS_DSST_FORCEMODELS_FORCEMODEL_H

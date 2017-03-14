@@ -22,9 +22,12 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 
 //! Function to compute the U derivatives for the current state [ Eq. 3.1-(6) ]
-Eigen::Vector6d ZonalSphericalHarmonicGravityForceModel::computeMeanDisturbingFunctionPartialDerivatives()
+Eigen::Vector6d ZonalSphericalHarmonicGravity::computeMeanDisturbingFunctionPartialDerivatives()
 {
     using namespace coefficients_factories;
 
@@ -101,7 +104,7 @@ Eigen::Vector6d ZonalSphericalHarmonicGravityForceModel::computeMeanDisturbingFu
     }
 
     // multiply by -µ/a
-    const double mu_a = -mu() / a;
+    const double mu_a = -mu / a;
     U *= mu_a;
     dU *= mu_a;
 
@@ -111,11 +114,13 @@ Eigen::Vector6d ZonalSphericalHarmonicGravityForceModel::computeMeanDisturbingFu
 
 
 //! Get the short period terms for the current auxiliary elements
-Eigen::Vector6d ZonalSphericalHarmonicGravityForceModel::computeShortPeriodTerms( )
+Eigen::Vector6d ZonalSphericalHarmonicGravity::computeShortPeriodTerms( )
 {
     return Eigen::Vector6d::Zero();
 }
 
+
+} // namespace force_models
 
 } // namespace dsst
 

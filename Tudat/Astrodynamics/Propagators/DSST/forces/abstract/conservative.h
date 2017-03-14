@@ -1,5 +1,5 @@
-#ifndef TUDAT_DSST_CONSERVATIVE_H
-#define TUDAT_DSST_CONSERVATIVE_H
+#ifndef TUDAT_PROPAGATORS_DSST_FORCEMODELS_CONSERVATIVE_H
+#define TUDAT_PROPAGATORS_DSST_FORCEMODELS_CONSERVATIVE_H
 
 #include "forceModel.h"
 #include "Tudat/Astrodynamics/Propagators/DSST/utilities/upperBounds.h"
@@ -13,12 +13,15 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 
 //! Abstract class for perturbations that can be expressed as a disturbing potential
-class ConservativeForceModel : public virtual ForceModel {
+class Conservative : public virtual ForceModel {
 protected:
 
-    ConservativeForceModel( AuxiliaryElements &auxiliaryElements ) :
+    Conservative( AuxiliaryElements &auxiliaryElements ) :
         ForceModel( auxiliaryElements            ),
         VnsFactory    ( auxiliaryElements.VnsFactory ) { }
 
@@ -90,10 +93,12 @@ private:
 
 
 
+} // namespace force_models
+
 } // namespace dsst
 
 } // namespace propagators
 
 } // namespace tudat
 
-#endif // TUDAT_DSST_CONSERVATIVE_H
+#endif // TUDAT_PROPAGATORS_DSST_FORCEMODELS_CONSERVATIVE_H

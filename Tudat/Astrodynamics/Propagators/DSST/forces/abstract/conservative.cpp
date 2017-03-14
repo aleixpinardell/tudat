@@ -19,9 +19,12 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 
 //! Update instance's members that are computed from the current auxiliary elements.
-void ConservativeForceModel::updateMembers( )
+void Conservative::updateMembers( )
 {
     //\Chi^{-2}
     B2 = B * B;
@@ -50,7 +53,7 @@ void ConservativeForceModel::updateMembers( )
 
 
 //! Get the mean element rates for the current auxiliary elements [ Eq. 3.1-(1) ]
-Eigen::Vector6d ConservativeForceModel::computeMeanElementRates( )
+Eigen::Vector6d Conservative::computeMeanElementRates( )
 {
     // Compute potential U derivatives
     const Eigen::Vector6d dU = computeMeanDisturbingFunctionPartialDerivatives();
@@ -80,6 +83,8 @@ Eigen::Vector6d ConservativeForceModel::computeMeanElementRates( )
     return meanElementRates;
 }
 
+
+} // namespace force_models
 
 } // namespace dsst
 

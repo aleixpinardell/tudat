@@ -36,7 +36,7 @@ enum TranslationalPropagatorType
 {
     cowell = 0,
     encke = 1,
-    dsst
+    dsst_mean = 2
 };
 
 

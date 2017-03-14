@@ -1,5 +1,5 @@
-#ifndef TUDAT_DSST_CENTRALBODYPERTURBED_H
-#define TUDAT_DSST_CENTRALBODYPERTURBED_H
+#ifndef TUDAT_PROPAGATORS_DSST_FORCEMODELS_CENTRALBODYPERTURBED_H
+#define TUDAT_PROPAGATORS_DSST_FORCEMODELS_CENTRALBODYPERTURBED_H
 
 #include "forceModel.h"
 
@@ -12,14 +12,18 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 
 //! Abstract class for perturbations cuased by central bodies
-class CentralBodyPerturbedForceModel : public virtual ForceModel {
+class CentralBodyPerturbed : public virtual ForceModel {
 protected:
 
-    CentralBodyPerturbedForceModel( AuxiliaryElements &auxiliaryElements ) :
-    ForceModel( auxiliaryElements             ),
-    centralBody   ( auxiliaryElements.centralBody ) { }
+    CentralBodyPerturbed( AuxiliaryElements &auxiliaryElements ) :
+    ForceModel ( auxiliaryElements             ),
+    centralBody( auxiliaryElements.centralBody ),
+    mu(          auxiliaryElements.mu          ) { }
 
 
     //! Set up the force model.
@@ -31,16 +35,16 @@ protected:
     virtual void updateMembers( );
 
     //! The central body exerting the acceleration
-    const Body &centralBody;
+    boost::shared_ptr< CelestialBody > centralBody;
 
     //! Standard gravitational parameter μ for the central body in m³/s²
-    double mu() {
-        return centralBody.getGravitationalParameter();
-    }
+    double &mu;
 
 };
 
 
+
+} // namespace force_models
 
 } // namespace dsst
 
@@ -48,4 +52,4 @@ protected:
 
 } // namespace tudat
 
-#endif // TUDAT_DSST_CENTRALBODYPERTURBED_H
+#endif // TUDAT_PROPAGATORS_DSST_FORCEMODELS_CENTRALBODYPERTURBED_H

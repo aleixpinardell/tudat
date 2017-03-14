@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "coefficientsfactory.h"
+#include "coefficientsFactories.h"
 
 namespace tudat
 {

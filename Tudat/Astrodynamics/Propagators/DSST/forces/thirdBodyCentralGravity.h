@@ -1,7 +1,7 @@
-#ifndef TUDAT_DSST_THIRDBODYCENTRALGRAVITY_H
-#define TUDAT_DSST_THIRDBODYCENTRALGRAVITY_H
+#ifndef TUDAT_PROPAGATORS_DSST_FORCEMODELS_THIRDBODYCENTRALGRAVITY_H
+#define TUDAT_PROPAGATORS_DSST_FORCEMODELS_THIRDBODYCENTRALGRAVITY_H
 
-// #include "Tudat/Astrodynamics/Propagators/DSST/dsst.h"
+// #include "Tudat/Astrodynamics/Propagators/DSST/vectors.h"
 
 #include "abstract/conservativeThirdBodyPertubed.h"
 
@@ -17,9 +17,12 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 
 //! Final class for the contribution of a third body's central gravity
-class ThirdBodyCentralGravityForceModel final : public ConservativeThirdBodyPerturbedForceModel
+class ThirdBodyCentralGravity final : public ConservativeThirdBodyPerturbed
 {
 public:
 
@@ -28,15 +31,15 @@ public:
      * \param auxiliaryElements Auxiliary elements used to compute the mean element rates and short period terms.
      * \param thirdBody The third body exerting the acceleration.
      */
-    ThirdBodyCentralGravityForceModel( AuxiliaryElements &auxiliaryElements, Body &thirdBody ) :
+    ThirdBodyCentralGravity( AuxiliaryElements &auxiliaryElements, boost::shared_ptr< CelestialBody > thirdBody ) :
         ForceModel( auxiliaryElements ),
-        ConservativeThirdBodyPerturbedForceModel( auxiliaryElements, thirdBody ) { }
+        ConservativeThirdBodyPerturbed( auxiliaryElements, thirdBody ) { }
 
 
 private:
 
     double computeUfactor() {
-        return mu3() / R3;
+        return mu3 / R3;
     }
 
     //! Minimum value for n in the expansion
@@ -64,10 +67,12 @@ private:
 };
 
 
+} // namespace force_models
+
 } // namespace dsst
 
 } // namespace propagators
 
 } // namespace tudat
 
-#endif // TUDAT_DSST_THIRDBODYCENTRALGRAVITY_H
+#endif // TUDAT_PROPAGATORS_DSST_FORCEMODELS_THIRDBODYCENTRALGRAVITY_H

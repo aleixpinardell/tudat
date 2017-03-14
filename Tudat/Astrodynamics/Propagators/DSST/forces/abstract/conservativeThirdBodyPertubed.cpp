@@ -23,9 +23,12 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 
 //! Set the values of N and S for the series expansion of the disturbing potential.
-void ConservativeThirdBodyPerturbedForceModel::determineTruncationValues() {
+void ConservativeThirdBodyPerturbed::determineTruncationValues() {
     // Truncation tolerance.
     const double aor = a / R3;
     const double tol = ( aor > 0.3 || ( aor > 0.15 && ecc > 0.25 ) ) ?
@@ -46,7 +49,7 @@ void ConservativeThirdBodyPerturbedForceModel::determineTruncationValues() {
 
     // Auxiliary quantities.
     const double ao2rxx = aor / ( 2 * Chi2 );
-    double xmuarn       = ao2rxx * ao2rxx * mu3() / ( Chi * R3 );
+    double xmuarn       = ao2rxx * ao2rxx * mu3 / ( Chi * R3 );
     double term         = 0.0;
 
     // Compute max power for a/R3 and e.
@@ -90,7 +93,7 @@ void ConservativeThirdBodyPerturbedForceModel::determineTruncationValues() {
 
 
 //! Function to compute the U derivatives for the current state [ Eq. 3.2-(2) ]
-Eigen::Vector6d ConservativeThirdBodyPerturbedForceModel::computeMeanDisturbingFunctionPartialDerivatives()
+Eigen::Vector6d ConservativeThirdBodyPerturbed::computeMeanDisturbingFunctionPartialDerivatives()
 {
     using namespace coefficients_factories;
 
@@ -137,7 +140,7 @@ Eigen::Vector6d ConservativeThirdBodyPerturbedForceModel::computeMeanDisturbingF
         // Kronecker symbol ( 2 - delta_{0,s} )
         const double delta0s = ( s == 0 ) ? 1.0 : 2.0;
 
-        for ( unsigned int n = std::max( 2, (int) s ); n <= N; n++ ) {
+        for ( unsigned int n = nMin( s ); n <= N; n++ ) {
             // Vns is zero for odd ( n - s ), thus only consider when ( n - s ) is even
             if ( ( n - s ) % 2 == 0 ) {
                 // Coefficients for current n and s
@@ -177,11 +180,13 @@ Eigen::Vector6d ConservativeThirdBodyPerturbedForceModel::computeMeanDisturbingF
 
 
 //! Get the short period terms for the current auxiliary elements [ Sections 2.5.2 and 4.2 ]
-Eigen::Vector6d ConservativeThirdBodyPerturbedForceModel::computeShortPeriodTerms( )
+Eigen::Vector6d ConservativeThirdBodyPerturbed::computeShortPeriodTerms( )
 {
     return Eigen::Vector6d::Zero();
 }
 
+
+} // namespace force_models
 
 } // namespace dsst
 

@@ -1049,11 +1049,11 @@ ScalarType convertSemiMajorAxisToEllipticalMeanMotion(
 /*!
  * Get eccentric longitude for set of equinoctial elements.
  * [Semianalytic satellite theory, Danielson (1995), Section 7.1]
- * \param equinoctialElements Set of equinoctial elements.
- * \return Eccentric longitude.                                                    [rad]
+ * \param equinoctialElements Set of equinoctial elements, with the last element being the mean longitude.
+ * \return Eccentric longitude [rad]
  */
 template< typename ScalarType = double >
-ScalarType getEccentricLongitude( const Eigen::Matrix< ScalarType, 6, 1 > equinoctialElements )
+ScalarType getEccentricLongitudeFromMean( Eigen::Matrix< ScalarType, 6, 1 > equinoctialElements )
 {
     using namespace tudat::mathematical_constants;
     using namespace tudat::basic_mathematics;
@@ -1061,9 +1061,9 @@ ScalarType getEccentricLongitude( const Eigen::Matrix< ScalarType, 6, 1 > equino
     /// Solve equinoctial form of Kepler's Equation [ Section 7.1 ]
 
     // Get necessary components
-    const ScalarType h = equinoctialElements[ hIndex ];
-    const ScalarType k = equinoctialElements[ kIndex ];
-    const ScalarType lambda = equinoctialElements[ meanLongitudeIndex ];
+    const ScalarType h      = equinoctialElements( hIndex );
+    const ScalarType k      = equinoctialElements( kIndex );
+    const ScalarType lambda = equinoctialElements( fastVariableIndex );
 
     // Initialize eccentric longitude (first guess)
     ScalarType F = lambda;
@@ -1088,23 +1088,23 @@ ScalarType getEccentricLongitude( const Eigen::Matrix< ScalarType, 6, 1 > equino
 /*!
  * Get true longitude for set of equinoctial elements.
  * [Semianalytic satellite theory, Danielson (1995), Section 2.1.4]
- * \param equinoctialElements Set of equinoctial elements.
- * \return True longitude.                                                    [rad]
+ * \param equinoctialElements Set of equinoctial elements, with the last element being the eccentric longitude.
+ * \return True longitude [rad]
  */
 template< typename ScalarType = double >
-ScalarType getTrueLongitude( const Eigen::Matrix< ScalarType, 6, 1 > equinoctialElements )
+ScalarType getTrueLongitudeFromEccentric( Eigen::Matrix< ScalarType, 6, 1 > equinoctialElements )
 {
     using namespace tudat::mathematical_constants;
     using namespace tudat::basic_mathematics;
 
     // Get eccentric longitude and sin, cos components
-    const ScalarType F = getEccentricLongitude( equinoctialElements );
+    const ScalarType F = equinoctialElements( fastVariableIndex );
     const ScalarType sinF = std::sin( F );
     const ScalarType cosF = std::cos( F );
 
     // Get necessary components
-    const ScalarType h = equinoctialElements[ hIndex ];
-    const ScalarType k = equinoctialElements[ kIndex ];
+    const ScalarType h = equinoctialElements( hIndex );
+    const ScalarType k = equinoctialElements( kIndex );
 
     // Pre-compute repeated terms
     const ScalarType h2 = pow( h, 2 );
@@ -1119,6 +1119,96 @@ ScalarType getTrueLongitude( const Eigen::Matrix< ScalarType, 6, 1 > equinoctial
 
     return computeModulo( std::atan2( sinL, cosL ), 2*PI );
 }
+
+
+//! Get eccentric longitude for set of equinoctial elements
+/*!
+ * Get eccentric longitude for set of equinoctial elements.
+ * [Semianalytic satellite theory, Danielson (1995), Section 2.1.4]
+ * \param equinoctialElements Set of equinoctial elements, with the last element being the true longitude.
+ * \return Eccentric longitude [rad]
+ */
+template< typename ScalarType = double >
+ScalarType getEccentricLongitudeFromTrue( Eigen::Matrix< ScalarType, 6, 1 > equinoctialElements )
+{
+    using namespace tudat::mathematical_constants;
+    using namespace tudat::basic_mathematics;
+
+    // Get true longitude and sin, cos components
+    const ScalarType L = equinoctialElements( fastVariableIndex );
+    const ScalarType sinL = std::sin( L );
+    const ScalarType cosL = std::cos( L );
+
+    // Get necessary components
+    const ScalarType h = equinoctialElements( hIndex );
+    const ScalarType k = equinoctialElements( kIndex );
+
+    // Pre-compute terms
+    const ScalarType h2 = pow( h, 2 );
+    const ScalarType k2 = pow( k, 2 );
+    const ScalarType b = 1 / ( 1 + std::sqrt( 1 - h2 - k2 ) );
+    const ScalarType c = h * k * b;
+    const ScalarType H = 1 - h2 * b;
+    const ScalarType K = 1 - k2 * b;
+    const ScalarType denom = ( 1 - h2 - k2 ) / ( 1 + h * sinL + k * cosL );
+    const ScalarType det = K * H - c * c;
+    const ScalarType dsinLh = denom * sinL + h;
+    const ScalarType dcosLk = denom * cosL + k;
+
+    // Solve system of equations
+    const ScalarType sinF = ( H * dsinLh - c * dcosLk ) / det;
+    const ScalarType cosF = ( K * dcosLk - c * dsinLh ) / det;
+
+    return computeModulo( std::atan2( sinF, cosF ), 2*PI );
+}
+
+
+//! Get true longitude for set of equinoctial elements
+/*!
+ * Get true longitude for set of equinoctial elements.
+ * [Semianalytic satellite theory, Danielson (1995), Section 2.1.4]
+ * \param equinoctialElements Set of equinoctial elements, with the last element being the mean longitude.
+ * \return True longitude [rad]
+ */
+template< typename ScalarType = double >
+ScalarType getTrueLongitudeFromMean( Eigen::Matrix< ScalarType, 6, 1 > equinoctialElements )
+{
+    equinoctialElements( fastVariableIndex ) = getEccentricLongitudeFromMean( equinoctialElements );
+    return getTrueLongitudeFromEccentric( equinoctialElements );
+}
+
+
+//! Get mean longitude for set of equinoctial elements
+/*!
+ * Get mean longitude for set of equinoctial elements.
+ * [Semianalytic satellite theory, Danielson (1995), Section 2.1.4]
+ * \param equinoctialElements Set of equinoctial elements, with the last element being the eccentric longitude.
+ * \return Mean longitude [rad]
+ */
+template< typename ScalarType = double >
+ScalarType getMeanLongitudeFromEccentric( Eigen::Matrix< ScalarType, 6, 1 > equinoctialElements )
+{
+    const ScalarType h = equinoctialElements( hIndex );
+    const ScalarType k = equinoctialElements( kIndex );
+    const ScalarType F = equinoctialElements( fastVariableIndex );
+    return F + h * std::cos( F ) - k * std::sin( F );
+}
+
+
+//! Get mean longitude for set of equinoctial elements
+/*!
+ * Get mean longitude for set of equinoctial elements.
+ * [Semianalytic satellite theory, Danielson (1995), Section 2.1.4]
+ * \param equinoctialElements Set of equinoctial elements, with the last element being the true longitude.
+ * \return Mean longitude [rad]
+ */
+template< typename ScalarType = double >
+ScalarType getMeanLongitudeFromTrue( Eigen::Matrix< ScalarType, 6, 1 > equinoctialElements )
+{
+    equinoctialElements( fastVariableIndex ) = getEccentricLongitudeFromTrue( equinoctialElements );
+    return getMeanLongitudeFromEccentric( equinoctialElements );
+}
+
 
 
 //! Get the basis vectors of the equinoctial reference frame
@@ -1183,6 +1273,7 @@ Eigen::Matrix< ScalarType, 3, 3 > getEquinoctialReferenceFrameBasisVectors( cons
  *          cartesianElements( 4 ) = y-velocity coordinate,                                   [m/s]
  *          cartesianElements( 5 ) = z-velocity coordinate.                                   [m/s]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body.
+ * \param fastVariableType Type of the last parameter of the equinoctial elements: mean, eccentric or true longitude.
  * \param retrogradeElements Whether to use the retrograde set of elements (to avoid singularities for orbits
  * with inclinations of 180 degrees). Default is false, which avoids singularities for equatorial orbits.
  * \return Converted state in equinoctial elements. The order of elements is fixed!
@@ -1191,17 +1282,19 @@ Eigen::Matrix< ScalarType, 3, 3 > getEquinoctialReferenceFrameBasisVectors( cons
  *          equinoctialElements( 2 ) = k component,                                             [-]
  *          equinoctialElements( 3 ) = p component,                                             [-]
  *          equinoctialElements( 4 ) = q component,                                             [-]
- *          equinoctialElements( 5 ) = mean longitude.                                        [rad]
+ *          equinoctialElements( 5 ) = mean/eccentric/true longitude.                         [rad]
  */
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToEquinoctialElements(
         const Eigen::Matrix< ScalarType, 6, 1 >& cartesianElements,
-        const ScalarType centralBodyGravitationalParameter, const bool retrogradeElements = false )
+        const ScalarType centralBodyGravitationalParameter,
+        const FastVariableType fastVariableType = meanType,
+        const bool retrogradeElements = false )
 {
     using std::pow;
 
     // Set tolerance.
-    const ScalarType tolerance = 20.0 * std::numeric_limits< ScalarType >::epsilon( );
+    // const ScalarType tolerance = 20.0 * std::numeric_limits< ScalarType >::epsilon( );
 
     // Determine the retrograde factor
     const ScalarType I = retrogradeElements ? -1 : 1;
@@ -1255,16 +1348,20 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToEquinoctialElements(
     const ScalarType cosF = k + ( ( 1 - k2 * b ) * X - hkb * Y ) / ( a * B );
     const ScalarType F = std::atan2( sinF, cosF );
 
-    // Compute the mean longitude [ Eq. 2.1.4-(2) ]
-    const ScalarType lambda = F + h * cosF - k * sinF;
-
     // Store components
     equinoctialElements( semiMajorAxisIndex ) = a;
     equinoctialElements( hIndex )             = h;
     equinoctialElements( kIndex )             = k;
     equinoctialElements( pIndex )             = p;
     equinoctialElements( qIndex )             = q;
-    equinoctialElements( meanLongitudeIndex ) = lambda;
+    equinoctialElements( fastVariableIndex )  = F;
+
+    // Convert to mean or true longitude if necessary
+    if ( fastVariableType == meanType ) {
+        equinoctialElements( fastVariableIndex ) = getMeanLongitudeFromEccentric( equinoctialElements );
+    } else if ( fastVariableType == trueType ) {
+        equinoctialElements( fastVariableIndex ) = getTrueLongitudeFromEccentric( equinoctialElements );
+    }
 
     // Return converted equinoctial elements.
     return equinoctialElements;
@@ -1283,6 +1380,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToEquinoctialElements(
  *          equinoctialElements( 4 ) = q component,                                             [-]
  *          equinoctialElements( 5 ) = mean longitude.                                        [rad]
  * \param centralBodyGravitationalParameter Gravitational parameter of central body.
+ * \param fastVariableType Type of the last parameter of the equinoctial elements: mean, eccentric or true longitude.
  * \param retrogradeElements Whether to use the retrograde set of elements (to avoid singularities for orbits
  * with inclinations of 180 degrees). Default is false, which avoids singularities for equatorial orbits.
  * \return Converted state in Cartesian elements. The order of elements is fixed!
@@ -1296,13 +1394,15 @@ Eigen::Matrix< ScalarType, 6, 1 > convertCartesianToEquinoctialElements(
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 6, 1 > convertEquinoctialToCartesianElements(
         const Eigen::Matrix< ScalarType, 6, 1 >& equinoctialElements,
-        const ScalarType centralBodyGravitationalParameter, const bool retrogradeElements = false )
+        const ScalarType centralBodyGravitationalParameter,
+        const FastVariableType fastVariableType = meanType,
+        const bool retrogradeElements = false )
 {
     using std::pow;
     using std::sqrt;
 
     // Set tolerance.
-    const ScalarType tolerance = 20.0 * std::numeric_limits< ScalarType >::epsilon( );
+    // const ScalarType tolerance = 20.0 * std::numeric_limits< ScalarType >::epsilon( );
 
     // Declare converted Cartesian elements.
     Eigen::Matrix< ScalarType, 6, 1 > cartesianElements;
@@ -1321,7 +1421,13 @@ Eigen::Matrix< ScalarType, 6, 1 > convertEquinoctialToCartesianElements(
     const Eigen::Matrix< ScalarType, 3, 1 > g = fg.col( 1 );
 
     // Get true longitude
-    const ScalarType L = getTrueLongitude( equinoctialElements );
+    ScalarType L;
+    switch ( fastVariableType ) {
+    case meanType:      L = getTrueLongitudeFromMean( equinoctialElements );      break;
+    case eccentricType: L = getTrueLongitudeFromEccentric( equinoctialElements ); break;
+    case trueType:      L = equinoctialElements( fastVariableIndex );             break;
+    default: throw std::runtime_error( "Unrecognized fast variable type");        break;
+    }
 
     // Compute repeated parameters
     const ScalarType h2 = pow( h, 2 );
@@ -1347,12 +1453,12 @@ Eigen::Matrix< ScalarType, 6, 1 > convertEquinoctialToCartesianElements(
     const Eigen::Matrix< ScalarType, 3, 1 > velocity = Xdot * f + Ydot * g;
 
     // Store Cartesian components
-    cartesianElements[ xCartesianPositionIndex ] = position( 0 );
-    cartesianElements[ yCartesianPositionIndex ] = position( 1 );
-    cartesianElements[ zCartesianPositionIndex ] = position( 2 );
-    cartesianElements[ xCartesianVelocityIndex ] = velocity( 0 );
-    cartesianElements[ yCartesianVelocityIndex ] = velocity( 1 );
-    cartesianElements[ zCartesianVelocityIndex ] = velocity( 2 );
+    cartesianElements( xCartesianPositionIndex ) = position( 0 );
+    cartesianElements( yCartesianPositionIndex ) = position( 1 );
+    cartesianElements( zCartesianPositionIndex ) = position( 2 );
+    cartesianElements( xCartesianVelocityIndex ) = velocity( 0 );
+    cartesianElements( yCartesianVelocityIndex ) = velocity( 1 );
+    cartesianElements( zCartesianVelocityIndex ) = velocity( 2 );
 
     // Return converted Cartesian elements.
     return cartesianElements;
@@ -1370,7 +1476,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertEquinoctialToCartesianElements(
  *          keplerianElements( 3 ) = argument of periapsis,                                   [rad]
  *          keplerianElements( 4 ) = longitude of ascending node,                             [rad]
  *          keplerianElements( 5 ) = true anomaly.                                            [rad]
- * \param centralBodyGravitationalParameter Gravitational parameter of central body.
+ * \param fastVariableType Type of the last parameter of the equinoctial elements: mean, eccentric or true longitude.
  * \param retrogradeElements Whether to use the retrograde set of elements (to avoid singularities for orbits
  * with inclinations of 180 degrees). Default is false, which avoids singularities for equatorial orbits.
  * \return Converted state in equinoctial elements. The order of elements is fixed!
@@ -1384,10 +1490,10 @@ Eigen::Matrix< ScalarType, 6, 1 > convertEquinoctialToCartesianElements(
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToEquinoctialElements(
         const Eigen::Matrix< ScalarType, 6, 1 >& keplerianElements,
-        const ScalarType centralBodyGravitationalParameter, const bool retrogradeElements = false )
+        const FastVariableType fastVariableType, const bool retrogradeElements = false )
 {
     // Set tolerance.
-    const ScalarType tolerance = 20.0 * std::numeric_limits< ScalarType >::epsilon( );
+    // const ScalarType tolerance = 20.0 * std::numeric_limits< ScalarType >::epsilon( );
 
     // Determine the retrograde factor
     const ScalarType I = retrogradeElements ? -1 : 1;
@@ -1403,9 +1509,18 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToEquinoctialElements(
     const ScalarType Omega = keplerianElements( longitudeOfAscendingNodeIndex );
     const ScalarType f = keplerianElements( trueAnomalyIndex );
 
-    // Convert true anomaly to mean anomaly
-    const ScalarType E = convertTrueAnomalyToEllipticalEccentricAnomaly( f, e );
-    const ScalarType M = convertEllipticalEccentricAnomalyToMeanAnomaly( E, e );
+    // Convert true anomaly to eccentric or mean anomaly if necessary
+    ScalarType fastVariable;
+    switch ( fastVariableType ) {
+    case meanType: {
+        const ScalarType E = convertTrueAnomalyToEllipticalEccentricAnomaly( f, e );
+        fastVariable = convertEllipticalEccentricAnomalyToMeanAnomaly( E, e );
+        break;
+    }
+    case eccentricType: fastVariable = convertTrueAnomalyToEllipticalEccentricAnomaly( f, e ); break;
+    case trueType:      fastVariable = f;                                                      break;
+    default: throw std::runtime_error( "Unrecognized fast variable type");        break;
+    }
 
     // Pre-compute shared terms
     const ScalarType longitudePeriapsis = omega + I * Omega;
@@ -1417,7 +1532,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToEquinoctialElements(
     equinoctialElements( kIndex ) = e * std::cos( longitudePeriapsis );
     equinoctialElements( pIndex ) = tani2 * std::sin( Omega );
     equinoctialElements( qIndex ) = tani2 * std::cos( Omega );
-    equinoctialElements( meanLongitudeIndex ) = M + longitudePeriapsis;
+    equinoctialElements( fastVariableIndex ) = fastVariable + longitudePeriapsis;
 
     // Return converted equinoctial elements.
     return equinoctialElements;
@@ -1435,7 +1550,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToEquinoctialElements(
  *          equinoctialElements( 3 ) = p component,                                             [-]
  *          equinoctialElements( 4 ) = q component,                                             [-]
  *          equinoctialElements( 5 ) = mean longitude.                                        [rad]
- * \param centralBodyGravitationalParameter Gravitational parameter of central body.
+ * \param fastVariableType Type of the last parameter of the equinoctial elements: mean, eccentric or true longitude.
  * \param retrogradeElements Whether to use the retrograde set of elements (to avoid singularities for orbits
  * with inclinations of 180 degrees). Default is false, which avoids singularities for equatorial orbits.
  * \return Converted state in Keplerian elements. The order of elements is fixed!
@@ -1449,7 +1564,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertKeplerianToEquinoctialElements(
 template< typename ScalarType = double >
 Eigen::Matrix< ScalarType, 6, 1 > convertEquinoctialToKeplerianElements(
         const Eigen::Matrix< ScalarType, 6, 1 >& equinoctialElements,
-        const ScalarType centralBodyGravitationalParameter, const bool retrogradeElements = false )
+        const FastVariableType fastVariableType, const bool retrogradeElements = false )
 {
     using std::pow;
     using std::sqrt;
@@ -1457,7 +1572,7 @@ Eigen::Matrix< ScalarType, 6, 1 > convertEquinoctialToKeplerianElements(
     using namespace tudat::basic_mathematics;
 
     // Set tolerance.
-    const ScalarType tolerance = 20.0 * std::numeric_limits< ScalarType >::epsilon( );
+    // const ScalarType tolerance = 20.0 * std::numeric_limits< ScalarType >::epsilon( );
 
     // Determine the retrograde factor
     const ScalarType I = retrogradeElements ? -1 : 1;
@@ -1487,7 +1602,14 @@ Eigen::Matrix< ScalarType, 6, 1 > convertEquinoctialToKeplerianElements(
     const ScalarType Omega = std::atan2( sinOmega, cosOmega );
 
     // Get true longitude
-    const ScalarType L = getTrueLongitude( equinoctialElements );
+    // Get true longitude
+    ScalarType L;
+    switch ( fastVariableType ) {
+    case meanType:      L = getTrueLongitudeFromMean( equinoctialElements );      break;
+    case eccentricType: L = getTrueLongitudeFromEccentric( equinoctialElements ); break;
+    case trueType:      L = equinoctialElements( fastVariableIndex );             break;
+    default: throw std::runtime_error( "Unrecognized fast variable type");        break;
+    }
 
     // Store values [Eq. (2), (3)]
     keplerianElements( semiMajorAxisIndex )             = a;

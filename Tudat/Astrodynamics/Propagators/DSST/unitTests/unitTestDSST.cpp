@@ -19,7 +19,10 @@
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/modifiedEquinoctialElementConversions.h"
 
-#include "Tudat/Astrodynamics/Propagators/DSST/forces/forceModelTypes.h"
+#include "Tudat/SimulationSetup/EnvironmentSetup/createAtmosphereModel.h"
+#include "Tudat/Astrodynamics/ElectroMagnetism/radiationPressureInterface.h"
+
+#include "Tudat/Astrodynamics/Propagators/DSST/forces/availableForceModels.h"
 #include "Tudat/Astrodynamics/Propagators/DSST/utilities/osculatingToMean.h"
 
 
@@ -29,21 +32,45 @@ namespace tudat
 namespace unit_tests
 {
 
-double earthGM() {
-    return 4e14;
+double bodyMass() {
+    return 3000;
 }
+
+double bodyArea() {
+    return 15;
+}
+
+double bodyCD() {
+    return 2.2;
+}
+
+double bodyCR() {
+    return 1.5;
+}
+
 
 Eigen::Vector3d earthPosition() {
     return ( Eigen::Vector3d() << 150e9, 0, 0 ).finished();
 }
 
+double earthGM() {
+    return 3.9860044e14;
+}
 
-double sunGM() {
-    return 1.33e20;
+double earthMeanRadius() {
+    return 6371e3;
+}
+
+Eigen::Vector3d earthRotationalVelocity() {
+    return ( Eigen::Vector3d() << 0, 0, 2 * mathematical_constants::PI / physical_constants::JULIAN_DAY ).finished();
 }
 
 Eigen::Vector3d sunPosition() {
     return ( Eigen::Vector3d() << 1e4, -1e3, 1e2 ).finished();
+}
+
+double sunGM() {
+    return 1.327e20;
 }
 
 
@@ -51,25 +78,50 @@ BOOST_AUTO_TEST_SUITE( test_dsst_propagator )
 
 BOOST_AUTO_TEST_CASE( dsst_propagation )
 {
-    using namespace tudat::orbital_element_conversions;
-    using namespace tudat::basic_mathematics;
-    using namespace tudat::basic_astrodynamics;
-    using namespace tudat::mathematical_constants;
-    using namespace tudat::propagators::dsst;
+    using namespace orbital_element_conversions;
+    using namespace basic_mathematics;
+    using namespace basic_astrodynamics;
+    using namespace mathematical_constants;
 
-    auto tolerance = 100 * std::numeric_limits< double >::epsilon( );
+    using namespace aerodynamics;
+    using namespace electro_magnetism;
+    using namespace simulation_setup;
+
+    using namespace propagators::dsst;
+    using namespace propagators::dsst::force_models;
+
+    // auto tolerance = 100 * std::numeric_limits< double >::epsilon( );
 
 
-    double initialEpoch = 0.0;
+    double initialEpoch = 7.9025e7;  // 4 Jul 2002
 
     // Transform to equinoctial
     Eigen::Vector6d keplerian;
-    keplerian << 25e6, 0.7, 10 * (PI/180), PI/3, PI, 0;
-    Eigen::Vector6d equinoctial = convertKeplerianToEquinoctialElements( keplerian, earthGM() );
+    keplerian << 24288e3, 0.7293, 0.1744, 0.0226, 3.3657, 2.9189;
+    EquinoctialElements equinoctial = EquinoctialElements::fromKeplerian( keplerian, eccentricType );
 
-    // Construct bodies
-    Body centralBody( "Earth", earthGM, earthPosition );
-    Body thirdBody( "Sun", sunGM, sunPosition );
+
+    // Create bodies
+
+    // SPACECRAFT
+    boost::shared_ptr< Body > propagatedBody = boost::make_shared< Body >( "Spacecraft" );
+    propagatedBody->defineMass( bodyMass );
+    propagatedBody->defineCrossSectionalArea( bodyArea );
+    propagatedBody->defineDragCoefficient( bodyCD );
+    // propagatedBody->defineRadiationPressureCoefficient( bodyCR );
+
+    // EARTH
+    boost::shared_ptr< SphericalCelestialBody > centralBody = boost::make_shared< SphericalCelestialBody >( "Earth" );
+    centralBody->definePosition( earthPosition );
+    centralBody->defineGravitationalParameter( earthGM );
+    centralBody->defineRadius( earthMeanRadius );
+    centralBody->defineRotationalVelocity( earthRotationalVelocity );
+
+    // SUN
+    boost::shared_ptr< CelestialBody > thirdBody = boost::make_shared< CelestialBody >( "Sun" );
+    thirdBody->definePosition( sunPosition );
+    thirdBody->defineGravitationalParameter( sunGM );
+
 
     // Model GGM02C
     const double R = 6378136.30;                          // reference radius for the geopotential expansion [m]
@@ -81,24 +133,40 @@ BOOST_AUTO_TEST_CASE( dsst_propagation )
                                   9.0504630229132E-08 };  // J7
 
     // Create auxiliary elements (used throughout the propagation by all force models)
-    AuxiliaryElements aux( centralBody, initialEpoch, equinoctial );
+    AuxiliaryElements aux( propagatedBody, centralBody );
+    aux.updateState( initialEpoch, equinoctial );
 
     // Acceleration models from Tudat
     std::vector< AvailableAcceleration > accelerationModels
-            = { spherical_harmonic_gravity, third_body_central_gravity };
+            = { spherical_harmonic_gravity, third_body_central_gravity, aerodynamic, cannon_ball_radiation_pressure };
 
     // Create all force models
     std::vector< boost::shared_ptr< ForceModel > > forceModels;
     for ( auto accelerationModel : accelerationModels ) { // for each perturbation
         switch ( accelerationModel ) {
         case spherical_harmonic_gravity: {
-            ZonalSphericalHarmonicGravityForceModel forceModel( aux, R, Js );
-            forceModels.push_back( boost::make_shared< ZonalSphericalHarmonicGravityForceModel >( forceModel ) );
+            ZonalSphericalHarmonicGravity forceModel( aux, R, Js );
+            forceModels.push_back( boost::make_shared< ZonalSphericalHarmonicGravity >( forceModel ) );
             break;
         }
         case third_body_central_gravity: {
-            ThirdBodyCentralGravityForceModel forceModel( aux, thirdBody );
-            forceModels.push_back( boost::make_shared< ThirdBodyCentralGravityForceModel >( forceModel ) );
+            ThirdBodyCentralGravity forceModel( aux, thirdBody );
+            forceModels.push_back( boost::make_shared< ThirdBodyCentralGravity >( forceModel ) );
+            break;
+        }
+        case aerodynamic: {
+            const double altitudeLimit = 800e3;
+            auto atmosphereSettings = boost::make_shared< AtmosphereSettings >( nrlmsise00 );
+            auto atmosphereModel = createAtmosphereModel( atmosphereSettings, "Earth" );
+            AtmosphericDrag forceModel( aux, atmosphereModel, altitudeLimit );
+            forceModels.push_back( boost::make_shared< AtmosphericDrag >( forceModel ) );
+            break;
+        }
+        case cannon_ball_radiation_pressure: {
+            auto radiationPressureInterface = boost::make_shared< RadiationPressureInterface >(
+                        boost::lambda::constant( 3.839E26 ), sunPosition, earthPosition, bodyCR(), bodyArea() );
+            ConservativeRadiationPressure forceModel( aux, thirdBody, radiationPressureInterface );
+            forceModels.push_back( boost::make_shared< ConservativeRadiationPressure >( forceModel ) );
             break;
         }
         default:
@@ -108,7 +176,7 @@ BOOST_AUTO_TEST_CASE( dsst_propagation )
     }
 
     // Transform aux to mean elements before starting with the propagation
-    transformOsculatingToMeanElements( aux, forceModels );
+    element_conversions::transformOsculatingToMeanElements( aux, forceModels );
 
 
 
@@ -123,7 +191,13 @@ BOOST_AUTO_TEST_CASE( dsst_propagation )
             Eigen::Vector6d Ai = forceModel->getMeanElementRates();
             meanElementRate += Ai;
             std::cout << Ai << "\n" << std::endl;
+            // std::cout << Ai.norm() << "\n" << std::endl;
         }
+
+        // Add mean motion to fast variable derivative
+        meanElementRate( fastVariableIndex ) += aux.n;
+
+        // Store mean element rate
         meanElementRates[ epoch ] = meanElementRate;
 
         // Now we have k1 = A(t) for the RK4 integrator (step-size ∆)

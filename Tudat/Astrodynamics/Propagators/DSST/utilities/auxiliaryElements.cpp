@@ -27,16 +27,23 @@ void AuxiliaryElements::updateMembers()
     using std::sqrt;
     using std::pow;
 
+    // Properties that depend on other bodies (constant through the integration step)
+    mass = propagatedBody->getMass();
+    area = propagatedBody->getCrossSectionalArea();
+    CD   = propagatedBody->getDragCoefficient();
+    // CR   = propagatedBody->getRadiationPressureCoefficient();
+    mu   =    centralBody->getGravitationalParameter();
+
     // Retrograde factor
-    I = retrogradeElements ? -1 : 1;
+    I = equinoctialElements.isRetrograde() ? -1 : 1;
 
     // Get equinoctial elements
-    sma = equinoctialElements[ semiMajorAxisIndex ];
-    h   = equinoctialElements[ hIndex ];
-    k   = equinoctialElements[ kIndex ];
-    p   = equinoctialElements[ pIndex ];
-    q   = equinoctialElements[ qIndex ];
-    lm  = equinoctialElements[ meanLongitudeIndex ];
+    sma    = equinoctialElements( semiMajorAxisIndex );
+    h      = equinoctialElements( hIndex );
+    k      = equinoctialElements( kIndex );
+    p      = equinoctialElements( pIndex );
+    q      = equinoctialElements( qIndex );
+    // FIXME: lambda = equinoctialElements( meanType );
 
     // Define repeated values
     const double h2 = pow( h, 2 );
@@ -48,22 +55,23 @@ void AuxiliaryElements::updateMembers()
     ecc = sqrt( h2 + k2 );
 
     // Keplerian mean motion
-    n = sqrt( mu() / pow( sma, 3 ) );
+    n = sqrt( mu / sma ) / sma;
 
     // Keplerian period
-    period = 2 * PI * sma * sqrt( sma / mu() );
+    // FIXME period = 2 * PI / n;
 
     // Get eccentric and true longitudes
-    le = getEccentricLongitude( equinoctialElements );
-    lv = getTrueLongitude( equinoctialElements );
+    // FIXME: F = equinoctialElements( eccentricType );
+    // FIXME: L = equinoctialElements( trueType );
 
     // Get A, B and C
-    A = sqrt( mu() * sma );
+    A = sqrt( mu * sma );
     B = sqrt( 1 - h2 - k2 );
     C = 1 + p2 + q2;
 
     // Get equinoctial reference frame vectors
-    Eigen::Matrix< double, 3, 3 > fgw = getEquinoctialReferenceFrameBasisVectors( p, q, retrogradeElements );
+    Eigen::Matrix< double, 3, 3 > fgw =
+            getEquinoctialReferenceFrameBasisVectors( p, q, equinoctialElements.isRetrograde() );
     f = fgw.col( 0 );
     g = fgw.col( 1 );
     w = fgw.col( 2 );

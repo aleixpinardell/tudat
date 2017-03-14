@@ -1,5 +1,5 @@
-#ifndef TUDAT_DSST_H
-#define TUDAT_DSST_H
+#ifndef TUDAT_PROPAGATORS_DSST_VECTORS_H
+#define TUDAT_PROPAGATORS_DSST_VECTORS_H
 
 
 #include <cmath>
@@ -24,52 +24,8 @@ namespace dsst
 {
 
 
-//! Class for a body with a fixed name and a gravitational parameter and position pointing to external functions
-class Body
-{
-private:
-    //! Body's name
-    const std::string name;
-
-    //! Body's gravitational parameter [ m^3/s^2 ]
-    const boost::function< double() > gravitationalParameter;
-
-    //! Body's position in the reference system used in the propagation [ m, m, m ]
-    const boost::function< Eigen::Vector3d() > position;
-
-
-public:
-    //! Simple constructor
-    Body( const std::string &name, const boost::function< double() > &gravitationalParameter,
-          const boost::function< Eigen::Vector3d() > &position ) :
-        name( name ), gravitationalParameter( gravitationalParameter ), position( position ) { }
-
-    //! Get body's name
-    std::string getName() const {
-        return name;
-    }
-
-    //! Get body's gravitational parameter [ m^3/s^2 ]
-    double getGravitationalParameter() const {
-        return gravitationalParameter();
-    }
-
-    //! Get body's position [ m, m, m ]
-    Eigen::Vector3d getPosition() const {
-        return position();
-    }
-
-    //! Get position relative to another body [ m, m, m ]
-    Eigen::Vector3d getPositionFrom( const Body &body ) const {
-        return getPosition() - body.getPosition();
-    }
-
-    //! Get distance between to another body [ m ]
-    double getDistanceTo( const Body &body ) const {
-        return getPositionFrom( body ).norm();
-    }
-};
-
+//! Support for vectors (Vector), vectors of vectors (NestedVector) and vectors of vectors of vectors (TripleVector).
+//! Used throughout the DSST theory, thus defined at tudat::propagators::dsst scope.
 
 template< class T >
 class Vector : public std::vector< T > {
@@ -251,6 +207,7 @@ typedef TripleVector< double > TripleVectord;
 typedef TripleVector< int >    TripleVectori;
 
 
+/*
 class Equatable
 {
 public:
@@ -260,7 +217,7 @@ public:
         return ! ( *this == other );
     }
 };
-
+*/
 
 
 } // namespace dsst
@@ -270,4 +227,4 @@ public:
 } // namespace tudat
 
 
-#endif // TUDAT_DSST_H
+#endif // TUDAT_PROPAGATORS_DSST_VECTORS_H

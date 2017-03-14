@@ -23,11 +23,14 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 
 /*
 
 //! Get the short period terms for the current auxiliary elements [ Sections 2.5.2 and 4.2 ]
-Eigen::Vector6d ThirdBodyCentralGravityForceModel::computeShortPeriodTerms( )
+Eigen::Vector6d ThirdBodyCentralGravity::computeShortPeriodTerms( )
 {
     /// update order, suborder of Vns, Qns
     /// Store Gns up to max n
@@ -59,7 +62,7 @@ Eigen::Vector6d ThirdBodyCentralGravityForceModel::computeShortPeriodTerms( )
 
 
 //! Function to obtain the coefficients e^{-|j-s|} * w^{n,s}_j(e) and e^{-(j+s)} * w^{n,s}_{-j}(e) [ Eq. 4.2-(16,10) ]
-std::pair< double, double > ThirdBodyCentralGravityForceModel::getewjCoefficients(
+std::pair< double, double > ThirdBodyCentralGravity::getewjCoefficients(
         const int n, const int s, const int j )
 {
     using namespace coefficients_factories;
@@ -105,6 +108,8 @@ std::pair< double, double > ThirdBodyCentralGravityForceModel::getewjCoefficient
 
 */
 
+
+} // namespace force_models
 
 } // namespace dsst
 

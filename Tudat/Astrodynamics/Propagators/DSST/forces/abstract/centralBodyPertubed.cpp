@@ -19,9 +19,12 @@ namespace propagators
 namespace dsst
 {
 
+namespace force_models
+{
+
 
 //! Update instance's members that are computed from the current auxiliary elements.
-void CentralBodyPerturbedForceModel::updateMembers( )
+void CentralBodyPerturbed::updateMembers( )
 {
     // Direction cosines
     alpha = aux.alpha;
@@ -29,6 +32,8 @@ void CentralBodyPerturbedForceModel::updateMembers( )
     gamma = aux.gamma;
 }
 
+
+} // namespace force_models
 
 } // namespace dsst
 

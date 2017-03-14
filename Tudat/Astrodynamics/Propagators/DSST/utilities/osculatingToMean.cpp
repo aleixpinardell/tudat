@@ -8,7 +8,6 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "Tudat/Astrodynamics/Propagators/DSST/dsst.h"
 #include "osculatingToMean.h"
 
 namespace tudat
@@ -20,22 +19,24 @@ namespace propagators
 namespace dsst
 {
 
+namespace element_conversions
+{
+
 //! Transform osculating to mean elements.
 void transformOsculatingToMeanElements( AuxiliaryElements &auxiliaryElements,
-                    std::vector< boost::shared_ptr< ForceModel > > &forceModels )
+                    std::vector< boost::shared_ptr< force_models::ForceModel > > &forceModels )
 {
     using namespace tudat::mathematical_constants;
     using namespace tudat::orbital_element_conversions;
 
-    // Store initial osculating elements
-    Eigen::Vector6d osculating = auxiliaryElements.equinoctialElements;
-
     // Reference to mean elements
-    Eigen::Vector6d &mean = auxiliaryElements.equinoctialElements;
+    EquinoctialElements &mean = auxiliaryElements.equinoctialElements;
+
+    // Store initial osculating elements
+    Eigen::Vector6d osculating = mean.getComponents( meanType );
 
     // threshold for each parameter
-    Eigen::Vector6d keplerian = convertEquinoctialToKeplerianElements(
-                osculating, auxiliaryElements.mu(), auxiliaryElements.retrogradeElements );
+    Eigen::Vector6d keplerian = auxiliaryElements.equinoctialElements.toKeplerian();
     const double epsilon    = 1.0e-13;
     const double thresholdA = epsilon * ( 1 + std::fabs( keplerian( semiMajorAxisIndex ) ) );
     const double thresholdE = epsilon * ( 1 + keplerian( eccentricityIndex ) );
@@ -48,7 +49,7 @@ void transformOsculatingToMeanElements( AuxiliaryElements &auxiliaryElements,
     const unsigned int maxIterations = 200;
     while ( i++ < maxIterations ) {
         // Initialize rebuilt to be equal to the current mean elements
-        Eigen::Vector6d rebuilt = mean;
+        Eigen::Vector6d rebuilt = mean.getComponents( meanType );
 
         // Add short period terms to rebuilt to make it osculating
         for ( auto forceModel : forceModels ) {
@@ -67,8 +68,7 @@ void transformOsculatingToMeanElements( AuxiliaryElements &auxiliaryElements,
         }
 
         // Update mean elements and auxiliaryElements' members
-        mean += delta;
-        auxiliaryElements.updateMembers();
+        auxiliaryElements.updateComponentsByAdding( delta );
     }
 
     throw std::runtime_error( "Impossible to transform osculating to mean elements: "
@@ -76,7 +76,7 @@ void transformOsculatingToMeanElements( AuxiliaryElements &auxiliaryElements,
 }
 
 
-
+} // namespace element_conversions
 
 } // namespace dsst
 

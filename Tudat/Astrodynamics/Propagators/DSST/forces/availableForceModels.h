@@ -6,7 +6,7 @@
 #include "zonalSphericHarmoicGravity.h"
 #include "thirdBodyCentralGravity.h"
 #include "atmosphericDrag.h"
-#include "conservativeSolarRadiationPressure.h"
+#include "conservativeRadiationPressure.h"
 
 namespace tudat
 {

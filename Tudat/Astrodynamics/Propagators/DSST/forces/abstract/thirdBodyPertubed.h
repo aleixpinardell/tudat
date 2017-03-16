@@ -20,8 +20,8 @@ namespace force_models
 class ThirdBodyPerturbed : public virtual ForceModel {
 protected:
 
-    ThirdBodyPerturbed( AuxiliaryElements &auxiliaryElements, boost::shared_ptr< CelestialBody > thirdBody ) :
-    ForceModel( auxiliaryElements ), thirdBody( thirdBody ) { }
+    //! Constructor
+    ThirdBodyPerturbed( AuxiliaryElements &auxiliaryElements ) : ForceModel( auxiliaryElements ) { }
 
 
     //! Set up the force model.
@@ -32,14 +32,12 @@ protected:
     //! Update instance's members that are computed from the current auxiliary elements.
     virtual void updateMembers( );
 
-    //! The third body exerting the acceleration
-    boost::shared_ptr< CelestialBody > thirdBody;
 
-    //! Standard gravitational parameter μ for the third body in m³/s²
-    double mu3;
+    /// Derived classes are responsible for updating `r3` within their implementations of updateMembers().
+    /// Then, they need to call ThirdBodyPerturbed::updateMembers(), which computes R3 and the direction cosines.
 
     //! Position of the third body from the centre of mass of the central body
-    Eigen::Vector3d r3;
+    Eigen::Vector3d r3 = Eigen::Vector3d::Zero();
 
     //! Distance from center of mass of the central body to the 3rd body
     double R3;

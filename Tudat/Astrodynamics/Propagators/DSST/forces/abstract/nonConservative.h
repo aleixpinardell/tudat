@@ -1,6 +1,8 @@
 #ifndef TUDAT_PROPAGATORS_DSST_FORCEMODELS_NONCONSERVATIVE_H
 #define TUDAT_PROPAGATORS_DSST_FORCEMODELS_NONCONSERVATIVE_H
 
+#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
+
 #include "forceModel.h"
 
 namespace tudat
@@ -16,19 +18,29 @@ namespace force_models
 {
 
 
+typedef boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > AccelerationModel;
+
+
 //! Abstract class for perturbations that can be expressed as a disturbing potential
 class NonConservative : public virtual ForceModel {
 protected:
 
     //! Derived (non-abstract) classes must call this constructor with either
     //! maximumScalableNumberOfQuadratureAbscissae or fixedNumberOfQuadratureAbscissae ≥ 2
-    NonConservative( AuxiliaryElements &auxiliaryElements,
+    NonConservative( AuxiliaryElements &auxiliaryElements, AccelerationModel accelerationModel,
                      const unsigned int maximumScalableNumberOfQuadratureAbscissae,
                      const unsigned int fixedNumberOfQuadratureAbscissae = 0 ) :
         ForceModel( auxiliaryElements ),
+        accelerationModel( accelerationModel ),
         maximumScalableNumberOfQuadratureAbscissae( maximumScalableNumberOfQuadratureAbscissae ),
         fixedNumberOfQuadratureAbscissae( fixedNumberOfQuadratureAbscissae ) { }
 
+
+    //! Pointer to the dynamic simulator
+    // FIXME
+
+    //! Pointer to the corresponding acceleration model
+    AccelerationModel accelerationModel;
 
     //! Set up the force model.
     virtual void setUp() {
@@ -97,7 +109,7 @@ private:
     //! Fixed number of steps for the numerical quadrature of the averaging integral, regardless of integral limits.
     const unsigned int fixedNumberOfQuadratureAbscissae;
 
-    //! The largerst of fixedNumberOfQuadratureAbscissae and maximumScalableNumberOfQuadratureAbscissae*(L2-L1)/2π
+    //! The largerst of fixedNumberOfQuadratureAbscissae and maximumScalableNumberOfQuadratureAbscissae*√[(L2-L1)/2π]
     unsigned int N() const {
         using namespace mathematical_constants;
         return std::max( std::ceil( maximumScalableNumberOfQuadratureAbscissae * std::sqrt( ( L2 - L1 ) / ( 2*PI ) ) ),
@@ -114,7 +126,10 @@ private:
     Eigen::Vector6d integrand( const double trueLongitude );
 
     //! Set the values of the minimum and maximum true longitude for the averaging integral.
-    virtual Eigen::Vector3d getDisturbingAcceleration( ) = 0;
+    virtual Eigen::Vector3d getDisturbingAcceleration( ) {
+        // FIXME: update dynamic simulator to epoch -> update environment...
+        return accelerationModel->getAcceleration();
+    }
 
     //! Get the mean element rates for the current auxiliary elements [ Eq. 3.1-(1) ]
     Eigen::Vector6d computeMeanElementRates( );

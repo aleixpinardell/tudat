@@ -26,6 +26,20 @@ namespace dsst
 namespace force_models
 {
 
+//! Update instance's members that are computed from the current auxiliary elements.
+void ThirdBodyCentralGravity::updateMembers( )
+{
+    // Update vector to third body
+    CentralGravityAM thirdBodyCentralGravity = thirdBodyAM->getAccelerationModelForBodyUndergoingAcceleration();
+
+    mu3 = thirdBodyCentralGravity->getGravitationalParameterFunction()();
+
+    r3 = thirdBodyCentralGravity->getCurrentPositionOfBodyExertingAcceleration() -
+            thirdBodyCentralGravity->getCurrentPositionOfBodySubjectToAcceleration();
+
+    ConservativeThirdBodyPerturbed::updateMembers();
+}
+
 
 /*
 

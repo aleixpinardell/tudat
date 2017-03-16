@@ -23,7 +23,7 @@ protected:
 
     Conservative( AuxiliaryElements &auxiliaryElements ) :
         ForceModel( auxiliaryElements            ),
-        VnsFactory    ( auxiliaryElements.VnsFactory ) { }
+        VnsFactory( auxiliaryElements.VnsFactory ) { }
 
 
     //! Reference to auxiliaryElement's Vns coefficients generator, which is shared amongst several perturbations.

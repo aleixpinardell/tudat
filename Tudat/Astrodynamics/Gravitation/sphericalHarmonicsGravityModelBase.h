@@ -151,6 +151,12 @@ public:
         return isMutualAttractionUsed_;
     }
 
+
+    double getCurrentGravitationalParameter( )
+    {
+        return gravitationalParameter;
+    }
+
     //! Function to return current position vector of body exerting gravitational acceleration in inertial frame.
     /*!
      *  Function to return current position vector of body exerting gravitational acceleration in inertial frame.
@@ -170,6 +176,7 @@ public:
     {
         return positionOfBodyExertingAcceleration;
     }
+
 
 
 protected:

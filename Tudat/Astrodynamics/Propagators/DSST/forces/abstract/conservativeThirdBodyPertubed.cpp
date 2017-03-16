@@ -49,7 +49,8 @@ void ConservativeThirdBodyPerturbed::determineTruncationValues() {
 
     // Auxiliary quantities.
     const double ao2rxx = aor / ( 2 * Chi2 );
-    double xmuarn       = ao2rxx * ao2rxx * mu3 / ( Chi * R3 );
+    // double xmuarn       = ao2rxx * ao2rxx * mu3 / ( Chi * R3 );  // FIXME
+    double xmuarn       = ao2rxx * ao2rxx / Chi * Ufactor;
     double term         = 0.0;
 
     // Compute max power for a/R3 and e.

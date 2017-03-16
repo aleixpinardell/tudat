@@ -18,6 +18,7 @@
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyCowellStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/nBodyEnckeStateDerivative.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyDSSTStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/bodyMassStateDerivative.h"
 #include "Tudat/Astrodynamics/Propagators/customStateDerivative.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
@@ -157,6 +158,17 @@ createTranslationalStateDerivativeModel(
                 ( translationPropagatorSettings->accelerationsMap_, centralBodyData, translationPropagatorSettings->bodiesToIntegrate_,
                   initialKeplerElements, propagationStartTime );
 
+        break;
+    }
+    case DSST:
+    {
+        // Retrieve initial Cartesian elements for DSST propagator
+        const Eigen::Matrix< StateScalarType, 6, 1 > initialCartesianElements =
+                translationPropagatorSettings->getInitialStates( ).segment( 0, 6 );
+
+        stateDerivativeModel = boost::make_shared< NBodyDSSTStateDerivative< StateScalarType, TimeType > >
+                ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
+                  translationPropagatorSettings->bodiesToIntegrate_, initialCartesianElements, propagationStartTime );
         break;
     }
     default:

@@ -23,6 +23,7 @@
 
 #include <Eigen/Core>
 
+#include "radiationPressureInterface.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
 
 #include "Tudat/Astrodynamics/ElectroMagnetism/cannonBallRadiationPressureForce.h"
@@ -97,13 +98,15 @@ public:
             DoubleReturningFunction radiationPressureFunction,
             DoubleReturningFunction radiationPressureCoefficientFunction,
             DoubleReturningFunction areaFunction,
-            DoubleReturningFunction massFunction )
+            DoubleReturningFunction massFunction,
+            boost::shared_ptr< RadiationPressureInterface > radiationPressureInterface = NULL )
         : sourcePositionFunction_( sourcePositionFunction ),
           acceleratedBodyPositionFunction_( acceleratedBodyPositionFunction ),
           radiationPressureFunction_( radiationPressureFunction ),
           radiationPressureCoefficientFunction_( radiationPressureCoefficientFunction ),
           areaFunction_( areaFunction ),
-          massFunction_( massFunction )
+          massFunction_( massFunction ),
+          radiationPressureInterface_( radiationPressureInterface )
     {
         this->updateMembers( );
     }
@@ -126,14 +129,16 @@ public:
             DoubleReturningFunction radiationPressureFunction,
             const double radiationPressureCoefficient,
             const double area,
-            const double mass )
+            const double mass,
+            boost::shared_ptr< RadiationPressureInterface > radiationPressureInterface = NULL )
         : sourcePositionFunction_( sourcePositionFunction ),
           acceleratedBodyPositionFunction_( acceleratedBodyPositionFunction ),
           radiationPressureFunction_( radiationPressureFunction ),
           radiationPressureCoefficientFunction_(
               boost::lambda::constant( radiationPressureCoefficient ) ),
           areaFunction_( boost::lambda::constant( area ) ),
-          massFunction_( boost::lambda::constant( mass ) )
+          massFunction_( boost::lambda::constant( mass ) ),
+          radiationPressureInterface_( radiationPressureInterface )
     {
         this->updateMembers( );
     }
@@ -151,7 +156,7 @@ public:
     Eigen::Vector3d getAcceleration( )
     {
         return computeCannonBallRadiationPressureAcceleration(
-                    currentRadiationPressure_, currentVectorToSource_, currentArea_,
+                    currentRadiationPressure_, currentUnitVectorToSource_, currentArea_,
                     currentRadiationPressureCoefficient_, currentMass_ );
     }
 
@@ -166,8 +171,8 @@ public:
     {
         if( !( this->currentTime_ == currentTime ) )
         {
-            currentVectorToSource_ = ( sourcePositionFunction_( )
-                                       - acceleratedBodyPositionFunction_( ) ).normalized( );
+            currentVectorToSource_ = sourcePositionFunction_( ) - acceleratedBodyPositionFunction_( );
+            currentUnitVectorToSource_ = currentVectorToSource_.normalized( );
             currentRadiationPressure_ = radiationPressureFunction_( );
             currentRadiationPressureCoefficient_ = radiationPressureCoefficientFunction_( );
             currentArea_ = areaFunction_( );
@@ -184,6 +189,33 @@ public:
     {
         return massFunction_;
     }
+
+
+    double getCurrentMass() {
+        return currentMass_;
+    }
+
+    double getCurrentArea() {
+        return currentArea_;
+    }
+
+    double getCurrentRadiationPressureCoefficient() {
+        return currentRadiationPressureCoefficient_;
+    }
+
+    Eigen::Vector3d getCurrentVectorToSource() {
+        return currentVectorToSource_;
+    }
+
+    Eigen::Vector3d getCurrentUnitVectorToSource() {
+        return currentUnitVectorToSource_;
+    }
+
+    boost::shared_ptr< RadiationPressureInterface > getRadiationPressureInterface() {
+        return radiationPressureInterface_;
+    }
+
+
 
 private:
 
@@ -223,11 +255,20 @@ private:
      */
     const DoubleReturningFunction massFunction_;
 
+    //! Pointer to the radiation pressure interface used to construct the acceleration model.
+    boost::shared_ptr< RadiationPressureInterface > radiationPressureInterface_;
+
     //! Current vector from accelerated body to source.
     /*!
      * Current vector from accelerated body to source (3D vector).
      */
     Eigen::Vector3d currentVectorToSource_;
+
+    //! Current unit vector from accelerated body to source.
+    /*!
+     * Current unit vector from accelerated body to source (3D vector).
+     */
+    Eigen::Vector3d currentUnitVectorToSource_;
 
     //! Current radiation pressure.
     /*!

@@ -26,12 +26,8 @@ namespace force_models
 //! Update instance's members that are computed from the current auxiliary elements.
 void ThirdBodyPerturbed::updateMembers( )
 {
-    // Third body's gravitational parameter
-    mu3 = thirdBody->getGravitationalParameter();
-
-    // Distance from center of mass of the central body to the 3rd body
-    r3 = thirdBody->getPositionFrom( aux.centralBody );
-    R3 = r3.norm();
+    // Determine distance to third body
+    R3 = r3.norm( );
 
     // Direction cosines
     const Eigen::Vector3d bodyDir = r3 / R3;

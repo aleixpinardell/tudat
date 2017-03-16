@@ -1,6 +1,8 @@
 #ifndef TUDAT_PROPAGATORS_DSST_FORCEMODELS_THIRDBODYCENTRALGRAVITY_H
 #define TUDAT_PROPAGATORS_DSST_FORCEMODELS_THIRDBODYCENTRALGRAVITY_H
 
+#include "Tudat/Astrodynamics/Gravitation/thirdBodyPerturbation.h"
+
 // #include "Tudat/Astrodynamics/Propagators/DSST/vectors.h"
 
 #include "abstract/conservativeThirdBodyPertubed.h"
@@ -21,6 +23,9 @@ namespace force_models
 {
 
 
+typedef boost::shared_ptr< gravitation::ThirdBodyCentralGravityAcceleration > ThirdBodyAM;
+
+
 //! Final class for the contribution of a third body's central gravity
 class ThirdBodyCentralGravity final : public ConservativeThirdBodyPerturbed
 {
@@ -31,13 +36,24 @@ public:
      * \param auxiliaryElements Auxiliary elements used to compute the mean element rates and short period terms.
      * \param thirdBody The third body exerting the acceleration.
      */
-    ThirdBodyCentralGravity( AuxiliaryElements &auxiliaryElements, boost::shared_ptr< CelestialBody > thirdBody ) :
+    ThirdBodyCentralGravity( AuxiliaryElements &auxiliaryElements, ThirdBodyAM thirdBodyAM ) :
         ForceModel( auxiliaryElements ),
-        ConservativeThirdBodyPerturbed( auxiliaryElements, thirdBody ) { }
+        ConservativeThirdBodyPerturbed( auxiliaryElements ),
+        thirdBodyAM( thirdBodyAM ) { }
 
 
 private:
 
+    //! Pointer to thrid body acceleration model
+    ThirdBodyAM thirdBodyAM;
+
+    //! Update instance's members that are computed from the current auxiliary elements.
+    void updateMembers( );
+
+    //! Standard gravitational parameter μ for the third body in m³/s²
+    double mu3;
+
+    //! Function that updates `Ufactor`
     double computeUfactor() {
         return mu3 / R3;
     }

@@ -1,6 +1,10 @@
 #ifndef TUDAT_PROPAGATORS_DSST_FORCEMODELS_SPHERICHARMONICGRAVITY_H
 #define TUDAT_PROPAGATORS_DSST_FORCEMODELS_SPHERICHARMONICGRAVITY_H
 
+#include "Tudat/Astrodynamics/Gravitation/sphericalHarmonicsGravityModel.h"
+
+#include "Tudat/Mathematics/BasicMathematics/legendrePolynomials.h"
+
 #include "centralBodyPertubed.h"
 #include "conservative.h"
 
@@ -20,6 +24,10 @@ namespace dsst
 namespace force_models
 {
 
+
+typedef boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModel > SphericalHarmonicsAM;
+
+
 //! Abstract class for gravity perturbations expressed as a spheric harmonic expansion.
 //! Zonal and tesseral terms are treated differently, so derived classes will implement these terms separately.
 class SphericalHarmonicGravity :
@@ -31,24 +39,36 @@ protected:
     /** Simple constructor.
      * \param auxiliaryElements Auxiliary elements used to compute the mean element rates and short period terms.
      */
-    SphericalHarmonicGravity( AuxiliaryElements &auxiliaryElements, double referenceRadius, NestedVectord Jterms ) :
+    SphericalHarmonicGravity( AuxiliaryElements &auxiliaryElements, SphericalHarmonicsAM sphericalHarmonicsAM ) :
           ForceModel( auxiliaryElements	),
           CentralBodyPerturbed( auxiliaryElements ),
           Conservative( auxiliaryElements ),
-          R( referenceRadius ),
-          Jterms( Jterms )
+          sphericalHarmonicsAM( sphericalHarmonicsAM ),
+          R( sphericalHarmonicsAM->getReferenceRadius() )
     {
-        shDegree = Jterms.size() + 1;
-        shOrder = 0;
+        using namespace Eigen;
+        using namespace basic_mathematics;
+
+        // Get Cterms, Sterms
+        MatrixXd cosCoefficients = sphericalHarmonicsAM->getCosineHarmonicCoefficientsFunction()();
+        MatrixXd sinCoefficients = sphericalHarmonicsAM->getSineHarmonicCoefficientsFunction()();
+
+        shDegree = cosCoefficients.rows() - 1;
+        shOrder  = cosCoefficients.cols() - 1;
+
+        Cterms.resize( shDegree - 1 );
+        Sterms.resize( shDegree - 1 );
         for ( unsigned int n = 2; n <= shDegree; n++ ) {
-            std::vector< double > terms = Jterms[ n - 2 ];
-            unsigned int m = terms.size() - 1;
-            if ( m > n ) {
-                throw std::runtime_error( "The order cannot exceed the degree of the spheric harmonic expansion.");
+            const unsigned int currentOrder = std::min( n, shOrder );
+            std::vector< double > c( currentOrder + 1 );
+            std::vector< double > s( currentOrder + 1 );
+            for ( unsigned int m = 0; m <= currentOrder; m++ ) {
+                const double factor = calculateLegendreGeodesyNormalizationFactor( n, m );
+                c[ m ] = factor * cosCoefficients( n, m );
+                s[ m ] = factor * sinCoefficients( n, m );
             }
-            if ( m > shOrder ) {
-                shOrder = m;
-            }
+            Cterms[ n - 2 ] = c;
+            Sterms[ n - 2 ] = s;
         }
     }
 
@@ -68,24 +88,26 @@ private:
 
 protected:
 
-    // FIXME: do we also need reference µ?
-    // µ = 398600.44150E+09 for GGM02C, GGM02S
-    // µ = 398600.44189E+09 according to Wikipedia
+    //! Pointer to shperical harmonics acceleration model
+    SphericalHarmonicsAM sphericalHarmonicsAM;
 
     //! Reference radius used for the geopotential expansion
     const double R;
 
-    //! Jterms from degree 2 up to N
-    const NestedVectord Jterms;
+    //! Cosine coefficients
+    NestedVectord Cterms;
+
+    //! Since coefficients
+    NestedVectord Sterms;
 
     //! Returns J_{n,m}
     double J( unsigned int n, unsigned int m ) {
-        return Jterms( n - 2, m );
+        return std::sqrt( std::pow( Cterms( n - 2, m ), 2 ) + std::pow( Sterms( n - 2, m ), 2 ) );
     }
 
     //! Returns J_n = J_{n,0}
     double J( unsigned int n ) {
-        return J( n, 0 );
+        return -Cterms( n - 2, 0 );
     }
 
     //! Degree and order of the spherical harmonic expansion

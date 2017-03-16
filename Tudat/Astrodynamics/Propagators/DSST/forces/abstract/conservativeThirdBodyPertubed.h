@@ -29,24 +29,24 @@ protected:
      * \param auxiliaryElements Auxiliary elements used to compute the mean element rates and short period terms.
      * \param thirdBody The third body exerting the acceleration.
      */
-    ConservativeThirdBodyPerturbed( AuxiliaryElements &auxiliaryElements,
-                                    boost::shared_ptr< CelestialBody > thirdBody ) :
+    ConservativeThirdBodyPerturbed( AuxiliaryElements &auxiliaryElements ) :
         ForceModel( auxiliaryElements ),
-        ThirdBodyPerturbed( auxiliaryElements, thirdBody ),
+        ThirdBodyPerturbed( auxiliaryElements ),
         Conservative( auxiliaryElements ) { }
 
-
-private:
-
-    void setUp() {
-        Conservative::setUp();
-    }
 
     //! Update instance's members that are computed from the current auxiliary elements.
     void updateMembers( ) {
         ThirdBodyPerturbed::updateMembers();
         Conservative::updateMembers();
         Ufactor = computeUfactor();
+    }
+
+
+private:
+
+    void setUp() {
+        Conservative::setUp();
     }
 
     //! Set the values of N and S for the series expansion of the disturbing potential.

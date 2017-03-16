@@ -16,6 +16,11 @@
 #include <boost/test/unit_test.hpp>
 #include <eigen/Eigen/Eigen>
 
+
+#include <Tudat/SimulationSetup/tudatSimulationHeader.h>
+
+
+/*
 #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/modifiedEquinoctialElementConversions.h"
 
@@ -24,7 +29,7 @@
 
 #include "Tudat/Astrodynamics/Propagators/DSST/forces/availableForceModels.h"
 #include "Tudat/Astrodynamics/Propagators/DSST/utilities/osculatingToMean.h"
-
+*/
 
 namespace tudat
 {
@@ -32,6 +37,7 @@ namespace tudat
 namespace unit_tests
 {
 
+/*
 double bodyMass() {
     return 3000;
 }
@@ -72,154 +78,202 @@ Eigen::Vector3d sunPosition() {
 double sunGM() {
     return 1.327e20;
 }
-
+*/
 
 BOOST_AUTO_TEST_SUITE( test_dsst_propagator )
 
 BOOST_AUTO_TEST_CASE( dsst_propagation )
 {
-    using namespace orbital_element_conversions;
-    using namespace basic_mathematics;
-    using namespace basic_astrodynamics;
-    using namespace mathematical_constants;
 
-    using namespace aerodynamics;
-    using namespace electro_magnetism;
-    using namespace simulation_setup;
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////            USING STATEMENTS              //////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    using namespace propagators::dsst;
-    using namespace propagators::dsst::force_models;
+    using namespace tudat;
+    using namespace tudat::simulation_setup;
+    using namespace tudat::propagators;
+    using namespace tudat::numerical_integrators;
+    using namespace tudat::orbital_element_conversions;
+    using namespace tudat::basic_mathematics;
+    using namespace tudat::gravitation;
+    using namespace tudat::numerical_integrators;
 
-    // auto tolerance = 100 * std::numeric_limits< double >::epsilon( );
+    using namespace std::chrono;
 
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////     CREATE ENVIRONMENT AND VEHICLE       //////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    double initialEpoch = 7.9025e7;  // 4 Jul 2002
+    auto t = steady_clock::now();
 
-    // Transform to equinoctial
-    Eigen::Vector6d keplerian;
-    keplerian << 24288e3, 0.7293, 0.1744, 0.0226, 3.3657, 2.9189;
-    EquinoctialElements equinoctial = EquinoctialElements::fromKeplerian( keplerian, eccentricType );
+    // Load Spice kernels.
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "pck00009.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de-403-masses.tpc" );
+    spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
+    // Set simulation time settings.
+    const double simulationStartEpoch = 7.9025e7;
+    const double simulationEndEpoch = simulationStartEpoch + 10 * physical_constants::JULIAN_DAY;
 
-    // Create bodies
+    // Define body settings for simulation.
+    std::vector< std::string > bodiesToCreate;
+    bodiesToCreate.push_back( "Sun" );
+    bodiesToCreate.push_back( "Earth" );
+    bodiesToCreate.push_back( "Moon" );
 
-    // SPACECRAFT
-    boost::shared_ptr< Body > propagatedBody = boost::make_shared< Body >( "Spacecraft" );
-    propagatedBody->defineMass( bodyMass );
-    propagatedBody->defineCrossSectionalArea( bodyArea );
-    propagatedBody->defineDragCoefficient( bodyCD );
-    // propagatedBody->defineRadiationPressureCoefficient( bodyCR );
+    // Create body objects.
+    std::map< std::string, boost::shared_ptr< BodySettings > > bodySettings =
+            getDefaultBodySettings( bodiesToCreate/*, simulationStartEpoch - 300.0, simulationEndEpoch + 300.0*/ );
+    for( unsigned int i = 0; i < bodiesToCreate.size( ); i++ )
+    {
+        bodySettings[ bodiesToCreate.at( i ) ]->ephemerisSettings->resetFrameOrientation( "J2000" );
+        bodySettings[ bodiesToCreate.at( i ) ]->rotationModelSettings->resetOriginalFrame( "J2000" );
+    }
 
     // EARTH
-    boost::shared_ptr< SphericalCelestialBody > centralBody = boost::make_shared< SphericalCelestialBody >( "Earth" );
-    centralBody->definePosition( earthPosition );
-    centralBody->defineGravitationalParameter( earthGM );
-    centralBody->defineRadius( earthMeanRadius );
-    centralBody->defineRotationalVelocity( earthRotationalVelocity );
+    /*bodySettings[ "Earth" ]->gravityFieldSettings =
+            boost::make_shared< GraceGravityFieldSettings >( ggm02c );*/
 
-    // SUN
-    boost::shared_ptr< CelestialBody > thirdBody = boost::make_shared< CelestialBody >( "Sun" );
-    thirdBody->definePosition( sunPosition );
-    thirdBody->defineGravitationalParameter( sunGM );
+    bodySettings[ "Earth" ]->atmosphereSettings = boost::make_shared< AtmosphereSettings >( nrlmsise00 );
 
+    // MOON
+    bodySettings[ "Moon" ]->gravityFieldSettings = boost::make_shared< GravityFieldSettings >( central_spice );
 
-    // Model GGM02C
-    const double R = 6378136.30;                          // reference radius for the geopotential expansion [m]
-    std::vector< double > Js = { -4.8416938905481E-04,    // J2
-                                  9.5718508415439E-07,    // J3
-                                  5.3999143526074E-07,    // J4
-                                  6.8715981001179E-08,    // J5
-                                 -1.4994011973125E-07,    // J6
-                                  9.0504630229132E-08 };  // J7
+    NamedBodyMap bodyMap = createBodies( bodySettings );
 
-    // Create auxiliary elements (used throughout the propagation by all force models)
-    AuxiliaryElements aux( propagatedBody, centralBody );
-    aux.updateState( initialEpoch, equinoctial );
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////             CREATE VEHICLE            /////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // Acceleration models from Tudat
-    std::vector< AvailableAcceleration > accelerationModels
-            = { spherical_harmonic_gravity, third_body_central_gravity, aerodynamic, cannon_ball_radiation_pressure };
+    // Create spacecraft object.
+    bodyMap[ "Asterix" ] = boost::make_shared< simulation_setup::Body >( );
+    bodyMap[ "Asterix" ]->setConstantBodyMass( 3000.0 );
 
-    // Create all force models
-    std::vector< boost::shared_ptr< ForceModel > > forceModels;
-    for ( auto accelerationModel : accelerationModels ) { // for each perturbation
-        switch ( accelerationModel ) {
-        case spherical_harmonic_gravity: {
-            ZonalSphericalHarmonicGravity forceModel( aux, R, Js );
-            forceModels.push_back( boost::make_shared< ZonalSphericalHarmonicGravity >( forceModel ) );
-            break;
-        }
-        case third_body_central_gravity: {
-            ThirdBodyCentralGravity forceModel( aux, thirdBody );
-            forceModels.push_back( boost::make_shared< ThirdBodyCentralGravity >( forceModel ) );
-            break;
-        }
-        case aerodynamic: {
-            const double altitudeLimit = 800e3;
-            auto atmosphereSettings = boost::make_shared< AtmosphereSettings >( nrlmsise00 );
-            auto atmosphereModel = createAtmosphereModel( atmosphereSettings, "Earth" );
-            AtmosphericDrag forceModel( aux, atmosphereModel, altitudeLimit );
-            forceModels.push_back( boost::make_shared< AtmosphericDrag >( forceModel ) );
-            break;
-        }
-        case cannon_ball_radiation_pressure: {
-            auto radiationPressureInterface = boost::make_shared< RadiationPressureInterface >(
-                        boost::lambda::constant( 3.839E26 ), sunPosition, earthPosition, bodyCR(), bodyArea() );
-            ConservativeRadiationPressure forceModel( aux, thirdBody, radiationPressureInterface );
-            forceModels.push_back( boost::make_shared< ConservativeRadiationPressure >( forceModel ) );
-            break;
-        }
-        default:
-            throw std::runtime_error( "The acceleration model is not supported by the  propagator." );
-            break;
-        }
-    }
+    // Create aerodynamic coefficient interface settings.
+    double referenceArea = 15.0;
+    double aerodynamicCoefficient = 2.2;
+    boost::shared_ptr< AerodynamicCoefficientSettings > aerodynamicCoefficientSettings =
+            boost::make_shared< ConstantAerodynamicCoefficientSettings >(
+                referenceArea, aerodynamicCoefficient * Eigen::Vector3d::UnitX( ), 1, 1 );
 
-    // Transform aux to mean elements before starting with the propagation
-    element_conversions::transformOsculatingToMeanElements( aux, forceModels );
+    // Create and set aerodynamic coefficients object
+    bodyMap[ "Asterix" ]->setAerodynamicCoefficientInterface(
+                createAerodynamicCoefficientInterface( aerodynamicCoefficientSettings, "Asterix" ) );
+
+    // Create radiation pressure settings
+    double referenceAreaRadiation = 15.0;
+    double radiationPressureCoefficient = 1.5;
+    std::vector< std::string > occultingBodies;
+    // occultingBodies.push_back( "Earth" );
+    boost::shared_ptr< RadiationPressureInterfaceSettings > asterixRadiationPressureSettings =
+            boost::make_shared< CannonBallRadiationPressureInterfaceSettings >(
+                "Sun", referenceAreaRadiation, radiationPressureCoefficient, occultingBodies );
+
+    // Create and set radiation pressure settings
+    bodyMap[ "Asterix" ]->setRadiationPressureInterface(
+                "Sun", createRadiationPressureInterface(
+                    asterixRadiationPressureSettings, "Asterix", bodyMap ) );
 
 
+    // Finalize body creation.
+    setGlobalFrameBodyEphemerides( bodyMap, "SSB", "J2000" );
 
-    // Start integration
-    auto t_ini = std::chrono::steady_clock::now();
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////            CREATE ACCELERATIONS          //////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    std::vector< double > integrationEpochs = { initialEpoch };
-    std::map< double, Eigen::Vector6d > meanElementRates;
-    for ( double epoch : integrationEpochs ) { // for each integration step
-        Eigen::Vector6d meanElementRate = Eigen::Vector6d::Zero();
-        for ( auto forceModel : forceModels ) {
-            Eigen::Vector6d Ai = forceModel->getMeanElementRates();
-            meanElementRate += Ai;
-            std::cout << Ai << "\n" << std::endl;
-            // std::cout << Ai.norm() << "\n" << std::endl;
-        }
+    // Define propagator settings variables.
+    SelectedAccelerationMap accelerationMap;
+    std::vector< std::string > bodiesToPropagate;
+    std::vector< std::string > centralBodies;
 
-        // Add mean motion to fast variable derivative
-        meanElementRate( fastVariableIndex ) += aux.n;
+    // Define propagation settings.
+    std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
+    accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 7, 0 ) );
 
-        // Store mean element rate
-        meanElementRates[ epoch ] = meanElementRate;
+    accelerationsOfAsterix[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
+                                                   basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >(
+                                                     basic_astrodynamics::central_gravity ) );
+    accelerationsOfAsterix[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
+                                                     basic_astrodynamics::cannon_ball_radiation_pressure ) );
+    accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
+                                                     basic_astrodynamics::aerodynamic ) );
 
-        // Now we have k1 = A(t) for the RK4 integrator (step-size ∆)
-        // We need to compute k2, k3 and k4, for different a's and t's
-        // E.g. for k2:
-        // // update aux elements -> a(t) + ∆/2*k1
-        // // update aux epoch    -> t+∆/2
-        // // compute meanElements only (no short period terms needed)
-        // // k2 = A( a(t) + ∆/2*k1, t+∆/2 )
-        // Same for k3, k4
-        // Then we can integrate: a(t+∆) = f(a(t),k1,k2,k3,k4,∆)
-        // Update aux with new integrated state
-        // Compute and store shortPeriodTerms
-    }
-    std::cout << meanElementRates[ initialEpoch ] << "\n" << std::endl;
+    accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
+    bodiesToPropagate.push_back( "Asterix" );
+    centralBodies.push_back( "Earth" );
 
-    auto t_end = std::chrono::steady_clock::now();
+    basic_astrodynamics::AccelerationMap accelerationModelMap = createAccelerationModelsMap(
+                bodyMap, accelerationMap, bodiesToPropagate, centralBodies );
 
-    double computationTime =
-            std::chrono::duration_cast< std::chrono::microseconds >( t_end - t_ini ).count() / 1e3;
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////             CREATE PROPAGATION SETTINGS            ////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    std::cout << "Took " << computationTime << " ms." << std::endl;
+    // Set Keplerian elements for Asterix.
+    Eigen::Vector6d asterixInitialStateInKeplerianElements;
+    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 24288e3;
+    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.7293;
+    asterixInitialStateInKeplerianElements( inclinationIndex ) = 0.1744;
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = 0.0226;
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = 3.3657;
+    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = 2.9189;
+
+    double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
+    const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
+                asterixInitialStateInKeplerianElements, earthGravitationalParameter );
+
+
+    TranslationalPropagatorType ptype = DSST;
+
+    boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
+            boost::make_shared< TranslationalStatePropagatorSettings< double > >
+            ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch, ptype );
+
+    const double fixedStepSize = ptype == DSST ? physical_constants::JULIAN_DAY : 30.0;
+    boost::shared_ptr< IntegratorSettings< > > integratorSettings =
+            boost::make_shared< IntegratorSettings< > >
+            ( rungeKutta4, simulationStartEpoch, fixedStepSize );
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////             PROPAGATE ORBIT            ////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Create simulation object and propagate dynamics.
+    std::cout << "Took "
+              << duration_cast< milliseconds >( steady_clock::now() - t ).count() * 1.0e-3
+              << " s to set up the propagation."  << std::endl;
+    t = steady_clock::now();
+
+    SingleArcDynamicsSimulator< > dynamicsSimulator(
+                bodyMap, integratorSettings, propagatorSettings, true, false, false );
+    std::map< double, Eigen::VectorXd > integrationResult = dynamicsSimulator.getEquationsOfMotionNumericalSolution( );
+
+    std::cout << "Took "
+              << duration_cast< milliseconds >( steady_clock::now() - t ).count() * 1.0e-3
+              << " s to perform the propagation, which was "
+              << ( (--integrationResult.end())->first - simulationStartEpoch ) / physical_constants::JULIAN_DAY
+              << " days long." << std::endl;
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////        PROVIDE OUTPUT TO CONSOLE AND FILES           //////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    Eigen::Vector6d finalState = (--integrationResult.end( ) )->second;
+    Eigen::Vector6d keplerianState = convertCartesianToKeplerianElements( finalState, earthGravitationalParameter );
+    std::cout << "Final Keplerian state:\n" << keplerianState << std::endl;
+
+    Eigen::Vector6d cowellKeplerianState;
+    cowellKeplerianState << 2.42725e+07,
+                            0.729089,
+                            0.174239,
+                            0.166021,
+                            3.29148,
+                            2.82826;
+    std::cout << "Final Keplerian state using Cowell propagator:\n" << cowellKeplerianState << std::endl;
+
 
 }
 

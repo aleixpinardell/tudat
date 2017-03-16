@@ -28,11 +28,11 @@ void AuxiliaryElements::updateMembers()
     using std::pow;
 
     // Properties that depend on other bodies (constant through the integration step)
-    mass = propagatedBody->getMass();
-    area = propagatedBody->getCrossSectionalArea();
-    CD   = propagatedBody->getDragCoefficient();
+    // mass = propagatedBody->getMass();
+    // area = propagatedBody->getCrossSectionalArea();
+    // CD   = propagatedBody->getDragCoefficient();
     // CR   = propagatedBody->getRadiationPressureCoefficient();
-    mu   =    centralBody->getGravitationalParameter();
+    mu = centralGravityAM->getCurrentGravitationalParameter();
 
     // Retrograde factor
     I = equinoctialElements.isRetrograde() ? -1 : 1;

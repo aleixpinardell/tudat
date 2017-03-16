@@ -22,7 +22,6 @@ protected:
 
     CentralBodyPerturbed( AuxiliaryElements &auxiliaryElements ) :
     ForceModel ( auxiliaryElements             ),
-    centralBody( auxiliaryElements.centralBody ),
     mu(          auxiliaryElements.mu          ) { }
 
 
@@ -33,9 +32,6 @@ protected:
 
     //! Update instance's members that are computed from the current auxiliary elements.
     virtual void updateMembers( );
-
-    //! The central body exerting the acceleration
-    boost::shared_ptr< CelestialBody > centralBody;
 
     //! Standard gravitational parameter μ for the central body in m³/s²
     double &mu;

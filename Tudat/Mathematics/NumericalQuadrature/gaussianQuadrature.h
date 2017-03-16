@@ -30,9 +30,11 @@ namespace numerical_quadrature
 {
 
 
-//! Trapezoid numerical quadrature wrapper class.
+//! Gaussian numerical quadrature wrapper class.
 /*!
- *  Numerical method that uses the trapezoid method to compute definite integrals of a dataset.
+ * Numerical method that uses the Gaussian abscissae and weight factors to compute definite integrals of a function.
+ * The Gaussian abscissae and weight factors are not calculated, but read from text files. The number of abscissae (or
+ * weight factors) has to be at least n = 2. The current text files contain tabulated values up to n = 64.
  */
 template< typename IndependentVariableType, typename DependentVariableType >
 class GaussianQuadrature : public NumericalQuadrature< IndependentVariableType , DependentVariableType >
@@ -42,21 +44,16 @@ public:
     //! Constructor.
     /*!
      * Constructor
-     *
+     * \param integrand Function to be integrated numerically.
+     * \param lowerLimit Lower limit for the integral.
+     * \param upperLimit Upper limit for the integral.
+     * \param numberOfAbscissae Number of abscissae at which the integrand will be evaluated. Must be an integer value
+     * between 2 and 64.
      */
     GaussianQuadrature( boost::function< DependentVariableType( IndependentVariableType ) > integrand,
                         IndependentVariableType lowerLimit, IndependentVariableType upperLimit,
                         const unsigned int numberOfAbscissae )
     {
-        /*        resetData( integrand, lowerLimit, upperLimit, numberOfAbscissae );
-    }
-
-
-    void resetData( boost::function< DependentVariableType( IndependentVariableType ) > integrand,
-                    IndependentVariableType lowerLimit, IndependentVariableType upperLimit,
-                    const unsigned int numberOfAbscissae )
-    {
-*/
         this->lowerLimit = lowerLimit;
         this->upperLimit = upperLimit;
 
@@ -71,9 +68,9 @@ public:
                 0.5 * ( ( upperLimit - lowerLimit ) * abscissae + upperLimit + lowerLimit );
 
         // Determine the value of the dependent variable
-        weighedDependentVariables.resizeLike( independentVariables );
+        weighedIntegrands.resizeLike( independentVariables );
         for ( unsigned int i = 0; i < numberOfAbscissae; i++ ) {
-            weighedDependentVariables( i ) = weightFactors( i ) * integrand( independentVariables( i ) );
+            weighedIntegrands( i ) = weightFactors( i ) * integrand( independentVariables( i ) );
         }
 
         performQuadrature( );
@@ -93,6 +90,7 @@ public:
     typedef Eigen::Array<   DependentVariableType, 1, Eigen::Dynamic >   DependentVariableArray;
     typedef Eigen::Array< IndependentVariableType, 1, Eigen::Dynamic > IndependentVariableArray;
 
+    //! Get all the abscissae (i.e. n abscissae for nth order) from uniqueAbscissae
     IndependentVariableArray getAbscissae( const unsigned int n )
     {
         IndependentVariableArray abscissae( n );
@@ -113,6 +111,7 @@ public:
         return abscissae;
     }
 
+    //! Get all the weight factors (i.e. n weight factors for nth order) from uniqueWeightFactors
     IndependentVariableArray getWeightFactors( const unsigned int n )
     {
         IndependentVariableArray weightFactors( n );
@@ -145,15 +144,21 @@ protected:
      */
     void performQuadrature( )
     {
-        quadratureResult = 0.5 * ( upperLimit - lowerLimit ) * weighedDependentVariables.sum();
+        quadratureResult = 0.5 * ( upperLimit - lowerLimit ) * weighedIntegrands.sum();
     }
 
 private:
 
-    //!
+    //! Map containing the abscissae read from the text file (currently up to `n = 64`).
+    //! The following relation holds: `size( uniqueAbscissae[n] ) = floor( n / 2 )`
+    //! For the actual abscissae, the following must hold: `size( abscissae[n] ) = n`
+    //! The actual abscissae are generated from `uniqueAbscissae` by `getAbscissae()`
     std::map< unsigned int, IndependentVariableArray > uniqueAbscissae;
 
-    //!
+    //! Map containing the weight factors read from the text file (currently up to `n = 64`).
+    //! The following relation holds: `size( uniqueWeightFactors[n] ) = ceil( n / 2 )`
+    //! For the actual weight factors, the following must hold: `size( uniqueWeightFactors[n] ) = n`
+    //! The actual weight factors are generated from `uniqueWeightFactors` by `getWeightFactors()`
     std::map< unsigned int, IndependentVariableArray > uniqueWeightFactors;
 
     //! Lower limit for the integral.
@@ -162,13 +167,17 @@ private:
     //! Upper limit for the integral.
     IndependentVariableType upperLimit;
 
-    //! Dependent variables times the weight factors.
-    DependentVariableArray weighedDependentVariables;
+    //! Integrands at the abscissae, times the respective weight factors.
+    DependentVariableArray weighedIntegrands;
 
     //! Computed value of the quadrature, as computed by last call to performQuadrature.
     DependentVariableType quadratureResult;
 
-
+    //! Get the unique abscissae for a specified order `n`.
+    /*!
+     * \param n The number of abscissae or weight factors.
+     * \return `uniqueAbscissae[n]`, after reading the text file with the tabulated abscissae if necessary.
+     */
     IndependentVariableArray getUniqueAbscissae( const unsigned int n )
     {
         if ( uniqueAbscissae.count( n ) == 0 )
@@ -178,6 +187,11 @@ private:
         return uniqueAbscissae.at( n );
     }
 
+    //! Get the unique weight factors for a specified order `n`.
+    /*!
+     * \param n The number of abscissae or weight factors.
+     * \return `uniqueWeightFactors[n]`, after reading the text file with the tabulated abscissae if necessary.
+     */
     IndependentVariableArray getUniqueWeightFactors( const unsigned int n )
     {
         if ( uniqueWeightFactors.count( n ) == 0 )
@@ -188,7 +202,7 @@ private:
     }
 
 
-    // Transform from map of std::vector to map of Eigen::Array
+    //! Transform from map of std::vector (output of text file reader) to map of Eigen::Array
     std::map< unsigned int, IndependentVariableArray > vector2eigen(
             std::map< unsigned int, std::vector< IndependentVariableType > > map )
     {
@@ -205,6 +219,7 @@ private:
         return eigenMap;
     }
 
+    //! Read Gaussian abscissae from text file
     void readAbscissae()
     {
         auto abscissae = input_output::readMapFromFile< unsigned int, IndependentVariableType >(
@@ -212,6 +227,7 @@ private:
         uniqueAbscissae = vector2eigen( abscissae );
     }
 
+    //! Read Gaussian weight factors from text file
     void readWeightFactors()
     {
         auto weightFactors = input_output::readMapFromFile< unsigned int, IndependentVariableType >(

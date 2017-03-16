@@ -3,6 +3,8 @@
 
 #include <boost/make_shared.hpp>
 
+#include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
+
 #include "Tudat/Astrodynamics/Propagators/DSST/utilities/body.h"
 #include "Tudat/Astrodynamics/Propagators/DSST/utilities/vectors.h"
 #include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsFactories.h"
@@ -114,6 +116,10 @@ public:
         k = components( kIndex );
         p = components( pIndex );
         q = components( qIndex );
+
+        if ( h != h ) {
+            std::cout << "error" << std::endl;
+        }
 
         lmean = TUDAT_NAN;
         lecc  = TUDAT_NAN;
@@ -296,28 +302,36 @@ private:
 };
 
 
+
+typedef boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d > >
+CentralGravityAM;
+
 //! Class to be created at the beginning of the DSST propagation, used by all perturbations
 class AuxiliaryElements
 {
 public:
 
+    //! Empty constructor
+    AuxiliaryElements( ) { }
+
     //! Constructor.
-    /*!
-     * Simple constructor.
-     * \param propagatedBody A reference to the propagated body.
-     * \param centralBody A reference to the central body.
-     * with inclinations close to 180 degrees). Default is false, which avoids singularities for equatorial orbits.
-     */
-    AuxiliaryElements( boost::shared_ptr< Body > propagatedBody, boost::shared_ptr< CelestialBody > centralBody ) :
-        propagatedBody( propagatedBody ), centralBody( centralBody ) { }
+    AuxiliaryElements( const double epoch, const EquinoctialElements equinoctialElements,
+                       CentralGravityAM centralGravityAM )
+        : centralGravityAM( centralGravityAM )
+    {
+        updateState( epoch, equinoctialElements );
+    }
 
+    //! Reference to the central gravity model
+    CentralGravityAM centralGravityAM;
 
+    /*
     //! Reference to the central body
     boost::shared_ptr< Body > propagatedBody;
 
     //! Reference to the central body
     boost::shared_ptr< CelestialBody > centralBody;
-
+    */
 
     //! Date, in seconds since J2000
     double epoch;
@@ -395,6 +409,7 @@ public:
     // assumed constant over an integration step in order to be able to average the equations of motion.
     // Thus, they are stored (computed only once per step, used many times) and updated by updateMembers().
 
+    /*
     //! Propagated body's mass
     double mass;
 
@@ -406,6 +421,7 @@ public:
 
     //! Propagated body's radiation pressure coefficient
     // double CR;
+    */
 
     //! Central body's gravitational parameter
     double mu;

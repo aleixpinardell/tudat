@@ -26,11 +26,10 @@ namespace force_models
 //! Update instance's members that are computed from the current auxiliary elements.
 void AtmosphericDrag::updateMembers( )
 {
+    // Update direction cosines
     CentralBodyPerturbed::updateMembers();
 
-    ballistic = aux.CD * aux.area / ( 2 * aux.mass );
-    omega = aux.centralBody->getRotationalVelocity();
-
+    // Update integration limits
     NonConservative::updateMembers();
 }
 
@@ -69,19 +68,6 @@ void AtmosphericDrag::determineIntegrationLimits( ) {
     // Eq. 3.4-(2b)
     L1 = -flim + longitudePerigee;
     L2 =  flim + longitudePerigee;
-}
-
-//! Set the values of the minimum and maximum true longitude for the averaging integral.
-Eigen::Vector3d AtmosphericDrag::getDisturbingAcceleration() {
-    // From r = [x, y, z] to [h, lon, lat]
-    const double h = r.norm() - R;
-    const double lon = 0.0;  // FIXME
-    const double lat = 0.0;  // FIXME
-
-    Eigen::Vector3d vatm = omega.cross( r );
-    Eigen::Vector3d vrel = v - vatm;
-    std::cout << std::round(h/1e3) << " km: " << atmosphereModel->getDensity( h, lon, lat, epoch ) << std::endl;
-    return -ballistic * atmosphereModel->getDensity( h, lon, lat, epoch ) * vrel.norm() * vrel;
 }
 
 

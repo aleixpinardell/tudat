@@ -28,10 +28,16 @@ public:
     /** Simple constructor.
      * \param auxiliaryElements Auxiliary elements used to compute the mean element rates and short period terms.
      */
-    ZonalSphericalHarmonicGravity( AuxiliaryElements &auxiliaryElements, double referenceRadius,
-                                       std::vector< double > &Jterms ) :
+    ZonalSphericalHarmonicGravity(
+            AuxiliaryElements &auxiliaryElements, SphericalHarmonicsAM sphericalHarmonicsAM )
+        :
         ForceModel( auxiliaryElements ),
-        SphericalHarmonicGravity( auxiliaryElements, referenceRadius, Jterms ) { }
+        SphericalHarmonicGravity( auxiliaryElements, sphericalHarmonicsAM )
+    {
+        if ( shOrder > 0 ) {
+            throw std::runtime_error( "DSST propagator does not support tesseral terms." );
+        }
+    }
 
 
 private:

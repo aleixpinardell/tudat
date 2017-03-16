@@ -85,7 +85,7 @@ Eigen::Vector6d NonConservative::integrand( const double trueLongitude ) {
     V = v.norm();
 
     // Partial derivatives of the equinoctial elements wrt to v  [ Eq. 2.1.7-(3) ]
-    const Vector3d W = ( I * q * Y - p * X ) / B * w;
+    const Vector3d W = ( I * q * Y - p * X ) / A * w;
     partials.col( 0 ) = 2 / ( std::pow( meanMotion, 2 ) * a ) * v;                                      // da/dv
     partials.col( 1 ) = ( ( 2 * Xdot * Y - X * Ydot ) * f - X * Xdot * g ) / mu + k / B * W;            // dh/dv
     partials.col( 2 ) = ( ( 2 * X * Ydot - Xdot * Y ) * g - Y * Ydot * f ) / mu - h / B * W;            // dk/dv
@@ -96,7 +96,7 @@ Eigen::Vector6d NonConservative::integrand( const double trueLongitude ) {
     // Disturbing acceleration
     perturbingAcceleration = getDisturbingAcceleration();
 
-    // Compute vector of integrands
+    // Compute vector of integrands:               6x3 * 3x1                    ->  6x1  ( Vector6d )
     return std::pow( R / a, 2 ) * partials.transpose() * perturbingAcceleration;
 }
 

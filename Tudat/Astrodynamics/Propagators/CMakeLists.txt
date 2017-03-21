@@ -16,7 +16,6 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.cpp"
-<<<<<<< HEAD
   "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/auxiliaryElements.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/coefficientsFactories.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/osculatingToMean.cpp"
@@ -31,8 +30,6 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/thirdBodyCentralGravity.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/atmosphericDrag.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/conservativeRadiationPressure.cpp"
-=======
->>>>>>> Tudat/master
 )
 
 # Add header files.
@@ -41,10 +38,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/nBodyStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyCowellStateDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/nBodyEnckeStateDerivative.h"
-<<<<<<< HEAD
   "${SRCROOT}${PROPAGATORSDIR}/nBodyDSSTStateDerivative.h"
-=======
->>>>>>> Tudat/master
   "${SRCROOT}${PROPAGATORSDIR}/dynamicsStateDerivativeModel.h"
   "${SRCROOT}${PROPAGATORSDIR}/singleStateTypeDerivative.h"
   "${SRCROOT}${PROPAGATORSDIR}/integrateEquations.h"
@@ -53,7 +47,6 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/stateTransitionMatrixInterface.h"
   "${SRCROOT}${PROPAGATORSDIR}/environmentUpdateTypes.h"
   "${SRCROOT}${PROPAGATORSDIR}/customStateDerivative.h"
-<<<<<<< HEAD
   "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/auxiliaryElements.h"
   "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/coefficientsFactories.h"
   "${SRCROOT}${PROPAGATORSDIR}/DSST/utilities/osculatingToMean.h"
@@ -71,8 +64,6 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/atmosphericDrag.h"
   "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/conservativeRadiationPressure.h"
   "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/availableForceModels.h"
-=======
->>>>>>> Tudat/master
 )
 
 # Add static libraries.
@@ -102,12 +93,10 @@ add_executable(test_VariationalEquations "${SRCROOT}${PROPAGATORSDIR}/UnitTests/
 setup_custom_test_program(test_VariationalEquations "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_VariationalEquations ${TUDAT_ESTIMATION_LIBRARIES} ${Boost_LIBRARIES})
 
-<<<<<<< HEAD
 add_executable(test_EnvironmentModelUpdater "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestEnvironmentUpdater.cpp")
 setup_custom_test_program(test_EnvironmentModelUpdater "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_EnvironmentModelUpdater ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
-=======
->>>>>>> Tudat/master
+
 add_executable(test_EnvironmentModelComputations "${SRCROOT}${PROPAGATORSDIR}/UnitTests/unitTestEnvironmentUpdater.cpp")
 setup_custom_test_program(test_EnvironmentModelComputations "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_EnvironmentModelComputations ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
@@ -132,7 +121,6 @@ add_executable(test_CustomStatePropagation "${SRCROOT}${PROPAGATORSDIR}/UnitTest
 setup_custom_test_program(test_CustomStatePropagation "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_CustomStatePropagation ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES})
 
-<<<<<<< HEAD
 
 # DSST Unit Tests
 
@@ -140,7 +128,4 @@ add_executable(test_DSST "${SRCROOT}${PROPAGATORSDIR}/DSST/unitTests/unitTestDSS
 setup_custom_test_program(test_DSST "${SRCROOT}${PROPAGATORSDIR}")
 target_link_libraries(test_DSST ${TUDAT_PROPAGATION_LIBRARIES} ${Boost_LIBRARIES} )
 
-
-=======
->>>>>>> Tudat/master
 endif( )

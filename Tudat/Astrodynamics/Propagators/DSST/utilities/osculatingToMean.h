@@ -11,7 +11,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace element_conversions
@@ -30,7 +30,7 @@ void transformOsculatingToMeanElements( AuxiliaryElements &osculatingAuxiliaryEl
 
 } // namespace element_conversions
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

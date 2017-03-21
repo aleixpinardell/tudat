@@ -9,7 +9,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace coefficients_factories
@@ -875,7 +875,7 @@ private:
 
 
 //! Factorials generator declared at a global scope.
-//! Can be accessed from anywhere within tudat::propagators::dsst after including "coefficientsFactory.h".
+//! Can be accessed from anywhere within tudat::propagators::sst after including "coefficientsFactory.h".
 //! To get e.g. 5! simply call factorial(5).
 //! If then factorial(4) is called, no computations will be done because it already has been computed and stored.
 //! If then factorial(8) is called, the computations will start from 6!, saving time.
@@ -883,7 +883,7 @@ private:
 extern coefficients_factories::FactorialsFactory factorial;
 
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

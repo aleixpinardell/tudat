@@ -17,7 +17,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace upper_bounds
@@ -45,6 +45,7 @@ double getDnl( const double xx, const double xpl, const int n, const int l ) {
         return xpl;
     }
 }
+
 
 //! Get the upper bound value R^ε_{n,m,l}(γ)
 double getRnml(const double gamma, const int n, const int l, const int m, const int eps, const int irf) {
@@ -104,7 +105,7 @@ double getRnml(const double gamma, const int n, const int l, const int m, const 
 
 } // namespace upper_bounds
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

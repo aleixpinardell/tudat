@@ -16,7 +16,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace force_models
@@ -35,7 +35,7 @@ void CentralBodyPerturbed::updateMembers( )
 
 } // namespace force_models
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

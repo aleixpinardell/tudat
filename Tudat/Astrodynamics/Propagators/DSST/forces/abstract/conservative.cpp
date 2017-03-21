@@ -16,7 +16,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace force_models
@@ -58,8 +58,8 @@ Eigen::Vector6d Conservative::computeMeanElementRates( )
     // Compute potential U derivatives
     const Eigen::Vector6d dU = computeMeanDisturbingFunctionPartialDerivatives();
     const double dUda  = dU( 0 );
-    const double dUdk  = dU( 1 );
-    const double dUdh  = dU( 2 );
+    const double dUdh  = dU( 1 );
+    const double dUdk  = dU( 2 );
     const double dUdAl = dU( 3 );
     const double dUdBe = dU( 4 );
     const double dUdGa = dU( 5 );
@@ -74,19 +74,20 @@ Eigen::Vector6d Conservative::computeMeanElementRates( )
 
     // Compute mean elements rates [Eq. 3.1-(1)]
     Eigen::Vector6d meanElementRates;
-    meanElementRates << 0.0,                                                                // da / dt
+    meanElementRates << 0.0,                                                    // da / dt
             BoA * dUdk + k * pUAGmIqUBGoAB,                                     // dh / dt
             -BoA * dUdh - h * pUAGmIqUBGoAB,                                    // dk / dt
             mCo2AB * UBetaGamma,                                                // dp / dt
             mCo2AB * UAlphaGamma * I,                                           // dq / dt
             m2aoA * dUda + BoABpo * ( h * dUdh + k * dUdk ) + pUAGmIqUBGoAB;    // d\lambda / dt
+
     return meanElementRates;
 }
 
 
 } // namespace force_models
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

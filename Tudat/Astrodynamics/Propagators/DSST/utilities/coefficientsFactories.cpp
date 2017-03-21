@@ -16,7 +16,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 //! Factorials generator declared at a global scope.
@@ -193,9 +193,13 @@ void K0nsCoefficientsFactory::computeCoefficients( const bool extended ) {
                 K0ns( n, s ) = ( 2.0 * s + 1.0 ) / ( s + 1.0 ) * K0ns( s - 1, s );
             } else if ( n == s - 1 && n >= 1 ) {
                 K0ns( n, s ) = ( 1.0 - 2.0 * s ) / s * K0ns( s - 2, s - 1 );
-            } else if ( n >= s + 1 && s + 1 >= 2 ) {
-                K0ns( n, s ) = ( 2.0 * n + 1.0 ) / ( n + 1.0 ) * K0ns( n - 1, s ) -
-                        double( n + s ) * double ( n - s ) / ( n * ( n + 1.0 ) * Chi * Chi ) * K0ns( n - 2, s );
+            } else if ( n >= s + 1 /*&& s + 1 >= 2*/ ) {
+                if ( n == 1 ) {
+                    K0ns( n, s ) = 0.5 * ( 3 - 1 / ( Chi * Chi ) );
+                } else if ( n >= 2 ) {
+                    K0ns( n, s ) = ( 2.0 * n + 1.0 ) / ( n + 1.0 ) * K0ns( n - 1, s ) -
+                            double( n + s ) * double ( n - s ) / ( n * ( n + 1.0 ) * Chi * Chi ) * K0ns( n - 2, s );
+                }
             }
         }
     }
@@ -212,10 +216,14 @@ void K0nsCoefficientsFactory::computeDependentCoefficients() {
         for ( unsigned int s = oldSuborder + 1; s <= newSuborder; s++ ) {
             if ( n == s || n == s - 1 ) {
                 dK0ns( n, s ) = 0.0;
-            } else if ( n > s && n >= 2 ) {
-                dK0ns( n, s ) = ( 2.0 * n + 1.0 ) / ( n + 1.0 ) * dK0ns( n - 1, s ) - double( n + s ) *
-                        double( n - s ) / ( n * ( n + 1.0 ) * Chi * Chi ) * dK0ns( n - 2, s ) + 2.0 *
-                        ( n + 2.0 ) * double( n - s ) / ( n * ( n + 1.0 ) * Chi * Chi * Chi ) * K0ns( n - 2, s );
+            } else if ( n > s /*&& n >= 2*/ ) {
+                if ( n == 1 ) {
+                    dK0ns( n, s ) = std::pow( Chi, -3 );
+                } else if ( n >= 2 ) {
+                    const double term = ( n + s ) * ( n - s ) / ( n * ( n + 1.0 ) * Chi * Chi );
+                    dK0ns( n, s ) = ( 2.0 * n + 1.0 ) / ( n + 1.0 ) * dK0ns( n - 1, s ) - term * dK0ns( n - 2, s )
+                            + 2.0 / Chi * term * K0ns( n - 2, s );
+                }
             }
         }
     }
@@ -274,7 +282,7 @@ void NegativeK0nsCoefficientsFactory::computeDependentCoefficients() {
             } else if ( n == s + 1 ) {
                 dmK0ns( n + 1, s ) = ( 1 + 2 * s ) * std::pow( Chi, 2 * s ) / std::pow( 2, s );
             } else {
-                dmK0ns( n + 1, s ) = ( n - 1.0 ) * Chi * Chi / ( ( n + s - 1.0 ) * ( n - s + 1.0 ) ) *
+                dmK0ns( n + 1, s ) = ( n - 1.0 ) * Chi * Chi / ( ( n + s - 1.0 ) * ( n - s - 1.0 ) ) *
                         ( ( 2.0 * n - 3.0 ) * dmK0ns( n, s ) - ( n - 2.0 ) * dmK0ns( n - 1, s ) ) +
                         2 / Chi * mK0ns( n + 1, s );
             }
@@ -350,7 +358,7 @@ void VnsCoefficientsFactory::computeDependentCoefficients() {
         const unsigned int newSuborder = getSuborder( n );
         Vmns.resizeForSuborder( n, newSuborder );
         for ( unsigned int s = oldSuborder + 1; s <= newSuborder; s++ ) {
-            std::cout << (n+s) << "! = " << factorial( n + s ) << std::endl;
+            // std::cout << (n+s) << "! = " << factorial( n + s ) << std::endl;
             Vmns( n, s ) = factorial( n + s ) / factorial( n - m ) * Vns( n, s );
         }
     }
@@ -419,7 +427,7 @@ void CsSsCoefficientsFactory::computeCoefficients( const bool extended ) {
 
 } // namespace coefficients_factories
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

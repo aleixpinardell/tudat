@@ -20,12 +20,12 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst  // Semianalytic Satellite Theory
 {
 
 
 //! Support for vectors (Vector), vectors of vectors (NestedVector) and vectors of vectors of vectors (TripleVector).
-//! Used throughout the DSST theory, thus defined at tudat::propagators::dsst scope.
+//! Used throughout the DSST theory, thus defined at tudat::propagators::sst scope.
 
 template< class T >
 class Vector : public std::vector< T > {
@@ -220,7 +220,7 @@ public:
 */
 
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

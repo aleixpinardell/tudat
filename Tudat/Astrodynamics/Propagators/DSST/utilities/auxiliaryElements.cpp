@@ -16,7 +16,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 //! Update the instance's members according to the current equinoctialElements.
@@ -43,7 +43,6 @@ void AuxiliaryElements::updateMembers()
     k      = equinoctialElements( kIndex );
     p      = equinoctialElements( pIndex );
     q      = equinoctialElements( qIndex );
-    // FIXME: lambda = equinoctialElements( meanType );
 
     // Define repeated values
     const double h2 = pow( h, 2 );
@@ -56,13 +55,6 @@ void AuxiliaryElements::updateMembers()
 
     // Keplerian mean motion
     n = sqrt( mu / sma ) / sma;
-
-    // Keplerian period
-    // FIXME period = 2 * PI / n;
-
-    // Get eccentric and true longitudes
-    // FIXME: F = equinoctialElements( eccentricType );
-    // FIXME: L = equinoctialElements( trueType );
 
     // Get A, B and C
     A = sqrt( mu * sma );
@@ -83,7 +75,7 @@ void AuxiliaryElements::updateMembers()
 }
 
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

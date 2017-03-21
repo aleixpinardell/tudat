@@ -20,7 +20,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace force_models
@@ -49,7 +49,6 @@ void ConservativeThirdBodyPerturbed::determineTruncationValues() {
 
     // Auxiliary quantities.
     const double ao2rxx = aor / ( 2 * Chi2 );
-    // double xmuarn       = ao2rxx * ao2rxx * mu3 / ( Chi * R3 );  // FIXME
     double xmuarn       = ao2rxx * ao2rxx / Chi * Ufactor;
     double term         = 0.0;
 
@@ -90,6 +89,10 @@ void ConservativeThirdBodyPerturbed::determineTruncationValues() {
     } while ( n < MAX_N() );
 
     S = std::min( N, S );
+
+    // FIXME: is this necessary? If so, which should be the minimum N and S?
+    N = std::max( (int) N, 4 );
+    S = std::max( (int) S, 2 );
 }
 
 
@@ -158,7 +161,7 @@ Eigen::Vector6d ConservativeThirdBodyPerturbed::computeMeanDisturbingFunctionPar
                 U += coef2 * G;
 
                 Eigen::Vector6d dUterm;
-                dUterm << coef2 * n * G,                                    // dU / da
+                dUterm << coef2 * n * G,                                  // dU / da
                         coef1 * ( K0 * dGsdh( s ) + hChi3 * G * dK0 ),    // dU / dh
                         coef1 * ( K0 * dGsdk( s ) + kChi3 * G * dK0 ),    // dU / dk
                         coef2 * dGsdalpha( s ),                           // dU / dalpha
@@ -170,12 +173,12 @@ Eigen::Vector6d ConservativeThirdBodyPerturbed::computeMeanDisturbingFunctionPar
         }
     }
 
-    // multiply by mu3 / R3
+    // multiply by constant term outside of summation
     U *= Ufactor;
-
-    // Return U derivatives
     dU *= Ufactor;
     dU( 0 ) /= a;
+
+    // Return U derivatives
     return dU;
 }
 
@@ -189,7 +192,7 @@ Eigen::Vector6d ConservativeThirdBodyPerturbed::computeShortPeriodTerms( )
 
 } // namespace force_models
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

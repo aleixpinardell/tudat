@@ -10,7 +10,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace upper_bounds
@@ -45,7 +45,7 @@ double getRnml(const double gamma, const int n, const int l, const int m, const 
 
 } // namespace upper_bounds
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

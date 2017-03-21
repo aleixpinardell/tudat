@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "sphericHarmoicGravity.h"
+#include "sphericalHarmonicGravity.h"
 #include "Tudat/Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 
 namespace tudat
@@ -17,7 +17,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace force_models
@@ -127,7 +127,7 @@ void SphericalHarmonicGravity::determineTruncationValues() {
 
 } // namespace force_models
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

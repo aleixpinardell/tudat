@@ -10,7 +10,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace force_models
@@ -95,7 +95,7 @@ private:
 
 } // namespace force_models
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

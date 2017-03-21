@@ -1235,27 +1235,28 @@ Eigen::Matrix< ScalarType, 3, 3 > getEquinoctialReferenceFrameBasisVectors( cons
     // Compute f, g and w vectors of the equinoctial reference frame [ Eq. 2.1.4-(1) ]
     const ScalarType p2 = pow( p, 2 );
     const ScalarType q2 = pow( q, 2 );
-    const ScalarType oneo1pp2pq2 = 1 / ( 1 + p2 + q2 );
     const ScalarType p2mq2 = p2 - q2;
     const ScalarType twopq = 2 * p * q;
 
     if ( computeF ) {
-        frameVectors.col( 0 ) << oneo1pp2pq2 * ( 1 - p2mq2 ),
-                                 oneo1pp2pq2 * twopq,
-                                 oneo1pp2pq2 * -2 * I * p;
+        frameVectors.col( 0 ) << ( 1 - p2mq2 ),
+                                 twopq,
+                                 -2 * I * p;
     }
 
     if ( computeG ) {
-        frameVectors.col( 1 ) << oneo1pp2pq2 * twopq * I,
-                                 oneo1pp2pq2 * ( 1 + p2mq2 ) * I,
-                                 oneo1pp2pq2 * 2 * q;
+        frameVectors.col( 1 ) << twopq * I,
+                                 ( 1 + p2mq2 ) * I,
+                                 2 * q;
     }
 
     if ( computeW ) {
-        frameVectors.col( 2 ) << oneo1pp2pq2 * 2 * p,
-                                 oneo1pp2pq2 * -2 * q,
-                                 oneo1pp2pq2 * ( 1 - p2 - q2 ) * I;
+        frameVectors.col( 2 ) << 2 * p,
+                                 -2 * q,
+                                 ( 1 - p2 - q2 ) * I;
     }
+
+    frameVectors /= ( 1 + p2 + q2 );
 
     return frameVectors;
 }

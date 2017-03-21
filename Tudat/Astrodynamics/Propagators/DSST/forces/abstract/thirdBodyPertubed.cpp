@@ -16,7 +16,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace force_models
@@ -34,12 +34,13 @@ void ThirdBodyPerturbed::updateMembers( )
     alpha = bodyDir.dot( aux.f );
     beta  = bodyDir.dot( aux.g );
     gamma = bodyDir.dot( aux.w );
+
 }
 
 
 } // namespace force_models
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

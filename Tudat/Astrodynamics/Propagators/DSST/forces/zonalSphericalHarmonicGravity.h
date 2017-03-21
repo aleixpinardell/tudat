@@ -1,7 +1,7 @@
 #ifndef TUDAT_PROPAGATORS_DSST_FORCEMODELS_ZONALSPHERICHARMONICGRAVITY_H
 #define TUDAT_PROPAGATORS_DSST_FORCEMODELS_ZONALSPHERICHARMONICGRAVITY_H
 
-#include "abstract/sphericHarmoicGravity.h"
+#include "abstract/sphericalHarmonicGravity.h"
 
 #include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsFactories.h"
 
@@ -12,14 +12,14 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace force_models
 {
 
 
-//! Final class for the contribution of the zonal terms of the spherical harmonic expansion of a gravity
+//! Final class for the contribution of the zonal terms of the spherical harmonic expansion of a gravity field
 class ZonalSphericalHarmonicGravity final : public SphericalHarmonicGravity
 {
 public:
@@ -28,9 +28,7 @@ public:
     /** Simple constructor.
      * \param auxiliaryElements Auxiliary elements used to compute the mean element rates and short period terms.
      */
-    ZonalSphericalHarmonicGravity(
-            AuxiliaryElements &auxiliaryElements, SphericalHarmonicsAM sphericalHarmonicsAM )
-        :
+    ZonalSphericalHarmonicGravity( AuxiliaryElements &auxiliaryElements, SphericalHarmonicsAM sphericalHarmonicsAM ) :
         ForceModel( auxiliaryElements ),
         SphericalHarmonicGravity( auxiliaryElements, sphericalHarmonicsAM )
     {
@@ -49,12 +47,6 @@ private:
     Eigen::Vector6d computeShortPeriodTerms( );
 
 
-    //! Qns coefficients generator
-    coefficients_factories::QnsCoefficientsFactory QnsFactory;
-
-    //! Gs coefficients generator
-    coefficients_factories::GsHsCoefficientsFactory GsFactory;
-
     //! R/a up to the Nth power
     Vectord powR_a;
 
@@ -63,7 +55,7 @@ private:
 
 } // namespace force_models
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

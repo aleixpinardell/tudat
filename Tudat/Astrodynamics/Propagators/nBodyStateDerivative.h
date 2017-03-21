@@ -35,8 +35,8 @@ namespace propagators
 enum TranslationalPropagatorType
 {
     cowell = 0,
-    encke = 1,
-    DSST = 2
+    encke  = 1,
+    dsst   = 2  // Draper Semianalytic Satellite Theory
 };
 
 

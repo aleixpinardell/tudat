@@ -17,20 +17,13 @@
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 
 #include "Tudat/Astrodynamics/Propagators/DSST/forces/availableForceModels.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/utilities/osculatingToMean.h"
 
 namespace tudat
 {
 
 namespace propagators
 {
-
-/*
-template< typename AM >
-boost::shared_ptr< AM > cast( AM accelerationModel, basic_astrodynamics::AvailableAcceleration type )
-{
-    return boost::dynamic_pointer_cast< CentralGravitationalAccelerationModel3d >(
-}
-*/
 
 //! Class for computing the state derivative of translational motion of N bodies, using a DSST propagator.
 template< typename StateScalarType = double, typename TimeType = double >
@@ -57,7 +50,7 @@ public:
                               const Eigen::Matrix< StateScalarType, 6, 1 >& initialCartesianElements,
                               const TimeType& initialEpoch ) :
         NBodyStateDerivative< StateScalarType, TimeType >( accelerationModelsPerBody, centralBodyData,
-                                                           DSST, bodiesToIntegrate )
+                                                           dsst, bodiesToIntegrate )
     {
         using namespace basic_astrodynamics;
         using namespace orbital_element_conversions;
@@ -66,8 +59,8 @@ public:
         using namespace electro_magnetism;
         using namespace gravitation;
 
-        using namespace dsst;
-        using namespace dsst::force_models;
+        using namespace sst;
+        using namespace sst::force_models;
 
         // Check only one propagated body
         if ( bodiesToIntegrate.size() > 1 )
@@ -94,16 +87,18 @@ public:
             if ( centralGravityAM != NULL ) { break; }
         }
 
+        if ( centralGravityAM == NULL ) {
+            throw std::runtime_error( "Could not find a central or spherical harmonics gravity model required "
+                                      "for setting up the DSST propagator." );
+        }
+
         // Convert from Cartesian to (eccentric) equinoctial elements
-
-        // EquinoctialElements equinoctial( Eigen::Vector6d::Zero(), eccentricType, false );
-
-        EquinoctialElements equinoctial = EquinoctialElements::fromCartesian(
+        EquinoctialElements equinoctialElements = EquinoctialElements::fromCartesian(
                     initialCartesianElements.template cast< double >(),
-                    centralGravityAM->getGravitationalParameterFunction()(), meanType );
+                    centralGravityAM->getGravitationalParameterFunction()(), eccentricType );
 
         // Create auxiliary elements
-        auxiliaryElements = AuxiliaryElements( initialEpoch, equinoctial, centralGravityAM );
+        auxiliaryElements = AuxiliaryElements( initialEpoch, equinoctialElements, centralGravityAM );
 
         // Iterate through all acceleration models to create the DSST force models
         for ( auto ent: accelerationModelsMap )
@@ -162,13 +157,19 @@ public:
                 }
                 default:
                 {
-                    throw std::runtime_error( "One of the acceleration models is not supported by DSST propagator." );
+                    throw std::runtime_error( "Error, DSST propagator does not support accelerations of type: " +
+                                              boost::lexical_cast< std::string >( accelerationType ) );
                     break;
                 }
                 }
             }
         }
+
+        // Convert initial state from osculating to mean elements
+        // FIXME: Currently, short-period terms are implemented as vectors of zeros, so this does virtually nothing
+        // element_conversions::transformOsculatingToMeanElements( auxiliaryElements, forceModels );
     }
+
 
     //! Destructor
     ~NBodyDSSTStateDerivative( ){ }
@@ -190,7 +191,7 @@ public:
     {
         using namespace Eigen;
         using namespace orbital_element_conversions;
-        using namespace dsst;
+        using namespace sst;
 
         Eigen::Vector6d equinoctialComponents = stateOfSystemToBeIntegrated.template cast< double >();
         auxiliaryElements.updateState( time, equinoctialComponents );
@@ -200,11 +201,9 @@ public:
         for ( auto forceModel: forceModels ) {
             Eigen::Vector6d Ai = forceModel->getMeanElementRates();
             meanElementRates += Ai;
-            std::cout << Ai << "\n" << std::endl;
-            // std::cout << Ai.norm() << "\n" << std::endl;
+            // std::cout << Ai << "\n" << std::endl;
         }
-
-        std::cout << "meanElementRates :\n" << meanElementRates << "\n" << std::endl;
+        // std::cout << "meanElementRates :\n" << meanElementRates << "\n" << std::endl;
 
         // Add mean motion to the mean longitude rate
         meanElementRates( fastVariableIndex ) += auxiliaryElements.n;
@@ -228,7 +227,7 @@ public:
     {
         using namespace Eigen;
         using namespace orbital_element_conversions;
-        using namespace dsst;
+        using namespace sst;
 
         Matrix< StateScalarType, Dynamic, Dynamic > dsstSolution;
         dsstSolution.resizeLike( cartesianSolution );
@@ -270,7 +269,7 @@ public:
     {
         using namespace Eigen;
         using namespace orbital_element_conversions;
-        using namespace dsst;
+        using namespace sst;
 
         // std::cout << "internalSolution: " << internalSolution << std::endl;
 
@@ -282,16 +281,18 @@ public:
         Vector6d cartesian = equinoctialElements.toCartesian( auxiliaryElements.mu );
 
         currentCartesianLocalSoluton = cartesian.template cast< StateScalarType >();
+        // std::cout << "currentCartesianLocalSoluton: \n" << cartesian.head(3).norm() << "\n\n" << std::endl;
+
     }
 
 
 private:
 
     //! Auxiliary elements shared amongst all the force models
-    dsst::AuxiliaryElements auxiliaryElements;
+    sst::AuxiliaryElements auxiliaryElements;
 
     //! List of DSST force models
-    std::vector< boost::shared_ptr< dsst::force_models::ForceModel > > forceModels;
+    std::vector< boost::shared_ptr< sst::force_models::ForceModel > > forceModels;
 
 };
 

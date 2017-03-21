@@ -160,7 +160,7 @@ createTranslationalStateDerivativeModel(
 
         break;
     }
-    case DSST:
+    case dsst:
     {
         // Retrieve initial Cartesian elements for DSST propagator
         const Eigen::Matrix< StateScalarType, 6, 1 > initialCartesianElements =

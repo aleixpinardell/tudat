@@ -17,7 +17,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace force_models
@@ -28,6 +28,8 @@ void ConservativeRadiationPressure::updateMembers( )
 {
     // Update vector to source
     r3 = radiationPressureAM->getCurrentVectorToSource();
+
+    // std::cout << "SRP: " << r3.transpose() << std::endl;
 
     ConservativeThirdBodyPerturbed::updateMembers();
 }
@@ -46,7 +48,7 @@ double ConservativeRadiationPressure::computeUfactor()
     const double CR    = radiationPressureAM->getCurrentRadiationPressureCoefficient();
 
     // Eq. 3.5-(7)
-    const double T = 0.5 * CR * area / mass * power / ( 4 * PI * SPEED_OF_LIGHT );
+    const double T = CR * area / mass * power / ( 4 * PI * SPEED_OF_LIGHT );
 
     // Eq. 3.5-(10)
     return - T / R3;
@@ -55,7 +57,7 @@ double ConservativeRadiationPressure::computeUfactor()
 
 } // namespace force_models
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

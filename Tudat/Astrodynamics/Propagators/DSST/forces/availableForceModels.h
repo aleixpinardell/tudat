@@ -3,10 +3,11 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 
-#include "zonalSphericHarmoicGravity.h"
+#include "zonalSphericalHarmonicGravity.h"
 #include "thirdBodyCentralGravity.h"
 #include "atmosphericDrag.h"
 #include "conservativeRadiationPressure.h"
+// #include "radiationPressure.h"
 
 namespace tudat
 {
@@ -14,42 +15,17 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace force_models
 {
 
-/*
-//! Function to identify the derived class type of an acceleration model.
-tudat::basic_astrodynamics::AvailableAcceleration getType(
-        const boost::shared_ptr< ForceModel > forceModel )
-{
-    using namespace tudat::basic_astrodynamics;
-
-    // Nominal type is undefined
-    AvailableAcceleration accelerationType = undefined_acceleration;
-
-    // Check for each accelerarion mdoel type implemented as AvailableAcceleration.
-    if( boost::dynamic_pointer_cast< ThirdBody >( forceModel ) != NULL )
-    {
-        accelerationType = third_body_central_gravity;
-    }
-    else
-    {
-        throw std::runtime_error(
-                    "Error, acceleration model not identified when getting acceleration type." );
-    }
-
-    // Return identified type.
-    return accelerationType;
-
-}
-*/
+/// Header file that includes all the available DSST force models.
 
 } // namespace force_models
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

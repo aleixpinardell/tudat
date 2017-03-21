@@ -112,8 +112,8 @@ BOOST_AUTO_TEST_CASE( dsst_propagation )
     spice_interface::loadSpiceKernelInTudat( input_output::getSpiceKernelPath( ) + "de421.bsp" );
 
     // Set simulation time settings.
-    const double simulationStartEpoch = 7.9025e7;
-    const double simulationEndEpoch = simulationStartEpoch + 10 * physical_constants::JULIAN_DAY;
+    const double simulationStartEpoch = 89242986;
+    const double simulationEndEpoch = simulationStartEpoch + physical_constants::SIDEREAL_YEAR;
 
     // Define body settings for simulation.
     std::vector< std::string > bodiesToCreate;
@@ -189,16 +189,19 @@ BOOST_AUTO_TEST_CASE( dsst_propagation )
 
     // Define propagation settings.
     std::map< std::string, std::vector< boost::shared_ptr< AccelerationSettings > > > accelerationsOfAsterix;
-    accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 7, 0 ) );
 
-    accelerationsOfAsterix[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
-                                                   basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::central_gravity ) );
-    accelerationsOfAsterix[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::cannon_ball_radiation_pressure ) );
-    accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >(
-                                                     basic_astrodynamics::aerodynamic ) );
+    accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+
+    // accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 2, 0 ) );
+
+    // accelerationsOfAsterix[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+
+    accelerationsOfAsterix[ "Moon" ].push_back( boost::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
+
+    // accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( basic_astrodynamics::aerodynamic ) );
+
+    // accelerationsOfAsterix[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( basic_astrodynamics::cannon_ball_radiation_pressure ) );
+
 
     accelerationMap[  "Asterix" ] = accelerationsOfAsterix;
     bodiesToPropagate.push_back( "Asterix" );
@@ -213,25 +216,25 @@ BOOST_AUTO_TEST_CASE( dsst_propagation )
 
     // Set Keplerian elements for Asterix.
     Eigen::Vector6d asterixInitialStateInKeplerianElements;
-    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 24288e3;
-    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.7293;
+    asterixInitialStateInKeplerianElements( semiMajorAxisIndex ) = 24361e3;
+    asterixInitialStateInKeplerianElements( eccentricityIndex ) = 0.73027;
     asterixInitialStateInKeplerianElements( inclinationIndex ) = 0.1744;
-    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = 0.0226;
-    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = 3.3657;
-    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = 2.9189;
+    asterixInitialStateInKeplerianElements( argumentOfPeriapsisIndex ) = 0.0;
+    asterixInitialStateInKeplerianElements( longitudeOfAscendingNodeIndex ) = 5.388;
+    asterixInitialStateInKeplerianElements( trueAnomalyIndex ) = 0.0;
 
     double earthGravitationalParameter = bodyMap.at( "Earth" )->getGravityFieldModel( )->getGravitationalParameter( );
     const Eigen::Vector6d asterixInitialState = convertKeplerianToCartesianElements(
                 asterixInitialStateInKeplerianElements, earthGravitationalParameter );
 
 
-    TranslationalPropagatorType ptype = DSST;
+    TranslationalPropagatorType ptype = dsst;
 
     boost::shared_ptr< TranslationalStatePropagatorSettings< double > > propagatorSettings =
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch, ptype );
 
-    const double fixedStepSize = ptype == DSST ? physical_constants::JULIAN_DAY : 30.0;
+    const double fixedStepSize = ptype == dsst ? physical_constants::JULIAN_DAY : 30.0;
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
             boost::make_shared< IntegratorSettings< > >
             ( rungeKutta4, simulationStartEpoch, fixedStepSize );
@@ -265,6 +268,7 @@ BOOST_AUTO_TEST_CASE( dsst_propagation )
     Eigen::Vector6d keplerianState = convertCartesianToKeplerianElements( finalState, earthGravitationalParameter );
     std::cout << "Final Keplerian state:\n" << keplerianState << std::endl;
 
+    /*
     Eigen::Vector6d cowellKeplerianState;
     cowellKeplerianState << 2.42725e+07,
                             0.729089,
@@ -273,7 +277,7 @@ BOOST_AUTO_TEST_CASE( dsst_propagation )
                             3.29148,
                             2.82826;
     std::cout << "Final Keplerian state using Cowell propagator:\n" << cowellKeplerianState << std::endl;
-
+    */
 
 }
 

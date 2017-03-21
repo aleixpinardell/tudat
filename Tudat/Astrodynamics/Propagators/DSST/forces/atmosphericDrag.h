@@ -14,7 +14,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace force_models
@@ -44,7 +44,7 @@ public:
 private:
 
     //! Pointer to aerodynamic acceleration model
-    AerodynamicAM aerodynamicAM;
+    // AerodynamicAM aerodynamicAM;
 
     //! Set up the force model.
     void setUp() {
@@ -72,7 +72,7 @@ private:
 
 } // namespace force_models
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

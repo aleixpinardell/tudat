@@ -11,7 +11,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace force_models
@@ -119,16 +119,15 @@ private:
     //! Update the values of the minimum and maximum true longitude for the averaging integral.
     virtual void determineIntegrationLimits( ) = 0;
 
-    //! Update r, v, X, Y, Xdot and Ydot and partial derivatvies of the equinoctial elements wrt to v.
-    void updateCartesianRelatedMembers( );
-
     //! Get the value of the integrand for a given `trueLongitude` (for each of the equinoctial elements)
     Eigen::Vector6d integrand( const double trueLongitude );
 
-    //! Set the values of the minimum and maximum true longitude for the averaging integral.
-    virtual Eigen::Vector3d getDisturbingAcceleration( ) {
+    //! Update the acceleration model to the current epoch and get the perturbing acceleration
+    virtual Eigen::Vector3d getPerturbingAcceleration() {
         // FIXME: update dynamic simulator to epoch -> update environment...
-        return accelerationModel->getAcceleration();
+        accelerationModel->updateMembers( epoch );
+        Eigen::Vector3d acc = accelerationModel->getAcceleration();
+        return acc;
     }
 
     //! Get the mean element rates for the current auxiliary elements [ Eq. 3.1-(1) ]
@@ -143,7 +142,7 @@ private:
 
 } // namespace force_models
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

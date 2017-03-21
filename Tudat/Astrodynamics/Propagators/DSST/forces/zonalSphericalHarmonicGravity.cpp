@@ -8,7 +8,7 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#include "zonalSphericHarmoicGravity.h"
+#include "zonalSphericalHarmonicGravity.h"
 // #include "Tudat/Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 
 // #include "tudat/Tudat/Astrodynamics/Propagators/DSST/utilities/jacobiPolynomials.h"
@@ -19,7 +19,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace force_models
@@ -82,7 +82,8 @@ Eigen::Vector6d ZonalSphericalHarmonicGravity::computeMeanDisturbingFunctionPart
                 const double dmK0 = dmK0ns( n + 1, s );
 
                 // Other terms
-                const double coef0 = delta0s * powR_a( n ) * J( n ) * Vns( n, s );
+                const double R_an  = powR_a( n );
+                const double coef0 = delta0s * R_an * J( n ) * Vns( n, s );
                 const double coef1 = coef0 * Qns( n, s );
                 const double coef2 = coef1 * mK0;
                 const double coef3 = coef2 * G;
@@ -122,7 +123,7 @@ Eigen::Vector6d ZonalSphericalHarmonicGravity::computeShortPeriodTerms( )
 
 } // namespace force_models
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

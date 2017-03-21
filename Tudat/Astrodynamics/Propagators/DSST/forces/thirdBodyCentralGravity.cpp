@@ -20,7 +20,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace force_models
@@ -36,6 +36,8 @@ void ThirdBodyCentralGravity::updateMembers( )
 
     r3 = thirdBodyCentralGravity->getCurrentPositionOfBodyExertingAcceleration() -
             thirdBodyCentralGravity->getCurrentPositionOfBodySubjectToAcceleration();
+
+    // std::cout << "SUN: " << r3.transpose() << std::endl;
 
     ConservativeThirdBodyPerturbed::updateMembers();
 }
@@ -125,7 +127,7 @@ std::pair< double, double > ThirdBodyCentralGravity::getewjCoefficients(
 
 } // namespace force_models
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

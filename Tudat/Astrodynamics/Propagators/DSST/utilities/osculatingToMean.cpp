@@ -16,7 +16,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace element_conversions
@@ -52,7 +52,7 @@ void transformOsculatingToMeanElements( AuxiliaryElements &auxiliaryElements,
         Eigen::Vector6d rebuilt = mean.getComponents( meanType );
 
         // Add short period terms to rebuilt to make it osculating
-        for ( auto forceModel : forceModels ) {
+        for ( auto forceModel: forceModels ) {
             rebuilt += forceModel->getShortPeriodTerms();
         }
 
@@ -78,7 +78,7 @@ void transformOsculatingToMeanElements( AuxiliaryElements &auxiliaryElements,
 
 } // namespace element_conversions
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

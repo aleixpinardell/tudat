@@ -5,7 +5,8 @@
 
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 
-#include "Tudat/Astrodynamics/Propagators/DSST/utilities/body.h"
+// #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
+
 #include "Tudat/Astrodynamics/Propagators/DSST/utilities/vectors.h"
 #include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsFactories.h"
 
@@ -16,7 +17,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 
@@ -110,6 +111,8 @@ public:
                         const bool retrograde = false )
     {
         using namespace orbital_element_conversions;
+        using namespace basic_mathematics;
+        using namespace mathematical_constants;
 
         a = components( semiMajorAxisIndex );
         h = components( hIndex );
@@ -117,23 +120,20 @@ public:
         p = components( pIndex );
         q = components( qIndex );
 
-        if ( h != h ) {
-            std::cout << "error" << std::endl;
-        }
-
         lmean = TUDAT_NAN;
         lecc  = TUDAT_NAN;
         ltrue = TUDAT_NAN;
 
+        const double fastVariable = computeModulo( components( fastVariableIndex ), 2 * PI );
         switch ( type ) {
         case meanType:
-            lmean = components( fastVariableIndex );
+            lmean = fastVariable;
             break;
         case eccentricType:
-            lecc  = components( fastVariableIndex );
+            lecc  = fastVariable;
             break;
         case trueType:
-            ltrue = components( fastVariableIndex );
+            ltrue = fastVariable;
             break;
         default:
             throw std::runtime_error( "Unrecognized fast variable type." );
@@ -510,7 +510,7 @@ public:
 
 
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

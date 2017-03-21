@@ -21,7 +21,7 @@ namespace tudat
 namespace propagators
 {
 
-namespace dsst
+namespace sst
 {
 
 namespace force_models
@@ -81,6 +81,8 @@ Eigen::Vector6d NonConservative::integrand( const double trueLongitude ) {
     r = X    * f + Y    * g;
     v = Xdot * f + Ydot * g;
 
+    // std::cout << aux.epoch << ": r = \n" << r.norm() << "\n" << std::endl;
+
     // V
     V = v.norm();
 
@@ -94,7 +96,7 @@ Eigen::Vector6d NonConservative::integrand( const double trueLongitude ) {
     partials.col( 5 ) = -2 / A * r + ( k * partials.col( 1 ) - h * partials.col( 2 ) ) / ( 1 + B ) + W; // dlambda/dv
 
     // Disturbing acceleration
-    perturbingAcceleration = getDisturbingAcceleration();
+    perturbingAcceleration = getPerturbingAcceleration();
 
     // Compute vector of integrands:               6x3 * 3x1                    ->  6x1  ( Vector6d )
     return std::pow( R / a, 2 ) * partials.transpose() * perturbingAcceleration;
@@ -131,7 +133,7 @@ Eigen::Vector6d NonConservative::computeShortPeriodTerms( )
 
 } // namespace force_models
 
-} // namespace dsst
+} // namespace sst
 
 } // namespace propagators
 

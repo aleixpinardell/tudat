@@ -38,11 +38,11 @@ void AuxiliaryElements::updateMembers()
     I = equinoctialElements.isRetrograde() ? -1 : 1;
 
     // Get equinoctial elements
-    sma    = equinoctialElements( semiMajorAxisIndex );
-    h      = equinoctialElements( hIndex );
-    k      = equinoctialElements( kIndex );
-    p      = equinoctialElements( pIndex );
-    q      = equinoctialElements( qIndex );
+    a = equinoctialElements( semiMajorAxisIndex );
+    h = equinoctialElements( hIndex );
+    k = equinoctialElements( kIndex );
+    p = equinoctialElements( pIndex );
+    q = equinoctialElements( qIndex );
 
     // Define repeated values
     const double h2 = pow( h, 2 );
@@ -51,13 +51,13 @@ void AuxiliaryElements::updateMembers()
     const double q2 = pow( q, 2 );
 
     // Eccentricity
-    ecc = sqrt( h2 + k2 );
+    e = sqrt( h2 + k2 );
 
     // Keplerian mean motion
-    n = sqrt( mu / sma ) / sma;
+    meanMotion = sqrt( mu / a ) / a;
 
     // Get A, B and C
-    A = sqrt( mu * sma );
+    A = sqrt( mu * a );
     B = sqrt( 1 - h2 - k2 );
     C = 1 + p2 + q2;
 
@@ -67,11 +67,6 @@ void AuxiliaryElements::updateMembers()
     f = fgw.col( 0 );
     g = fgw.col( 1 );
     w = fgw.col( 2 );
-
-    // Get direction cosines (for central body, not to be used for third body calculations)
-    alpha = f( 2 );
-    beta  = g( 2 );
-    gamma = w( 2 );
 }
 
 

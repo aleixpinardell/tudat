@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_NBODYCDSSTSTATEDERIVATIVE_H
-#define TUDAT_NBODYCDSSTSTATEDERIVATIVE_H
+#ifndef TUDAT_NBODYDSSTSTATEDERIVATIVE_H
+#define TUDAT_NBODYDSSTSTATEDERIVATIVE_H
 
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 
@@ -206,7 +206,7 @@ public:
         // std::cout << "meanElementRates :\n" << meanElementRates << "\n" << std::endl;
 
         // Add mean motion to the mean longitude rate
-        meanElementRates( fastVariableIndex ) += auxiliaryElements.n;
+        meanElementRates( fastVariableIndex ) += auxiliaryElements.meanMotion;
 
         // Update state derivative (only one body being propagated, thus only first column needs to be updated)
         stateDerivative.col( 0 ) = meanElementRates.template cast< StateScalarType >();
@@ -300,4 +300,4 @@ private:
 
 } // namespace tudat
 
-#endif // TUDAT_NBODYCDSSTSTATEDERIVATIVE_H
+#endif // TUDAT_NBODYDSSTSTATEDERIVATIVE_H

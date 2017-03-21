@@ -27,9 +27,9 @@ namespace force_models
 void CentralBodyPerturbed::updateMembers( )
 {
     // Direction cosines
-    alpha = aux.alpha;
-    beta  = aux.beta;
-    gamma = aux.gamma;
+    alpha = aux.f( 2 );
+    beta  = aux.g( 2 );
+    gamma = aux.w( 2 );
 }
 
 

@@ -434,16 +434,16 @@ public:
     int I;
 
     //! Eccentricity
-    double ecc;
+    double e;
 
     //! Keplerian mean motion
-    double n;
+    double meanMotion;
 
     //! Keplerian period
     // double period;
 
     //! Semi-major axis
-    double sma;
+    double a;
 
     //! y component of eccentricity vector
     double h;
@@ -457,6 +457,7 @@ public:
     //! x component of inclination vector
     double q;
 
+    /*
     //! Mean longitude
     double meanLongitude() {
         return equinoctialElements( orbital_element_conversions::meanType );
@@ -471,6 +472,7 @@ public:
     double trueLongitude() {
         return equinoctialElements( orbital_element_conversions::trueType );
     }
+    */
 
     //! A = sqrt(μ * a)
     double A;
@@ -490,16 +492,7 @@ public:
     //! Equinoctial frame w vector
     Eigen::Vector3d w;
 
-    //! Direction cosine α (for central body, not to be used for third body calculations)
-    double alpha;
-
-    //! Direction cosine β (for central body, not to be used for third body calculations)
-    double beta;
-
-    //! Direction cosine γ (for central body, not to be used for third body calculations)
-    double gamma;
-
-    //! Vns coefficients generator, used in several perturbations
+    //! Vns coefficients generator, used by several perturbations (all except non-conservative)
     coefficients_factories::VnsCoefficientsFactory VnsFactory;
 
 

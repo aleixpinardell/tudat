@@ -44,16 +44,16 @@ protected:
     ForceModel( AuxiliaryElements &auxiliaryElements ) :
         aux               ( auxiliaryElements                     ),
         I                 ( auxiliaryElements.I                   ),
-        a                 ( auxiliaryElements.sma                 ),
+        a                 ( auxiliaryElements.a                   ),
         h                 ( auxiliaryElements.h                   ),
         k                 ( auxiliaryElements.k                   ),
         p                 ( auxiliaryElements.p                   ),
         q                 ( auxiliaryElements.q                   ),
-        ecc               ( auxiliaryElements.ecc                 ),
+        e                 ( auxiliaryElements.e                   ),
         A                 ( auxiliaryElements.A                   ),
         B                 ( auxiliaryElements.B                   ),
         C                 ( auxiliaryElements.C                   ),
-        meanMotion        ( auxiliaryElements.n                   ),
+        meanMotion        ( auxiliaryElements.meanMotion          ),
         lastUpdateElements( auxiliaryElements.equinoctialElements ) { }
 
 
@@ -75,7 +75,7 @@ protected:
     const double &q;
 
     //! Eccentricity
-    const double &ecc;
+    const double &e;
 
     // Common factors for potential computation
     //! A = n * a²
@@ -85,16 +85,18 @@ protected:
     //! C = 1 + p² + q²
     const double &C;
 
-    //! The mean motion (n)
+    //! Mean motion (n)
     const double &meanMotion;
 
-    // Direction cosines of the symmetry axis.
-    // Calculation depends on whether the perturbation is caused by a central body or a third body.
-    //! α
+
+    /// Direction cosines of the symmetry axis.
+    /// Calculation depends on whether the perturbation is caused by a central body or a third body.
+
+    //! Direction cosine α
     double alpha;
-    //! β
+    //! Direction cosine β
     double beta;
-    //! γ
+    //! Direction cosine γ
     double gamma;
 
 
@@ -108,6 +110,7 @@ private:
     //! Can include any code that needs to be run only once during the instance's lifetime.
     virtual void setUp() = 0;
 
+    //! The equinoctial elements used during the last update (i.e. integration step)
     EquinoctialElements lastUpdateElements;
 
     //! Update instance's members that are computed from the current auxiliary elements.

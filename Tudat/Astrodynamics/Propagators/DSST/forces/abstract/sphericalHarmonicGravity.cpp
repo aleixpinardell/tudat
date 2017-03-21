@@ -43,7 +43,7 @@ void SphericalHarmonicGravity::determineTruncationValues() {
         const double ax2or = 2 * a / R;
         double xmuran = mu / a;
         // Set a lower bound for eccentricity
-        const double eo2  = std::max( 0.0025, ecc / 2.0 );
+        const double eo2  = std::max( 0.0025, e / 2.0 );
         const double x2o2 = Chi2 / 2.;
         Vectord eccPwr( N + 1 );
         Vectord chiPwr( N + 1 );

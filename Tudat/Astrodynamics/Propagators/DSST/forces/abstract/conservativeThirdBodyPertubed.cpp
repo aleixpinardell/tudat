@@ -31,12 +31,12 @@ namespace force_models
 void ConservativeThirdBodyPerturbed::determineTruncationValues() {
     // Truncation tolerance.
     const double aor = a / R3;
-    const double tol = ( aor > 0.3 || ( aor > 0.15 && ecc > 0.25 ) ) ?
+    const double tol = ( aor > 0.3 || ( aor > 0.15 && e > 0.25 ) ) ?
 		BIG_TRUNCATION_TOLERANCE() : SMALL_TRUNCATION_TOLERANCE();
 
     // Utilities for truncation
     // Set a lower bound for eccentricity
-    const double eo2  = std::max( 0.0025, ecc / 2 );
+    const double eo2  = std::max( 0.0025, e / 2 );
     const double x2o2 = Chi2 / 2;
     Vectord eccPwr( MAX_N() );
     Vectord chiPwr( MAX_N() );

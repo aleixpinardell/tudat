@@ -8,8 +8,8 @@
  *    http://tudat.tudelft.nl/LICENSE.
  */
 
-#ifndef TUDAT_GAUSSIAN_INTEGRATOR_H
-#define TUDAT_GAUSSIAN_INTEGRATOR_H
+#ifndef TUDAT_GAUSSIAN_QUADRATURE_H
+#define TUDAT_GAUSSIAN_QUADRATURE_H
 
 #include <vector>
 #include <map>
@@ -32,8 +32,8 @@ namespace numerical_quadrature
 
 //! Gaussian numerical quadrature wrapper class.
 /*!
- * Numerical method that uses the Gaussian abscissae and weight factors to compute definite integrals of a function.
- * The Gaussian abscissae and weight factors are not calculated, but read from text files. The number of abscissae (or
+ * Numerical method that uses the Gaussian nodes and weight factors to compute definite integrals of a function.
+ * The Gaussian nodes and weight factors are not calculated, but read from text files. The number of nodes (or
  * weight factors) has to be at least n = 2. The current text files contain tabulated values up to n = 64.
  */
 template< typename IndependentVariableType, typename DependentVariableType >
@@ -47,30 +47,30 @@ public:
      * \param integrand Function to be integrated numerically.
      * \param lowerLimit Lower limit for the integral.
      * \param upperLimit Upper limit for the integral.
-     * \param numberOfAbscissae Number of abscissae at which the integrand will be evaluated. Must be an integer value
-     * between 2 and 64.
+     * \param numberOfNodes Number of nodes (i.e. nodes) at which the integrand will be evaluated.
+     * Must be an integer value between 2 and 64.
      */
     GaussianQuadrature( boost::function< DependentVariableType( IndependentVariableType ) > integrand,
                         IndependentVariableType lowerLimit, IndependentVariableType upperLimit,
-                        const unsigned int numberOfAbscissae )
+                        const unsigned int numberOfNodes )
     {
         this->lowerLimit = lowerLimit;
         this->upperLimit = upperLimit;
 
-        // Determine the values of the auxiliary independent variable (abscissae)
-        const IndependentVariableArray abscissae = getAbscissae( numberOfAbscissae );
+        // Determine the values of the auxiliary independent variable (nodes)
+        const IndependentVariableArray nodes = getNodes( numberOfNodes );
 
         // Determine the values of the weight factors
-        const IndependentVariableArray weightFactors = getWeightFactors( numberOfAbscissae );
+        const IndependentVariableArray weights = getWeights( numberOfNodes );
 
         // Change of variable -> from range [-1, 1] to range [lowerLimit, upperLimit]
         const IndependentVariableArray independentVariables =
-                0.5 * ( ( upperLimit - lowerLimit ) * abscissae + upperLimit + lowerLimit );
+                0.5 * ( ( upperLimit - lowerLimit ) * nodes + upperLimit + lowerLimit );
 
         // Determine the value of the dependent variable
         weighedIntegrands.resizeLike( independentVariables );
-        for ( unsigned int i = 0; i < numberOfAbscissae; i++ ) {
-            weighedIntegrands( i ) = weightFactors( i ) * integrand( independentVariables( i ) );
+        for ( unsigned int i = 0; i < numberOfNodes; i++ ) {
+            weighedIntegrands( i ) = weights( i ) * integrand( independentVariables( i ) );
         }
 
         performQuadrature( );
@@ -90,48 +90,48 @@ public:
     typedef Eigen::Array<   DependentVariableType, 1, Eigen::Dynamic >   DependentVariableArray;
     typedef Eigen::Array< IndependentVariableType, 1, Eigen::Dynamic > IndependentVariableArray;
 
-    //! Get all the abscissae (i.e. n abscissae for nth order) from uniqueAbscissae
-    IndependentVariableArray getAbscissae( const unsigned int n )
+    //! Get all the nodes (i.e. n nodes for nth order) from uniqueNodes
+    IndependentVariableArray getNodes( const unsigned int n )
     {
-        IndependentVariableArray abscissae( n );
+        IndependentVariableArray nodes( n );
 
-        // Include abscissa 0.0 if n is odd
+        // Include node 0.0 if n is odd
         unsigned int i = 0;
         if ( n % 2 == 1 ) {
-            abscissae.col( i++ ) = 0.0;
+            nodes.col( i++ ) = 0.0;
         }
 
-        // Include ± abscissae
-        IndependentVariableArray uniqueAbscissae = getUniqueAbscissae( n );
-        for ( unsigned int j = 0; j < uniqueAbscissae.size(); j++ ) {
-            abscissae.col( i++ ) = -uniqueAbscissae[ j ];
-            abscissae.col( i++ ) =  uniqueAbscissae[ j ];
+        // Include ± nodes
+        IndependentVariableArray uniqueNodes = getUniqueNodes( n );
+        for ( unsigned int j = 0; j < uniqueNodes.size(); j++ ) {
+            nodes.col( i++ ) = -uniqueNodes[ j ];
+            nodes.col( i++ ) =  uniqueNodes[ j ];
         }
 
-        return abscissae;
+        return nodes;
     }
 
-    //! Get all the weight factors (i.e. n weight factors for nth order) from uniqueWeightFactors
-    IndependentVariableArray getWeightFactors( const unsigned int n )
+    //! Get all the weight factors (i.e. n weight factors for nth order) from uniqueWeights
+    IndependentVariableArray getWeights( const unsigned int n )
     {
-        IndependentVariableArray weightFactors( n );
+        IndependentVariableArray weights( n );
 
-        IndependentVariableArray uniqueWeightFactors = getUniqueWeightFactors( n );
+        IndependentVariableArray uniqueWeights = getUniqueWeights( n );
 
         // Include non-repeated weight factor if n is odd
         unsigned int i = 0;
         unsigned int j = 0;
         if ( n % 2 == 1 ) {
-            weightFactors.col( i++ ) = uniqueWeightFactors[ j++ ];
+            weights.col( i++ ) = uniqueWeights[ j++ ];
         }
 
         // Include repeated weight factors
-        for ( ; j < uniqueWeightFactors.size(); j++ ) {
-            weightFactors.col( i++ ) = uniqueWeightFactors[ j ];
-            weightFactors.col( i++ ) = uniqueWeightFactors[ j ];
+        for ( ; j < uniqueWeights.size(); j++ ) {
+            weights.col( i++ ) = uniqueWeights[ j ];
+            weights.col( i++ ) = uniqueWeights[ j ];
         }
 
-        return weightFactors;
+        return weights;
     }
 
 
@@ -149,17 +149,17 @@ protected:
 
 private:
 
-    //! Map containing the abscissae read from the text file (currently up to `n = 64`).
-    //! The following relation holds: `size( uniqueAbscissae[n] ) = floor( n / 2 )`
-    //! For the actual abscissae, the following must hold: `size( abscissae[n] ) = n`
-    //! The actual abscissae are generated from `uniqueAbscissae` by `getAbscissae()`
-    std::map< unsigned int, IndependentVariableArray > uniqueAbscissae;
+    //! Map containing the nodes read from the text file (currently up to `n = 64`).
+    //! The following relation holds: `size( uniqueNodes[n] ) = floor( n / 2 )`
+    //! For the actual nodes, the following must hold: `size( nodes[n] ) = n`
+    //! The actual nodes are generated from `uniqueNodes` by `getNodes()`
+    std::map< unsigned int, IndependentVariableArray > uniqueNodes;
 
     //! Map containing the weight factors read from the text file (currently up to `n = 64`).
-    //! The following relation holds: `size( uniqueWeightFactors[n] ) = ceil( n / 2 )`
-    //! For the actual weight factors, the following must hold: `size( uniqueWeightFactors[n] ) = n`
-    //! The actual weight factors are generated from `uniqueWeightFactors` by `getWeightFactors()`
-    std::map< unsigned int, IndependentVariableArray > uniqueWeightFactors;
+    //! The following relation holds: `size( uniqueWeights[n] ) = ceil( n / 2 )`
+    //! For the actual weight factors, the following must hold: `size( uniqueWeights[n] ) = n`
+    //! The actual weight factors are generated from `uniqueWeights` by `getWeights()`
+    std::map< unsigned int, IndependentVariableArray > uniqueWeights;
 
     //! Lower limit for the integral.
     IndependentVariableType lowerLimit;
@@ -167,38 +167,38 @@ private:
     //! Upper limit for the integral.
     IndependentVariableType upperLimit;
 
-    //! Integrands at the abscissae, times the respective weight factors.
+    //! Integrands at the nodes, times the respective weight factors.
     DependentVariableArray weighedIntegrands;
 
     //! Computed value of the quadrature, as computed by last call to performQuadrature.
     DependentVariableType quadratureResult;
 
-    //! Get the unique abscissae for a specified order `n`.
+    //! Get the unique nodes for a specified order `n`.
     /*!
-     * \param n The number of abscissae or weight factors.
-     * \return `uniqueAbscissae[n]`, after reading the text file with the tabulated abscissae if necessary.
+     * \param n The number of nodes or weight factors.
+     * \return `uniqueNodes[n]`, after reading the text file with the tabulated nodes if necessary.
      */
-    IndependentVariableArray getUniqueAbscissae( const unsigned int n )
+    IndependentVariableArray getUniqueNodes( const unsigned int n )
     {
-        if ( uniqueAbscissae.count( n ) == 0 )
+        if ( uniqueNodes.count( n ) == 0 )
         {
-            readAbscissae();
+            readNodes();
         }
-        return uniqueAbscissae.at( n );
+        return uniqueNodes.at( n );
     }
 
     //! Get the unique weight factors for a specified order `n`.
     /*!
-     * \param n The number of abscissae or weight factors.
-     * \return `uniqueWeightFactors[n]`, after reading the text file with the tabulated abscissae if necessary.
+     * \param n The number of nodes or weight factors.
+     * \return `uniqueWeights[n]`, after reading the text file with the tabulated nodes if necessary.
      */
-    IndependentVariableArray getUniqueWeightFactors( const unsigned int n )
+    IndependentVariableArray getUniqueWeights( const unsigned int n )
     {
-        if ( uniqueWeightFactors.count( n ) == 0 )
+        if ( uniqueWeights.count( n ) == 0 )
         {
-            readWeightFactors();
+            readWeights();
         }
-        return uniqueWeightFactors.at( n );
+        return uniqueWeights.at( n );
     }
 
 
@@ -219,20 +219,20 @@ private:
         return eigenMap;
     }
 
-    //! Read Gaussian abscissae from text file
-    void readAbscissae()
+    //! Read Gaussian nodes from text file
+    void readNodes()
     {
-        auto abscissae = input_output::readMapFromFile< unsigned int, IndependentVariableType >(
-                    input_output::getTudatRootPath( ) + "/Mathematics/NumericalQuadrature/gaussianAbscissae.txt" );
-        uniqueAbscissae = vector2eigen( abscissae );
+        auto nodes = input_output::readMapFromFile< unsigned int, IndependentVariableType >(
+                    input_output::getTudatRootPath( ) + "/Mathematics/NumericalQuadrature/gaussianNodes.txt" );
+        uniqueNodes = vector2eigen( nodes );
     }
 
     //! Read Gaussian weight factors from text file
-    void readWeightFactors()
+    void readWeights()
     {
-        auto weightFactors = input_output::readMapFromFile< unsigned int, IndependentVariableType >(
-                    input_output::getTudatRootPath( ) + "/Mathematics/NumericalQuadrature/gaussianWeightFactors.txt" );
-        uniqueWeightFactors = vector2eigen( weightFactors );
+        auto weights = input_output::readMapFromFile< unsigned int, IndependentVariableType >(
+                    input_output::getTudatRootPath( ) + "/Mathematics/NumericalQuadrature/gaussianWeights.txt" );
+        uniqueWeights = vector2eigen( weights );
     }
 
 
@@ -242,4 +242,4 @@ private:
 
 } // namespace tudat
 
-#endif // TUDAT_GAUSSIAN_INTEGRATOR_H
+#endif // TUDAT_GAUSSIAN_QUADRATURE_H

@@ -3,7 +3,9 @@
 
 #include <boost/make_shared.hpp>
 
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
+#include "Tudat/SimulationSetup/PropagationSetup/environmentUpdater.h"
 
 // #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
@@ -260,6 +262,9 @@ private:
         using namespace orbital_element_conversions;
         if ( lmean != lmean ) {  // lmean is not a number
             if ( lecc != lecc ) {  // lecc is not a number
+                if ( ltrue != ltrue ) {  // ltrue is not a number either!
+                    throw std::runtime_error( "Mean, eccentric and true longitudes are all undefined." );
+                }
                 lecc = getEccentricLongitudeFromTrue( getComponents( trueType) );
             }
             lmean = getMeanLongitudeFromEccentric( getComponents( eccentricType ) );
@@ -274,6 +279,9 @@ private:
             if ( lmean == lmean ) {  // lmean is a number
                 lecc = getEccentricLongitudeFromMean( getComponents( meanType) );
             } else {
+                if ( ltrue != ltrue ) {  // ltrue is not a number either!
+                    throw std::runtime_error( "Mean, eccentric and true longitudes are all undefined." );
+                }
                 lecc = getEccentricLongitudeFromTrue( getComponents( trueType) );
             }
         }
@@ -285,6 +293,9 @@ private:
         using namespace orbital_element_conversions;
         if ( ltrue != ltrue ) {  // ltrue is not a number
             if ( lecc != lecc ) {  // lecc is not a number
+                if ( lmean != lmean ) {  // lmean is not a number either!
+                    throw std::runtime_error( "Mean, eccentric and true longitudes are all undefined." );
+                }
                 lecc = getEccentricLongitudeFromMean( getComponents( meanType) );
             }
             ltrue = getTrueLongitudeFromEccentric( getComponents( eccentricType ) );
@@ -306,6 +317,8 @@ private:
 typedef boost::shared_ptr< gravitation::SphericalHarmonicsGravitationalAccelerationModelBase< Eigen::Vector3d > >
 CentralGravityAM;
 
+typedef boost::shared_ptr< simulation_setup::Body > BodyPtr;
+
 //! Class to be created at the beginning of the DSST propagation, used by all perturbations
 class AuxiliaryElements
 {
@@ -316,13 +329,17 @@ public:
 
     //! Constructor.
     AuxiliaryElements( const double epoch, const EquinoctialElements equinoctialElements,
-                       CentralGravityAM centralGravityAM )
-        : centralGravityAM( centralGravityAM )
+                       BodyPtr centralBody, CentralGravityAM centralGravityAM )
+        : centralBody( centralBody ), centralGravityAM( centralGravityAM )
     {
         updateState( epoch, equinoctialElements );
     }
 
-    //! Reference to the central gravity model
+
+    //! Pointer to the central body
+    BodyPtr centralBody;
+
+    //! Pointer to the central gravity model
     CentralGravityAM centralGravityAM;
 
     /*
@@ -340,7 +357,6 @@ public:
     EquinoctialElements equinoctialElements;
 
 
-
     //! Update to a new state.
     void updateState( const double epoch, const EquinoctialElements elements )
     {
@@ -355,28 +371,35 @@ public:
     }
 
 
-    //! Update to a new state.
+    //! Update to a new state optionally changing fast variable type and/or elements set type.
     void updateState( const double epoch, const Eigen::Vector6d components,
                       const orbital_element_conversions::FastVariableType type, const bool retro )
     {
         updateState( epoch, EquinoctialElements( components, type, retro ) );
     }
 
-    //! Update to a new state.
+    //! Update to a new state without changing fast variable type.
+    void updateState( const double epoch, const Eigen::Vector6d components,
+                      const orbital_element_conversions::FastVariableType type )
+    {
+        updateState( epoch, components, type, equinoctialElements.isRetrograde() );
+    }
+
+    //! Update to a new state without changing fast variable type or elements set type.
     void updateState( const double epoch, const Eigen::Vector6d components )
     {
-        updateState( epoch, EquinoctialElements( components, equinoctialElements.getFastVariableType(),
-                     equinoctialElements.isRetrograde() ) );
+        updateState( epoch, components, equinoctialElements.getFastVariableType(),
+                     equinoctialElements.isRetrograde() );
     }
 
 
-    //! Update elements's components.
+    //! Update elements's components optionally changing fast variable type and/or elements set type.
     void updateComponents( const Eigen::Vector6d components,
                                    const orbital_element_conversions::FastVariableType type, const bool retro ) {
         updateState( epoch, components, type, retro );
     }
 
-    //! Update elements's components.
+    //! Update elements's components without changing fast variable type or elements set type.
     void updateComponents( const Eigen::Vector6d components ) {
         updateComponents( components, equinoctialElements.getFastVariableType(),
                                   equinoctialElements.isRetrograde() );

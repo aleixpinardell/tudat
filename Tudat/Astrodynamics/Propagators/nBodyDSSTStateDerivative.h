@@ -13,6 +13,10 @@
 
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 
+#include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
+#include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
+#include "Tudat/SimulationSetup/PropagationSetup/createEnvironmentUpdater.h"
+
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 
@@ -32,25 +36,19 @@ class NBodyDSSTStateDerivative: public NBodyStateDerivative< StateScalarType, Ti
 public:
 
     //! Constructor
-    /*!
-     * Constructor
-     *  \param accelerationModelsPerBody A map containing the list of accelerations acting on each
-     *  body, identifying the body being acted on and the body acted on by an acceleration. The map
-     *  has as key a string denoting the name of the body the list of accelerations, provided as the
-     *  value corresponding to a key, is acting on.  This map-value is again a map with string as
-     *  key, denoting the body exerting the acceleration, and as value a pointer to an acceleration
-     *  model.
-     *  \param centralBodyData Object responsible for providing the current integration origins from
-     *  the global origins.
-     *  \param bodiesToIntegrate List of names of bodies that are to be integrated numerically.
+    /**
+     * Constructor.
+     * @param propagatorSettings
+     * @param centralBodyData
+     * @param bodyMap
+     * @param initialEpoch
      */
-    NBodyDSSTStateDerivative( const basic_astrodynamics::AccelerationMap& accelerationModelsPerBody,
-                              const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
-                              const std::vector< std::string >& bodiesToIntegrate,
-                              const Eigen::Matrix< StateScalarType, 6, 1 >& initialCartesianElements,
-                              const TimeType& initialEpoch ) :
-        NBodyStateDerivative< StateScalarType, TimeType >( accelerationModelsPerBody, centralBodyData,
-                                                           dsst, bodiesToIntegrate )
+    NBodyDSSTStateDerivative(
+            const boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > > propagatorSettings,
+            const boost::shared_ptr< CentralBodyData< StateScalarType, TimeType > > centralBodyData,
+            const simulation_setup::NamedBodyMap &bodyMap, const TimeType &initialEpoch ) :
+        NBodyStateDerivative< StateScalarType, TimeType >( propagatorSettings->accelerationsMap_, centralBodyData,
+                                                           dsst, propagatorSettings->bodiesToIntegrate_ )
     {
         using namespace basic_astrodynamics;
         using namespace orbital_element_conversions;
@@ -63,14 +61,23 @@ public:
         using namespace sst::force_models;
 
         // Check only one propagated body
-        if ( bodiesToIntegrate.size() > 1 )
+        if ( propagatorSettings->bodiesToIntegrate_.size() > 1 )
         {
-            throw std::runtime_error( "DSST propagator does not support simultaneous propagation of multiple bodies." );
+            throw std::runtime_error("DSST propagator does not support simultaneous propagation of multiple bodies.");
         }
 
+        // Get initial Cartesian elements
+        const Eigen::Vector6d initialCartesianElements =
+                propagatorSettings->getInitialStates().segment( 0, 6 ).template cast< double >();
+
+        // Get central body
+        const std::string centralBodyName = *centralBodyData->getCentralBodies().begin();
+        BodyPtr centralBody = bodyMap.at( centralBodyName );
+
         // Get acceleration models for propagated body
-        const std::string propagatedBody = *bodiesToIntegrate.begin();
-        const SingleBodyAccelerationMap accelerationModelsMap = accelerationModelsPerBody.at( propagatedBody );
+        const std::string propagatedBody = *propagatorSettings->bodiesToIntegrate_.begin();
+        const SingleBodyAccelerationMap accelerationModelsMap =
+                propagatorSettings->accelerationsMap_.at( propagatedBody );
 
         // First iteration through acceleration models, only to find central gravity model
         CentralGravityAM centralGravityAM;
@@ -94,16 +101,16 @@ public:
 
         // Convert from Cartesian to (eccentric) equinoctial elements
         EquinoctialElements equinoctialElements = EquinoctialElements::fromCartesian(
-                    initialCartesianElements.template cast< double >(),
-                    centralGravityAM->getGravitationalParameterFunction()(), eccentricType );
+                    initialCartesianElements, centralGravityAM->getGravitationalParameterFunction()(), eccentricType );
 
         // Create auxiliary elements
-        auxiliaryElements = AuxiliaryElements( initialEpoch, equinoctialElements, centralGravityAM );
+        auxiliaryElements =
+                AuxiliaryElements( initialEpoch, equinoctialElements, centralBody, centralGravityAM );
 
         // Iterate through all acceleration models to create the DSST force models
         for ( auto ent: accelerationModelsMap )
         {
-            const std::string bodyExertingAccelerations = ent.first;
+            const std::string perturbingBody = ent.first;
             const std::vector< AccelerationModel3dPointer > accelerationModels = ent.second;
             for ( AccelerationModel3dPointer accelerationModel: accelerationModels )
             {
@@ -116,42 +123,40 @@ public:
                 }
                 case spherical_harmonic_gravity:
                 {
-                    // std::cout << "spherical_harmonic_gravity" << std::endl;
                     SphericalHarmonicsAM sphericalHarmonicsAM = boost::dynamic_pointer_cast<
                             SphericalHarmonicsGravitationalAccelerationModel >( accelerationModel );
-                    forceModels.push_back( boost::make_shared< ZonalSphericalHarmonicGravity >(
-                                               auxiliaryElements, sphericalHarmonicsAM ) );
+                    forceModels[ perturbingBody + "-SH" ] = boost::make_shared< ZonalSphericalHarmonicGravity >(
+                                               auxiliaryElements, sphericalHarmonicsAM );
                     break;
                 }
                 case third_body_central_gravity:
                 {
-                    // std::cout << "third_body_central_gravity" << std::endl;
                     ThirdBodyAM thirdBodyAM = boost::dynamic_pointer_cast<
                             ThirdBodyCentralGravityAcceleration >( accelerationModel );
-                    forceModels.push_back( boost::make_shared< ThirdBodyCentralGravity >(
-                                               auxiliaryElements, thirdBodyAM ) );
+                    forceModels[ perturbingBody + "-3RD" ] = boost::make_shared< ThirdBodyCentralGravity >(
+                                               auxiliaryElements, thirdBodyAM );
                     break;
                 }
                 case aerodynamic:
                 {
-                    // std::cout << "aerodynamic" << std::endl;
                     AerodynamicAM aerodynamicAM = boost::dynamic_pointer_cast<
                             AerodynamicAcceleration >( accelerationModel );
-                    forceModels.push_back( boost::make_shared< AtmosphericDrag >(
-                                               auxiliaryElements, aerodynamicAM ) );
+                    forceModels[ perturbingBody + "-DRAG" ] = boost::make_shared< AtmosphericDrag >(
+                                               auxiliaryElements, perturbingBody, aerodynamicAM );
                     break;
                 }
                 case cannon_ball_radiation_pressure:
                 {
-                    // std::cout << "cannon_ball_radiation_pressure" << std::endl;
                     RadiationPressureAM radiationPressureAM = boost::dynamic_pointer_cast<
                             CannonBallRadiationPressureAcceleration >( accelerationModel );
-                    if ( radiationPressureAM->getRadiationPressureInterface()->getOccultingBodyRadii().size() > 0 ) {
+                    const bool canIgnoreEclipses =
+                            radiationPressureAM->getRadiationPressureInterface()->getOccultingBodyRadii().size() == 0;
+                    if ( canIgnoreEclipses ) {
+                        forceModels[ perturbingBody + "-SRP" ] = boost::make_shared< ConservativeRadiationPressure >(
+                                                   auxiliaryElements, radiationPressureAM );
+                    } else {
                         throw std::runtime_error( "DSST propagator does not support consideration of occultations "
                                                   "during the evaluation of solar radiation pressure." );
-                    } else {
-                        forceModels.push_back( boost::make_shared< ConservativeRadiationPressure >(
-                                                   auxiliaryElements, radiationPressureAM ) );
                     }
                     break;
                 }
@@ -162,6 +167,32 @@ public:
                     break;
                 }
                 }
+            }
+        }
+
+        // Create environment updaters for non-conservative force models
+        for ( auto ent: forceModels )
+        {
+            boost::shared_ptr< NonConservative > nonConservativeForceModel =
+                    boost::dynamic_pointer_cast< NonConservative >( ent.second );
+            if ( nonConservativeForceModel != NULL )
+            {
+                // Create partial acceleration map only with relevant acceleration model
+                AccelerationMap partialAccelerationMap =
+                { { propagatedBody, { { nonConservativeForceModel->getPerturbingBodyName(),
+                                        { nonConservativeForceModel->getAccelerationModel() } } } } };
+
+                // Create environment updater settings
+                auto updateSettings = createTranslationalEquationsOfMotionEnvironmentUpdaterSettings(
+                            partialAccelerationMap, bodyMap );
+                std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
+                        integratedStates = { { transational_state, {
+                                                   std::pair< std::string, std::string >( propagatedBody, "" ) } } };
+                EnvironmentUpdater< double, double > updater( bodyMap, updateSettings, integratedStates );
+
+                // Set updater
+                nonConservativeForceModel->setEnvironmentUpdater(
+                            boost::make_shared< EnvironmentUpdater< double, double > >( updater ) );
             }
         }
 
@@ -186,7 +217,7 @@ public:
      *  (returned by reference).
      */
     void calculateSystemStateDerivative(
-            const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >& stateOfSystemToBeIntegrated,
+            const TimeType time, const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 >&stateOfSystemToBeIntegrated,
             Eigen::Block< Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic > > stateDerivative )
     {
         using namespace Eigen;
@@ -194,19 +225,23 @@ public:
         using namespace sst;
 
         Eigen::Vector6d equinoctialComponents = stateOfSystemToBeIntegrated.template cast< double >();
-        auxiliaryElements.updateState( time, equinoctialComponents );
+        // std::cout << "Initial: " << equinoctialComponents.transpose() << std::endl;
+        auxiliaryElements.updateState( time, equinoctialComponents, meanType );
 
         Vector6d meanElementRates = Vector6d::Zero();
 
-        for ( auto forceModel: forceModels ) {
+        for ( auto ent: forceModels )
+        {
+            boost::shared_ptr< sst::force_models::ForceModel > forceModel = ent.second;
             Eigen::Vector6d Ai = forceModel->getMeanElementRates();
             meanElementRates += Ai;
-            // std::cout << Ai << "\n" << std::endl;
+            // std::cout << ent.first << ": " << Ai.transpose() << std::endl;
         }
-        // std::cout << "meanElementRates :\n" << meanElementRates << "\n" << std::endl;
 
         // Add mean motion to the mean longitude rate
         meanElementRates( fastVariableIndex ) += auxiliaryElements.meanMotion;
+
+        // std::cout << "Total: " << meanElementRates.transpose() << std::endl;
 
         // Update state derivative (only one body being propagated, thus only first column needs to be updated)
         stateDerivative.col( 0 ) = meanElementRates.template cast< StateScalarType >();
@@ -244,7 +279,7 @@ public:
             dsstSolution.col( i ) = equinoctialElements.getComponents().template cast< StateScalarType >();
         }
 
-        // std::cout << "dsstSolution: " << dsstSolution << std::endl;
+        // std::cout << "Solution: " << dsstSolution.transpose() << "\n" << std::endl;
 
         return dsstSolution;
     }
@@ -291,8 +326,10 @@ private:
     //! Auxiliary elements shared amongst all the force models
     sst::AuxiliaryElements auxiliaryElements;
 
-    //! List of DSST force models
-    std::vector< boost::shared_ptr< sst::force_models::ForceModel > > forceModels;
+    //! Map of DSST force models
+    //! Keys are the name of the forces, e.g. Earth-DRAG, Moon-3RD, etc.
+    //! Values are pointers to the force models.
+    std::map< std::string, boost::shared_ptr< sst::force_models::ForceModel > > forceModels;
 
 };
 

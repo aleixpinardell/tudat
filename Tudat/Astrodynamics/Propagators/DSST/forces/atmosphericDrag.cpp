@@ -45,7 +45,8 @@ void AtmosphericDrag::determineIntegrationLimits( ) {
     }
 
     // Eq. 3.4-(2b)
-    const double cosflim = ( a * ( 1 - std::pow( e, 2 ) ) / ( R + hmax ) - 1 ) / e;
+    const double cosflim = ( a * ( 1 - std::pow( e, 2 ) )
+                             / ( aux.centralBody->getShapeModel()->getAverageRadius() + hmax ) - 1 ) / e;
     if ( cosflim > 1 ) { // Drag can be completely neglected
         L1 = 0;
         L2 = 0;
@@ -66,8 +67,8 @@ void AtmosphericDrag::determineIntegrationLimits( ) {
     const double longitudePerigee = std::atan2( longitudePerigeeSin, longitudePerigeeCos );
 
     // Eq. 3.4-(2b)
-    L1 = -flim + longitudePerigee;
-    L2 =  flim + longitudePerigee;
+    L1 = longitudePerigee - flim;
+    L2 = longitudePerigee + flim;
 }
 
 

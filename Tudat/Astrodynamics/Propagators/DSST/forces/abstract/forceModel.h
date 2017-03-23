@@ -26,6 +26,7 @@ public:
     Eigen::Vector6d getMeanElementRates( ) {
         prepareForComputating();
         meanElementRatesUpToDate = true;
+        // std::cout << aux.epoch << ": " << aux.equinoctialElements.getComponents().transpose() << std::endl;
         return computeMeanElementRates();
     }
 

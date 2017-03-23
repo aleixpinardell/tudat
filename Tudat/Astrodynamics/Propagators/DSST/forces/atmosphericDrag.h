@@ -28,16 +28,24 @@ typedef boost::shared_ptr< aerodynamics::AerodynamicAcceleration > AerodynamicAM
 class AtmosphericDrag final : public CentralBodyPerturbed, public NonConservative {
 public:
 
-    AtmosphericDrag( AuxiliaryElements &auxiliaryElements, AerodynamicAM aerodynamicAM, double maximumAltitude = 0.0,
-                     const unsigned int maximumScalableNumberOfQuadratureAbscissae = 48,
-                     const unsigned int fixedNumberOfQuadratureAbscissae = 0 ) :
-      ForceModel( auxiliaryElements ),
-      CentralBodyPerturbed( auxiliaryElements ),
-      NonConservative( auxiliaryElements, aerodynamicAM,
-                       maximumScalableNumberOfQuadratureAbscissae, fixedNumberOfQuadratureAbscissae ),
-      hmax( maximumAltitude )
+    AtmosphericDrag( AuxiliaryElements &auxiliaryElements, const std::string &perturbingBody,
+                     AerodynamicAM aerodynamicAM, const double maximumAltitude = TUDAT_NAN,
+                     const unsigned int maximumScalableNumberOfQuadratureNodes = 48,
+                     const unsigned int fixedNumberOfQuadratureNodes = 0 ) :
+        ForceModel( auxiliaryElements ),
+        CentralBodyPerturbed( auxiliaryElements ),
+        NonConservative( auxiliaryElements, perturbingBody, aerodynamicAM,
+                         maximumScalableNumberOfQuadratureNodes, fixedNumberOfQuadratureNodes )
     {
-        // R = auxiliaryElements.centralGravityAM->get
+        // FIXME: user should be able to specify this altitude limit somehow during simulation setup
+        hmax = maximumAltitude;
+        if ( hmax != hmax ) {  // hmax is not a number, i.e. user has not defined it
+            if ( perturbingBody == "Earth" ) {
+                hmax = 600e3;   // drag is only considered below 600 km altitude
+            } else {
+                hmax = 0.0;     // 0 -> drag is considered for any altitude
+            }
+        }
     }
 
 
@@ -55,11 +63,8 @@ private:
     virtual void updateMembers( );
 
 
-    //! Radius of the central body [ m ]
-    double R = 6371e3;  // FIXME
-
     //! Distance limit for consideration of drag [ m ]
-    const double hmax;
+    double hmax;
 
 
     //! Update the values of the minimum and maximum true longitude for the averaging integral.

@@ -162,13 +162,8 @@ createTranslationalStateDerivativeModel(
     }
     case dsst:
     {
-        // Retrieve initial Cartesian elements for DSST propagator
-        const Eigen::Matrix< StateScalarType, 6, 1 > initialCartesianElements =
-                translationPropagatorSettings->getInitialStates( ).segment( 0, 6 );
-
         stateDerivativeModel = boost::make_shared< NBodyDSSTStateDerivative< StateScalarType, TimeType > >
-                ( translationPropagatorSettings->accelerationsMap_, centralBodyData,
-                  translationPropagatorSettings->bodiesToIntegrate_, initialCartesianElements, propagationStartTime );
+                ( translationPropagatorSettings, centralBodyData, bodyMap, propagationStartTime );
         break;
     }
     default:

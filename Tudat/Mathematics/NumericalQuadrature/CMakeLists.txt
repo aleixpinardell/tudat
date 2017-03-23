@@ -10,7 +10,7 @@
 
 # Add source files.
 set(NUMERICAL_QUADRATURE_SOURCES
-    "${SRCROOT}${MATHEMATICSDIR}/NumericalQuadrature/void.cpp"
+  "${SRCROOT}${MATHEMATICSDIR}/NumericalQuadrature/void.cpp"
 )
 
 # Add header files.

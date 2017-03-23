@@ -2,6 +2,7 @@
 #define TUDAT_PROPAGATORS_DSST_FORCEMODELS_NONCONSERVATIVE_H
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModel.h"
+#include "Tudat/SimulationSetup/PropagationSetup/environmentUpdater.h"
 
 #include "forceModel.h"
 
@@ -23,24 +24,45 @@ typedef boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector
 
 //! Abstract class for perturbations that can be expressed as a disturbing potential
 class NonConservative : public virtual ForceModel {
+public:
+
+    std::string getPerturbingBodyName() {
+        return perturbingBody;
+    }
+
+    AccelerationModel getAccelerationModel() {
+        return accelerationModel;
+    }
+
+    void setEnvironmentUpdater( boost::shared_ptr< EnvironmentUpdater< double, double > > updater ) {
+        environmentUpdater = updater;
+    }
+
+
 protected:
 
     //! Derived (non-abstract) classes must call this constructor with either
-    //! maximumScalableNumberOfQuadratureAbscissae or fixedNumberOfQuadratureAbscissae ≥ 2
-    NonConservative( AuxiliaryElements &auxiliaryElements, AccelerationModel accelerationModel,
-                     const unsigned int maximumScalableNumberOfQuadratureAbscissae,
-                     const unsigned int fixedNumberOfQuadratureAbscissae = 0 ) :
+    //! maximumScalableNumberOfQuadratureNodes or fixedNumberOfQuadratureNodes ≥ 2
+    NonConservative( AuxiliaryElements &auxiliaryElements,
+                     const std::string &perturbingBody,
+                     AccelerationModel accelerationModel,
+                     const unsigned int maximumScalableNumberOfQuadratureNodes,
+                     const unsigned int fixedNumberOfQuadratureNodes = 0 ) :
         ForceModel( auxiliaryElements ),
+        perturbingBody( perturbingBody ),
         accelerationModel( accelerationModel ),
-        maximumScalableNumberOfQuadratureAbscissae( maximumScalableNumberOfQuadratureAbscissae ),
-        fixedNumberOfQuadratureAbscissae( fixedNumberOfQuadratureAbscissae ) { }
+        maximumScalableNumberOfQuadratureNodes( maximumScalableNumberOfQuadratureNodes ),
+        fixedNumberOfQuadratureNodes( fixedNumberOfQuadratureNodes ) { }
 
 
-    //! Pointer to the dynamic simulator
-    // FIXME
+    //! Name of the body exerting the acceleration
+    const std::string perturbingBody;
 
     //! Pointer to the corresponding acceleration model
     AccelerationModel accelerationModel;
+
+    //! Environment updater
+    boost::shared_ptr< EnvironmentUpdater< double, double > > environmentUpdater;
 
     //! Set up the force model.
     virtual void setUp() {
@@ -62,6 +84,8 @@ protected:
     //! Upper limit for the true longitude in the averaging integral ( L2 - L1 ≤ 2π )
     double L2 = mathematical_constants::PI;
 
+    //! Number of nodes for the quadrature of the averaging integral ( must be between 2 and 64 )
+    unsigned int N;
 
     //! The value of the true longitude during the current integration step
     double L;
@@ -104,17 +128,10 @@ private:
 
     //! Number of steps for the numerical quadrature of the averaging integral when the limits of the integral
     //! differ by 2π.
-    const unsigned int maximumScalableNumberOfQuadratureAbscissae;
+    const unsigned int maximumScalableNumberOfQuadratureNodes;
 
     //! Fixed number of steps for the numerical quadrature of the averaging integral, regardless of integral limits.
-    const unsigned int fixedNumberOfQuadratureAbscissae;
-
-    //! The largerst of fixedNumberOfQuadratureAbscissae and maximumScalableNumberOfQuadratureAbscissae*√[(L2-L1)/2π]
-    unsigned int N() const {
-        using namespace mathematical_constants;
-        return std::max( std::ceil( maximumScalableNumberOfQuadratureAbscissae * std::sqrt( ( L2 - L1 ) / ( 2*PI ) ) ),
-                         double( fixedNumberOfQuadratureAbscissae ) );
-    }
+    const unsigned int fixedNumberOfQuadratureNodes;
 
     //! Update the values of the minimum and maximum true longitude for the averaging integral.
     virtual void determineIntegrationLimits( ) = 0;
@@ -123,12 +140,7 @@ private:
     Eigen::Vector6d integrand( const double trueLongitude );
 
     //! Update the acceleration model to the current epoch and get the perturbing acceleration
-    virtual Eigen::Vector3d getPerturbingAcceleration() {
-        // FIXME: update dynamic simulator to epoch -> update environment...
-        accelerationModel->updateMembers( epoch );
-        Eigen::Vector3d acc = accelerationModel->getAcceleration();
-        return acc;
-    }
+    virtual Eigen::Vector3d getPerturbingAcceleration();
 
     //! Get the mean element rates for the current auxiliary elements [ Eq. 3.1-(1) ]
     Eigen::Vector6d computeMeanElementRates( );

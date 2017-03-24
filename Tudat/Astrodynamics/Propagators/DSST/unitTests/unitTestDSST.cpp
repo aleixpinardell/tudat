@@ -37,48 +37,6 @@ namespace tudat
 namespace unit_tests
 {
 
-/*
-double bodyMass() {
-    return 3000;
-}
-
-double bodyArea() {
-    return 15;
-}
-
-double bodyCD() {
-    return 2.2;
-}
-
-double bodyCR() {
-    return 1.5;
-}
-
-
-Eigen::Vector3d earthPosition() {
-    return ( Eigen::Vector3d() << 150e9, 0, 0 ).finished();
-}
-
-double earthGM() {
-    return 3.9860044e14;
-}
-
-double earthMeanRadius() {
-    return 6371e3;
-}
-
-Eigen::Vector3d earthRotationalVelocity() {
-    return ( Eigen::Vector3d() << 0, 0, 2 * mathematical_constants::PI / physical_constants::JULIAN_DAY ).finished();
-}
-
-Eigen::Vector3d sunPosition() {
-    return ( Eigen::Vector3d() << 1e4, -1e3, 1e2 ).finished();
-}
-
-double sunGM() {
-    return 1.327e20;
-}
-*/
 
 BOOST_AUTO_TEST_SUITE( test_dsst_propagator )
 
@@ -234,7 +192,7 @@ BOOST_AUTO_TEST_CASE( dsst_propagation )
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch, ptype );
 
-    const double fixedStepSize = ptype == dsst ? 1 * physical_constants::JULIAN_DAY : 30.0;
+    const double fixedStepSize = ptype == dsst ? 2 * physical_constants::JULIAN_DAY : 30.0;
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
             boost::make_shared< IntegratorSettings< > >
             ( rungeKutta4, simulationStartEpoch, fixedStepSize );

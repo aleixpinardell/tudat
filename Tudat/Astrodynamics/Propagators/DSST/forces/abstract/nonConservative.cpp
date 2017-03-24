@@ -10,8 +10,6 @@
 
 #include "nonConservative.h"
 
-#include "Tudat/Mathematics/NumericalQuadrature/gaussianQuadrature.h"
-
 #include "boost/bind.hpp"
 
 
@@ -45,31 +43,16 @@ void NonConservative::updateMembers( )
 //! Update the acceleration model to the current epoch and get the perturbing acceleration
 Eigen::Vector3d NonConservative::getPerturbingAcceleration()
 {
-    // Create current global Cartesian state from r and v
+    // Create current global Cartesian state from r and v, and central body state
     Eigen::Matrix< double, Eigen::Dynamic, 1 > cartesianState( 6 );
     cartesianState << r, v;
-    // std::cout << r.norm() << std::endl;
-    // std::cout << v.norm() << std::endl;
-    // std::cout << "e = " << orbital_element_conversions::convertCartesianToKeplerianElements( ( Eigen::Vector6d() << r, v ).finished(), aux.mu )( 1 ) << std::endl;
-    // std::cout << EquinoctialElements::fromCartesian( cartesianState, aux.mu, orbital_element_conversions::meanType ).toKeplerian().transpose() << std::endl;
     cartesianState += aux.centralBody->getStateInBaseFrameFromEphemeris( epoch );
-    // std::cout << cartesianState.transpose() << std::endl;
-    // std::cout << "My altitude (substep) = " << ( r.norm() - aux.centralBody->getShapeModel()->getAverageRadius() ) / 1e3 << " km" << std::endl;
-    // std::cout << aux.equinoctialElements.toKeplerian().transpose() << std::endl;
-
-    // std::cout << std::setprecision( 12 ) << aux.centralGravityAM->getCurrentPositionOfBodyExertingAcceleration().transpose() << std::endl;
-    // std::cout << std::setprecision( 12 ) << aux.centralGravityAM->getCurrentPositionOfBodySubjectToAcceleration().transpose() << std::endl;
 
     // Update environment
     environmentUpdater->updateEnvironment( epoch, { { transational_state, cartesianState } } );
     accelerationModel->updateMembers( epoch );
-    aux.centralGravityAM->updateBaseMembers();
-
-    // std::cout << std::setprecision( 12 ) << aux.centralGravityAM->getCurrentPositionOfBodyExertingAcceleration().transpose() << std::endl;
-    // std::cout << std::setprecision( 12 ) << aux.centralGravityAM->getCurrentPositionOfBodySubjectToAcceleration().transpose() << std::endl;
 
     // Get acceleration
-    // std::cout << "a = " << accelerationModel->getAcceleration().norm() << " m/s^2\n" << std::endl;
     return accelerationModel->getAcceleration();
 }
 
@@ -120,16 +103,19 @@ Eigen::Vector6d NonConservative::integrand( const double trueLongitude )
     // std::cout << aux.epoch << ": r = \n" << r.norm() << "\n" << std::endl;
 
     // V
-    V = v.norm();
+    // V = v.norm();
 
     // Partial derivatives of the equinoctial elements wrt to v  [ Eq. 2.1.7-(3) ]
-    const Vector3d W = ( I * q * Y - p * X ) / A * w;
-    partials.col( 0 ) = 2 / ( std::pow( meanMotion, 2 ) * a ) * v;                                      // da/dv
-    partials.col( 1 ) = ( ( 2 * Xdot * Y - X * Ydot ) * f - X * Xdot * g ) / mu + k / B * W;            // dh/dv
-    partials.col( 2 ) = ( ( 2 * X * Ydot - Xdot * Y ) * g - Y * Ydot * f ) / mu - h / B * W;            // dk/dv
-    partials.col( 3 ) =     C * Y / ( 2 * A * B ) * w;                                                  // dp/dv
-    partials.col( 4 ) = I * C * X / ( 2 * A * B ) * w;                                                  // dq/dv
-    partials.col( 5 ) = -2 / A * r + ( k * partials.col( 1 ) - h * partials.col( 2 ) ) / ( 1 + B ) + W; // dlambda/dv
+    const Vector3d wfirst = ( I * q * Y - p * X ) / A * w;
+    const Vector3d wsecond = C / ( 2 * A * B ) * w;
+    const double XdotY = Xdot * Y;
+    const double XYdot = X * Ydot;
+    partials.col( 0 ) =  2 / ( std::pow( meanMotion, 2 ) * a ) * v;                                          // da/dv
+    partials.col( 1 ) =  ( ( 2 * XdotY - XYdot ) * f - X * Xdot * g ) / mu + k / B * wfirst;                 // dh/dv
+    partials.col( 2 ) =  ( ( 2 * XYdot - XdotY ) * g - Y * Ydot * f ) / mu - h / B * wfirst;                 // dk/dv
+    partials.col( 3 ) =      Y * wsecond;                                                                    // dp/dv
+    partials.col( 4 ) =  I * X * wsecond;                                                                    // dq/dv
+    partials.col( 5 ) = -2 / A * r + ( k * partials.col( 1 ) - h * partials.col( 2 ) ) / ( 1 + B ) + wfirst; // dλ/dv
 
     // Disturbing acceleration
     perturbingAcceleration = getPerturbingAcceleration();
@@ -152,10 +138,10 @@ Eigen::Vector6d NonConservative::computeMeanElementRates( )
         return Vector6d::Zero();
     }
 
-    GaussianQuadrature< double, Vector6d > integral( boost::bind( &NonConservative::integrand, this, _1 ), L1, L2, N );
-    Vector6d quadratureResult = integral.getQuadrature();
-    Vector6d integralResult = quadratureResult / ( 2 * PI * B );
-    // std::cout << "Mean element rates due to drag: " << integralReulst.transpose() << std::endl;
+    aux.gaussianQuadrature.reset( boost::bind( &NonConservative::integrand, this, _1 ), L1, L2, N );
+    Vector6d integralResult = aux.gaussianQuadrature.getQuadrature();
+    Vector6d meanElementRates = integralResult / ( 2 * PI * B );
+    // std::cout << "Mean element rates due to drag: " << meanElementRates.transpose() << std::endl;
 
 
     // FIXME: is this necessary?
@@ -171,7 +157,7 @@ Eigen::Vector6d NonConservative::computeMeanElementRates( )
     environmentUpdater->updateEnvironment( aux.epoch, { { transational_state, cartesianState } } );
     // accelerationModel->updateMembers( aux.epoch );
     */
-    return integralResult;
+    return meanElementRates;
 }
 
 

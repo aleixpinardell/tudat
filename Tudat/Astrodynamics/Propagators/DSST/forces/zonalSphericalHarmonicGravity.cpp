@@ -40,7 +40,7 @@ Eigen::Vector6d ZonalSphericalHarmonicGravity::computeMeanDisturbingFunctionPart
     }
 
     // Initialise mean potential function
-    U = 0.0;
+    // U = 0.0;
 
     // Potential derivatives
     Eigen::Vector6d dU = Eigen::Vector6d::Zero();
@@ -88,8 +88,8 @@ Eigen::Vector6d ZonalSphericalHarmonicGravity::computeMeanDisturbingFunctionPart
                 const double coef2 = coef1 * mK0;
                 const double coef3 = coef2 * G;
 
-                //Compute U:
-                U += coef3;
+                // Compute U
+                // U += coef3;
 
                 Eigen::Vector6d dUterm;
                 dUterm << coef3 * ( n + 1 ),                                // dU / da
@@ -104,12 +104,13 @@ Eigen::Vector6d ZonalSphericalHarmonicGravity::computeMeanDisturbingFunctionPart
         }
     }
 
-    // multiply by -µ/a
-    const double mu_a = -mu / a;
-    U *= mu_a;
-    dU *= mu_a;
-
+    // Multiply by constant term outside of summation
+    const double term = -mu / a;
+    // U *= mu_a;
+    dU *= term;
     dU( 0 ) /= -a;
+
+    // Return U derivatives
     return dU;
 }
 

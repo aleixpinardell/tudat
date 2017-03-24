@@ -6,6 +6,7 @@
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/Astrodynamics/Gravitation/centralGravityModel.h"
 #include "Tudat/SimulationSetup/PropagationSetup/environmentUpdater.h"
+#include "Tudat/Mathematics/NumericalQuadrature/gaussianQuadrature.h"
 
 // #include "Tudat/Mathematics/BasicMathematics/basicMathematicsFunctions.h"
 
@@ -263,7 +264,8 @@ private:
         if ( lmean != lmean ) {  // lmean is not a number
             if ( lecc != lecc ) {  // lecc is not a number
                 if ( ltrue != ltrue ) {  // ltrue is not a number either!
-                    throw std::runtime_error( "Mean, eccentric and true longitudes are all undefined." );
+                    throw std::runtime_error( "Mean, eccentric and true longitudes are all undefined. "
+                                              "Spacecraft may be re-entering." );
                 }
                 lecc = getEccentricLongitudeFromTrue( getComponents( trueType) );
             }
@@ -280,7 +282,8 @@ private:
                 lecc = getEccentricLongitudeFromMean( getComponents( meanType) );
             } else {
                 if ( ltrue != ltrue ) {  // ltrue is not a number either!
-                    throw std::runtime_error( "Mean, eccentric and true longitudes are all undefined." );
+                    throw std::runtime_error( "Mean, eccentric and true longitudes are all undefined. "
+                                              "Spacecraft may be re-entering." );
                 }
                 lecc = getEccentricLongitudeFromTrue( getComponents( trueType) );
             }
@@ -294,7 +297,8 @@ private:
         if ( ltrue != ltrue ) {  // ltrue is not a number
             if ( lecc != lecc ) {  // lecc is not a number
                 if ( lmean != lmean ) {  // lmean is not a number either!
-                    throw std::runtime_error( "Mean, eccentric and true longitudes are all undefined." );
+                    throw std::runtime_error( "Mean, eccentric and true longitudes are all undefined. "
+                                              "Spacecraft may be re-entering." );
                 }
                 lecc = getEccentricLongitudeFromMean( getComponents( meanType) );
             }
@@ -515,8 +519,11 @@ public:
     //! Equinoctial frame w vector
     Eigen::Vector3d w;
 
-    //! Vns coefficients generator, used by several perturbations (all except non-conservative)
+    //! Vns coefficients generator, used by all conservative force models
     coefficients_factories::VnsCoefficientsFactory VnsFactory;
+
+    //! Gaussian quadrature, used by all non-conservative force models
+    numerical_quadrature::GaussianQuadrature< double, Eigen::Vector6d > gaussianQuadrature;
 
 
     //! Default assignment operator

@@ -29,6 +29,11 @@ namespace force_models
 
 //! Set the values of N and S for the series expansion of the disturbing potential.
 void ConservativeThirdBodyPerturbed::determineTruncationValues() {
+    // FIXME
+    N = 2;
+    S = 2;
+    return;
+
     // Truncation tolerance.
     const double aor = a / R3;
     const double tol = ( aor > 0.3 || ( aor > 0.15 && e > 0.25 ) ) ?
@@ -93,6 +98,8 @@ void ConservativeThirdBodyPerturbed::determineTruncationValues() {
     // FIXME: is this necessary? If so, which should be the minimum N and S?
     N = std::max( (int) N, 4 );
     S = std::max( (int) S, 2 );
+
+    std::cout << "N = " << N << ", S = " << S << std::endl;
 }
 
 
@@ -110,7 +117,7 @@ Eigen::Vector6d ConservativeThirdBodyPerturbed::computeMeanDisturbingFunctionPar
     }
 
     // Initialise mean potential function
-    U = 0.0;
+    // U = 0.0;
 
     // Potential derivatives
     Eigen::Vector6d dU = Eigen::Vector6d::Zero();
@@ -150,15 +157,14 @@ Eigen::Vector6d ConservativeThirdBodyPerturbed::computeMeanDisturbingFunctionPar
                 // Coefficients for current n and s
                 const double K0  =  K0ns( n, s );
                 const double dK0 = dK0ns( n, s );
-                const double V   =   Vns( n, s );
 
                 // Other terms
-                const double coef0 = delta0s * aR3pow( n ) * V;
+                const double coef0 = delta0s * aR3pow( n ) * Vns( n, s );
                 const double coef1 = coef0 * Qns( n, s );
                 const double coef2 = coef1 * K0;
 
-                //Compute U:
-                U += coef2 * G;
+                // Compute U
+                // U += coef2 * G;
 
                 Eigen::Vector6d dUterm;
                 dUterm << coef2 * n * G,                                  // dU / da
@@ -173,8 +179,8 @@ Eigen::Vector6d ConservativeThirdBodyPerturbed::computeMeanDisturbingFunctionPar
         }
     }
 
-    // multiply by constant term outside of summation
-    U *= Ufactor;
+    // Multiply by constant term outside of summation
+    // U *= Ufactor;
     dU *= Ufactor;
     dU( 0 ) /= a;
 

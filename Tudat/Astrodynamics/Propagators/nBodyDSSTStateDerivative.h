@@ -11,6 +11,8 @@
 #ifndef TUDAT_NBODYDSSTSTATEDERIVATIVE_H
 #define TUDAT_NBODYDSSTSTATEDERIVATIVE_H
 
+#include <chrono>
+
 #include "Tudat/Astrodynamics/Propagators/nBodyStateDerivative.h"
 
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
@@ -224,24 +226,52 @@ public:
         using namespace orbital_element_conversions;
         using namespace sst;
 
+        using namespace std::chrono;
+
         Eigen::Vector6d equinoctialComponents = stateOfSystemToBeIntegrated.template cast< double >();
-        // std::cout << "Initial: " << equinoctialComponents.transpose() << std::endl;
         auxiliaryElements.updateState( time, equinoctialComponents, meanType );
+
+        // std::cout << "Initial: " << auxiliaryElements.equinoctialElements.getComponents().transpose() << std::endl;
 
         Vector6d meanElementRates = Vector6d::Zero();
 
+        if ( computationTimes.count( "ALL" ) == 0 ) {
+            computationTimes[ "ALL" ] = 0.0;
+        }
         for ( auto ent: forceModels )
         {
+            const std::string forceModelName = ent.first;
             boost::shared_ptr< sst::force_models::ForceModel > forceModel = ent.second;
-            Eigen::Vector6d Ai = forceModel->getMeanElementRates();
-            meanElementRates += Ai;
-            // std::cout << ent.first << ": " << Ai.transpose() << std::endl;
-        }
 
+            auto t = steady_clock::now();
+            Eigen::Vector6d Ai = forceModel->getMeanElementRates();
+            double computationTime = duration_cast< microseconds >( steady_clock::now() - t ).count() / 1e6;  // s
+            if ( computationTimes.count( forceModelName ) == 0 ) {
+                computationTimes[ forceModelName ] = 0.0;
+            }
+            computationTimes[ forceModelName ] += computationTime;
+            computationTimes[ "ALL" ] += computationTime;
+
+            meanElementRates += Ai;
+
+            if ( forceModelName == "Earth-DRAG" ) {
+                // std::cout << forceModelName << ": " << Ai.transpose() << std::endl;
+            }
+        }
+/*
+        for ( auto ent: computationTimes )
+        {
+            if ( ent.first != "ALL" ) {
+                std::cout << ent.first << ": " << ent.second << " (" << ent.second / computationTimes[ "ALL" ] * 100 << "%), ";
+            } else {
+                std::cout << std::endl;
+            }
+        }
+*/
         // Add mean motion to the mean longitude rate
         meanElementRates( fastVariableIndex ) += auxiliaryElements.meanMotion;
 
-        // std::cout << "Total: " << meanElementRates.transpose() << std::endl;
+        // std::cout << "Total mean element rates: " << meanElementRates.transpose() << std::endl;
 
         // Update state derivative (only one body being propagated, thus only first column needs to be updated)
         stateDerivative.col( 0 ) = meanElementRates.template cast< StateScalarType >();
@@ -330,6 +360,8 @@ private:
     //! Keys are the name of the forces, e.g. Earth-DRAG, Moon-3RD, etc.
     //! Values are pointers to the force models.
     std::map< std::string, boost::shared_ptr< sst::force_models::ForceModel > > forceModels;
+
+    std::map< std::string, double > computationTimes;
 
 };
 

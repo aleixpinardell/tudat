@@ -61,7 +61,7 @@ protected:
 
 
     //! The current value of the mean disturbing potential. Needed for the short periodic contribution.
-    double U;
+    // double U;
 
     //! Maximum value of n for the series expansion of the disturbing potential.
     unsigned int N;

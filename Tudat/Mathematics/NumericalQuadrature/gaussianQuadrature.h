@@ -19,6 +19,7 @@
 
 #include <Eigen/Core>
 
+#include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 #include "Tudat/Mathematics/NumericalQuadrature/numericalQuadrature.h"
 #include "Tudat/InputOutput/basicInputOutput.h"
 #include "Tudat/InputOutput/mapTextFileReader.h"
@@ -41,6 +42,10 @@ class GaussianQuadrature : public NumericalQuadrature< IndependentVariableType ,
 {
 public:
 
+    //! Empty constructor.
+    GaussianQuadrature( ) { }
+
+
     //! Constructor.
     /*!
      * Constructor
@@ -54,9 +59,127 @@ public:
                         IndependentVariableType lowerLimit, IndependentVariableType upperLimit,
                         const unsigned int numberOfNodes )
     {
-        this->lowerLimit = lowerLimit;
-        this->upperLimit = upperLimit;
+        reset( integrand, lowerLimit, upperLimit, numberOfNodes );
+    }
 
+
+    //! Reset the current Gaussian quadrature.
+    /*!
+     * The nodes and weights are not read/computed again if they had already been used previously.
+     * \param integrand Function to be integrated numerically.
+     * \param lowerLimit Lower limit for the integral.
+     * \param upperLimit Upper limit for the integral.
+     * \param numberOfNodes Number of nodes (i.e. nodes) at which the integrand will be evaluated.
+     * Must be an integer value between 2 and 64.
+     */
+    void reset( boost::function< DependentVariableType( IndependentVariableType ) > integrand,
+                IndependentVariableType lowerLimit, IndependentVariableType upperLimit,
+                const unsigned int numberOfNodes )
+    {
+        this->integrand            = integrand;
+        this->lowerLimit           = lowerLimit;
+        this->upperLimit           = upperLimit;
+        this->numberOfNodes        = numberOfNodes;
+        quadratureHasBeenPerformed = false;
+    }
+
+
+    //! Function to return computed value of the quadrature.
+    /*!
+     *  Function to return computed value of the quadrature, as computed by last call to performQuadrature.
+     *  \return Function to return computed value of the quadrature, as computed by last call to performQuadrature.
+     */
+    DependentVariableType getQuadrature( )
+    {
+        if ( ! quadratureHasBeenPerformed ) {
+            if ( integrand.empty() ) {
+                throw std::runtime_error(
+                            "The integrand for the Gaussian quadrature has not been set." );
+            }
+
+            if ( lowerLimit > upperLimit ) {
+                throw std::runtime_error(
+                            "The lower limit for the Gaussian quadrature is larger than the upper limit." );
+            }
+
+            if ( numberOfNodes < 2 || numberOfNodes > 64 ) {
+                throw std::runtime_error(
+                            "The number of nodes for the Gaussian quadrature must be between 2 and 64." );
+            }
+
+            performQuadrature();
+            quadratureHasBeenPerformed = true;
+        }
+
+        return quadratureResult;
+    }
+
+
+    typedef Eigen::Array<   DependentVariableType, 1, Eigen::Dynamic >   DependentVariableArray;
+    typedef Eigen::Array< IndependentVariableType, 1, Eigen::Dynamic > IndependentVariableArray;
+
+    //! Get all the nodes (i.e. n nodes for nth order) from uniqueNodes
+    IndependentVariableArray getNodes( const unsigned int n )
+    {
+        if ( nodes.count( n ) == 0 ) {
+            IndependentVariableArray newNodes( n );
+
+            // Include node 0.0 if n is odd
+            unsigned int i = 0;
+            if ( n % 2 == 1 ) {
+                newNodes.col( i++ ) = 0.0;
+            }
+
+            // Include ± nodes
+            IndependentVariableArray uniqueNodes = getUniqueNodes( n );
+            for ( unsigned int j = 0; j < uniqueNodes.size(); j++ ) {
+                newNodes.col( i++ ) = -uniqueNodes[ j ];
+                newNodes.col( i++ ) =  uniqueNodes[ j ];
+            }
+
+            nodes[ n ] = newNodes;
+        }
+
+        return nodes.at( n );
+    }
+
+    //! Get all the weight factors (i.e. n weight factors for nth order) from uniqueWeights
+    IndependentVariableArray getWeights( const unsigned int n )
+    {
+        if ( weights.count( n ) == 0 ) {
+            IndependentVariableArray newWeights( n );
+
+            IndependentVariableArray uniqueWeights = getUniqueWeights( n );
+
+            // Include non-repeated weight factor if n is odd
+            unsigned int i = 0;
+            unsigned int j = 0;
+            if ( n % 2 == 1 ) {
+                newWeights.col( i++ ) = uniqueWeights[ j++ ];
+            }
+
+            // Include repeated weight factors
+            for ( ; j < uniqueWeights.size(); j++ ) {
+                newWeights.col( i++ ) = uniqueWeights[ j ];
+                newWeights.col( i++ ) = uniqueWeights[ j ];
+            }
+
+            weights[ n ] = newWeights;
+        }
+
+        return weights.at( n );
+    }
+
+
+protected:
+
+    //! Function that is called to perform the numerical quadrature
+    /*!
+     * Function that is called to perform the numerical quadrature. Sets the result in the quadratureResult local
+     * variable.
+     */
+    void performQuadrature( )
+    {
         // Determine the values of the auxiliary independent variable (nodes)
         const IndependentVariableArray nodes = getNodes( numberOfNodes );
 
@@ -68,84 +191,14 @@ public:
                 0.5 * ( ( upperLimit - lowerLimit ) * nodes + upperLimit + lowerLimit );
 
         // Determine the value of the dependent variable
-        weighedIntegrands.resizeLike( independentVariables );
+        DependentVariableArray weighedIntegrands( numberOfNodes );
         for ( unsigned int i = 0; i < numberOfNodes; i++ ) {
             weighedIntegrands( i ) = weights( i ) * integrand( independentVariables( i ) );
         }
 
-        performQuadrature( );
-    }
-
-    //! Function to return computed value of the quadrature.
-    /*!
-     *  Function to return computed value of the quadrature, as computed by last call to performQuadrature.
-     *  \return Function to return computed value of the quadrature, as computed by last call to performQuadrature.
-     */
-    DependentVariableType getQuadrature( )
-    {
-        return quadratureResult;
-    }
-
-
-    typedef Eigen::Array<   DependentVariableType, 1, Eigen::Dynamic >   DependentVariableArray;
-    typedef Eigen::Array< IndependentVariableType, 1, Eigen::Dynamic > IndependentVariableArray;
-
-    //! Get all the nodes (i.e. n nodes for nth order) from uniqueNodes
-    IndependentVariableArray getNodes( const unsigned int n )
-    {
-        IndependentVariableArray nodes( n );
-
-        // Include node 0.0 if n is odd
-        unsigned int i = 0;
-        if ( n % 2 == 1 ) {
-            nodes.col( i++ ) = 0.0;
-        }
-
-        // Include ± nodes
-        IndependentVariableArray uniqueNodes = getUniqueNodes( n );
-        for ( unsigned int j = 0; j < uniqueNodes.size(); j++ ) {
-            nodes.col( i++ ) = -uniqueNodes[ j ];
-            nodes.col( i++ ) =  uniqueNodes[ j ];
-        }
-
-        return nodes;
-    }
-
-    //! Get all the weight factors (i.e. n weight factors for nth order) from uniqueWeights
-    IndependentVariableArray getWeights( const unsigned int n )
-    {
-        IndependentVariableArray weights( n );
-
-        IndependentVariableArray uniqueWeights = getUniqueWeights( n );
-
-        // Include non-repeated weight factor if n is odd
-        unsigned int i = 0;
-        unsigned int j = 0;
-        if ( n % 2 == 1 ) {
-            weights.col( i++ ) = uniqueWeights[ j++ ];
-        }
-
-        // Include repeated weight factors
-        for ( ; j < uniqueWeights.size(); j++ ) {
-            weights.col( i++ ) = uniqueWeights[ j ];
-            weights.col( i++ ) = uniqueWeights[ j ];
-        }
-
-        return weights;
-    }
-
-
-protected:
-
-    //! Function that is called to perform the numerical quadrature
-    /*!
-     * Function that is called to perform the numerical quadrature. Sets the result in the quadratureResult_ local
-     * variable.
-     */
-    void performQuadrature( )
-    {
         quadratureResult = 0.5 * ( upperLimit - lowerLimit ) * weighedIntegrands.sum();
     }
+
 
 private:
 
@@ -154,21 +207,29 @@ private:
     //! For the actual nodes, the following must hold: `size( nodes[n] ) = n`
     //! The actual nodes are generated from `uniqueNodes` by `getNodes()`
     std::map< unsigned int, IndependentVariableArray > uniqueNodes;
+    std::map< unsigned int, IndependentVariableArray > nodes;
 
     //! Map containing the weight factors read from the text file (currently up to `n = 64`).
     //! The following relation holds: `size( uniqueWeights[n] ) = ceil( n / 2 )`
     //! For the actual weight factors, the following must hold: `size( uniqueWeights[n] ) = n`
     //! The actual weight factors are generated from `uniqueWeights` by `getWeights()`
     std::map< unsigned int, IndependentVariableArray > uniqueWeights;
+    std::map< unsigned int, IndependentVariableArray > weights;
+
+    //! Function returning the integrand.
+    boost::function< DependentVariableType( IndependentVariableType ) > integrand;
 
     //! Lower limit for the integral.
-    IndependentVariableType lowerLimit;
+    IndependentVariableType lowerLimit = 0;
 
     //! Upper limit for the integral.
-    IndependentVariableType upperLimit;
+    IndependentVariableType upperLimit = 0;
 
-    //! Integrands at the nodes, times the respective weight factors.
-    DependentVariableArray weighedIntegrands;
+    //! Number of nodes.
+    unsigned int numberOfNodes = 0;
+
+    //! Whether quadratureResult has been set for the current integrand, lowerLimit, upperLimit and numberOfNodes.
+    bool quadratureHasBeenPerformed = false;
 
     //! Computed value of the quadrature, as computed by last call to performQuadrature.
     DependentVariableType quadratureResult;
@@ -182,7 +243,7 @@ private:
     {
         if ( uniqueNodes.count( n ) == 0 )
         {
-            readNodes();
+            readNodes();  // this reads all the nodes from n=2 to n=64
         }
         return uniqueNodes.at( n );
     }
@@ -196,7 +257,7 @@ private:
     {
         if ( uniqueWeights.count( n ) == 0 )
         {
-            readWeights();
+            readWeights();  // this reads all the weights from n=2 to n=64
         }
         return uniqueWeights.at( n );
     }

@@ -16,6 +16,9 @@
 #ifndef TUDAT_ASTRODYNAMICS_FUNCTIONS_H
 #define TUDAT_ASTRODYNAMICS_FUNCTIONS_H
 
+#include <Eigen/Eigen>
+
+#include "Tudat/Basics/basicTypedefs.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/physicalConstants.h"
 
 namespace tudat
@@ -89,6 +92,17 @@ double computeKeplerEnergy( const double semiMajorAxis,
  * \return Synodic period.
  */
 double computeSynodicPeriod( const double orbitalPeriodBody1, const double orbitalPeriodBody2 );
+
+
+//! Compute periapsis altitude from Keplerian state.
+double computePeriapsisAltitudeFromKeplerianState( const Eigen::Vector6d state,
+                                                   const double centralBodyAverageRadius );
+
+//! Compute periapsis altitude from Cartesian state.
+double computePeriapsisAltitudeFromCartesianState( const Eigen::Vector6d state,
+                                                   const double centralBodyGravitationalParameter,
+                                                   const double centralBodyAverageRadius );
+
 
 } // namespace basic_astrodynamics
 } // namespace tudat

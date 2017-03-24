@@ -97,7 +97,7 @@ protected:
     double R;
 
     //! The propagated body speed |vx, vy, vz| during the current integration step
-    double V;
+    // double V;
 
     //! The x components in the equinoctial reference frame during the current integration step
     double X;

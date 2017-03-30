@@ -8,7 +8,7 @@
 #include "centralBodyPertubed.h"
 #include "conservative.h"
 
-#include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsfactories.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsFactories.h"
 #include "Tudat/Astrodynamics/Propagators/DSST/utilities/upperBounds.h"
 
 

@@ -7,7 +7,7 @@
 #include "thirdBodyCentralGravity.h"
 #include "atmosphericDrag.h"
 #include "conservativeRadiationPressure.h"
-// #include "radiationPressure.h"
+#include "radiationPressure.h"
 
 namespace tudat
 {

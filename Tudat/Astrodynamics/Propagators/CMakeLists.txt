@@ -30,6 +30,7 @@ set(PROPAGATORS_SOURCES
   "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/thirdBodyCentralGravity.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/atmosphericDrag.cpp"
   "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/conservativeRadiationPressure.cpp"
+  "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/radiationPressure.cpp"
 )
 
 # Add header files.
@@ -63,6 +64,7 @@ set(PROPAGATORS_HEADERS
   "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/thirdBodyCentralGravity.h"
   "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/atmosphericDrag.h"
   "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/conservativeRadiationPressure.h"
+  "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/radiationPressure.h"
   "${SRCROOT}${PROPAGATORSDIR}/DSST/forces/availableForceModels.h"
 )
 

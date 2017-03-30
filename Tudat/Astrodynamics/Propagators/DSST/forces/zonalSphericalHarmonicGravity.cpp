@@ -9,9 +9,6 @@
  */
 
 #include "zonalSphericalHarmonicGravity.h"
-// #include "Tudat/Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
-
-// #include "tudat/Tudat/Astrodynamics/Propagators/DSST/utilities/jacobiPolynomials.h"
 
 namespace tudat
 {

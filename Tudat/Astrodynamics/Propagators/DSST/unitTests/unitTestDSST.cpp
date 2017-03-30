@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( dsst_propagation )
 
     // accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
 
-    accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 7, 0 ) );
+    accelerationsOfAsterix[ "Earth" ].push_back( boost::make_shared< SphericalHarmonicAccelerationSettings >( 3, 0 ) );
 
     accelerationsOfAsterix[ "Sun" ].push_back( boost::make_shared< AccelerationSettings >( basic_astrodynamics::central_gravity ) );
 

@@ -51,9 +51,6 @@ public:
 
 private:
 
-    //! Pointer to aerodynamic acceleration model
-    // AerodynamicAM aerodynamicAM;
-
     //! Set up the force model.
     void setUp() {
         updateMembers();

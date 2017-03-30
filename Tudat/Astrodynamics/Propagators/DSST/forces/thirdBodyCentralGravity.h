@@ -7,8 +7,6 @@
 
 #include "abstract/conservativeThirdBodyPertubed.h"
 
-// #include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsfactory.h"
-
 
 namespace tudat
 {

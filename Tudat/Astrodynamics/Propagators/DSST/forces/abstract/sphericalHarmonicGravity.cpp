@@ -9,7 +9,7 @@
  */
 
 #include "sphericalHarmonicGravity.h"
-#include "Tudat/Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 
 namespace tudat
 {

@@ -321,27 +321,25 @@ unsigned int VnsCoefficientsFactory::getSuborder( const unsigned int i ) const {
 void VnsCoefficientsFactory::computeCoefficients( const bool extended ) {
     const int oldOrder = Vns.order();
     const int order = getOrder( extended );
-    if ( order > oldOrder ) {
-        Vectori oldSuborders;
-        // Resize all first, as we are setting elements n+1 and n+2
-        Vns.resizeForOrder( order );
-        for ( int n = 0; n <= order; n++ ) {
-            oldSuborders.push_back( Vns.suborder( n ) );
-            Vns.resizeForSuborder( n, getSuborder( n ) );
-        }
-        // Then compute
-        for ( int n = std::max( 0, oldOrder - 2 ); n <= order; n++ ) {
-            const int suborder = Vns.suborder( n );
-            for ( int s = std::max( 0, oldSuborders( n ) - 2 ); s <= suborder; s++ ) {
-                if ( ( n - s ) % 2 != 0 ) { // (n - s) odd
-                    Vns( n, s ) = 0.0;
-                } else { // (n - s) even
-                    if ( n == s && n + 1 <= order && s + 1 <= Vns.suborder( n + 1 ) ) {
-                        Vns( s + 1, s + 1 ) = Vns( s, s ) / ( 2.0 * s + 2.0 );
-                    }
-                    if ( n + 2 <= order ) {
-                        Vns( n + 2, s ) = Vns( n, s ) * ( s - n - 1.0 ) / ( n + s + 2.0 );
-                    }
+    Vectori oldSuborders;
+    // Resize all first, as we are setting elements n+1 and n+2
+    Vns.resizeForOrder( order );
+    for ( int n = 0; n <= order; n++ ) {
+        oldSuborders.push_back( Vns.suborder( n ) );
+        Vns.resizeForSuborder( n, getSuborder( n ) );
+    }
+    // Then compute
+    for ( int n = std::max( 0, oldOrder - 2 ); n <= order; n++ ) {
+        const int suborder = Vns.suborder( n );
+        for ( int s = std::max( 0, oldSuborders( n ) - 2 ); s <= suborder; s++ ) {
+            if ( ( n - s ) % 2 != 0 ) { // (n - s) odd
+                Vns( n, s ) = 0.0;
+            } else { // (n - s) even
+                if ( n == s && n + 1 <= order && s + 1 <= Vns.suborder( n + 1 ) ) {
+                    Vns( s + 1, s + 1 ) = Vns( s, s ) / ( 2.0 * s + 2.0 );
+                }
+                if ( n + 2 <= order ) {
+                    Vns( n + 2, s ) = Vns( n, s ) * ( s - n - 1.0 ) / ( n + s + 2.0 );
                 }
             }
         }

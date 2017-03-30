@@ -9,9 +9,8 @@
  */
 
 #include "conservativeThirdBodyPertubed.h"
-// #include "tudat/Tudat/Astrodynamics/Propagators/DSST/utilities/jacobiPolynomials.h"
 
-#include "Tudat/Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 
 
 namespace tudat

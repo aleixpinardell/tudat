@@ -49,7 +49,7 @@ public:
     }
 
     void resizeForOrder( const int unsigned order ) {
-        if ( (int) order > this->order() ) {
+        if ( int( order ) > this->order() ) {
             resize( order + 1 );
         }
     }
@@ -96,13 +96,13 @@ public:
     }
 
     void resizeForOrder( const unsigned int order ) {
-        if ( (int) order > this->order() ) {
+        if ( int( order ) > this->order() ) {
             resize( order + 1 );
         }
     }
 
     void resizeForSuborder( const unsigned int i, const unsigned int suborder ) {
-        if ( (int) suborder > this->suborder( i ) ) {
+        if ( int( suborder ) > this->suborder( i ) ) {
             ( *this ).at( i ).resize( suborder + 1 );
         }
     }

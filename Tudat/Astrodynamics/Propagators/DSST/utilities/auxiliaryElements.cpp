@@ -52,6 +52,9 @@ void AuxiliaryElements::updateMembers()
 
     // Eccentricity
     e = sqrt( h2 + k2 );
+    if ( e > 1 ) {
+        throw std::runtime_error( "Orbit became hyperbolic. Spacecraft may be re-entering." );
+    }
 
     // Keplerian mean motion
     meanMotion = sqrt( mu / a ) / a;

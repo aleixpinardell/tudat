@@ -4,7 +4,7 @@
 #include "thirdBodyPertubed.h"
 #include "conservative.h"
 
-#include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsfactories.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/utilities/coefficientsFactories.h"
 
 
 namespace tudat

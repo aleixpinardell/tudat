@@ -151,14 +151,16 @@ public:
                 {
                     RadiationPressureAM radiationPressureAM = boost::dynamic_pointer_cast<
                             CannonBallRadiationPressureAcceleration >( accelerationModel );
-                    const bool canIgnoreEclipses =
-                            radiationPressureAM->getRadiationPressureInterface()->getOccultingBodyRadii().size() == 0;
-                    if ( canIgnoreEclipses ) {
+                    const unsigned int numberOfOcultingBodies =
+                            radiationPressureAM->getRadiationPressureInterface()->getOccultingBodyRadii().size();
+                    if ( numberOfOcultingBodies == 0 ) {
                         forceModels[ perturbingBody + "-SRP" ] = boost::make_shared< ConservativeRadiationPressure >(
                                                    auxiliaryElements, radiationPressureAM );
+                    } else if ( numberOfOcultingBodies == 1 ) {
+                        forceModels[ perturbingBody + "-SRP" ] = boost::make_shared< RadiationPressure >(
+                                                   auxiliaryElements, perturbingBody, radiationPressureAM );
                     } else {
-                        throw std::runtime_error( "DSST propagator does not support consideration of occultations "
-                                                  "during the evaluation of solar radiation pressure." );
+                        throw std::runtime_error( "Multiple occultations is not supported by the DSST propagator." );
                     }
                     break;
                 }
@@ -201,6 +203,8 @@ public:
         // Convert initial state from osculating to mean elements
         // FIXME: Currently, short-period terms are implemented as vectors of zeros, so this does virtually nothing
         // element_conversions::transformOsculatingToMeanElements( auxiliaryElements, forceModels );
+        shortPeriodTermsMap[ initialEpoch ] = auxiliaryElements.equinoctialElements.getComponents( meanType ) -
+                equinoctialElements.getComponents( meanType );
     }
 
 
@@ -234,6 +238,7 @@ public:
         // std::cout << "Initial: " << auxiliaryElements.equinoctialElements.getComponents().transpose() << std::endl;
 
         Vector6d meanElementRates = Vector6d::Zero();
+        Vector6d shortPeriodTerms = Vector6d::Zero();
 
         if ( computationTimes.count( "ALL" ) == 0 ) {
             computationTimes[ "ALL" ] = 0.0;
@@ -245,6 +250,8 @@ public:
 
             auto t = steady_clock::now();
             Eigen::Vector6d Ai = forceModel->getMeanElementRates();
+            Eigen::Vector6d mui = forceModel->getShortPeriodTerms();
+
             double computationTime = duration_cast< microseconds >( steady_clock::now() - t ).count() / 1e6;  // s
             if ( computationTimes.count( forceModelName ) == 0 ) {
                 computationTimes[ forceModelName ] = 0.0;
@@ -253,6 +260,7 @@ public:
             computationTimes[ "ALL" ] += computationTime;
 
             meanElementRates += Ai;
+            shortPeriodTerms += mui;
 
             if ( forceModelName == "Earth-DRAG" ) {
                 // std::cout << forceModelName << ": " << Ai.transpose() << std::endl;
@@ -270,6 +278,10 @@ public:
 */
         // Add mean motion to the mean longitude rate
         meanElementRates( fastVariableIndex ) += auxiliaryElements.meanMotion;
+
+        // Store for later reconstruction of osculating terms
+        meanElementRatesMap[ time ] = meanElementRates;
+        shortPeriodTermsMap[ time ] = shortPeriodTerms;
 
         // std::cout << "Total mean element rates: " << meanElementRates.transpose() << std::endl;
 
@@ -338,7 +350,13 @@ public:
 
         // std::cout << "internalSolution: " << internalSolution << std::endl;
 
+        // Get mean elements
         Vector6d equinoctialComponents = internalSolution.template cast< double >();
+
+        // FIXME: this is not only used to generate the output, but also during computation of k1, k2... of RK4. Why?
+        // But the RK4 needs only the mean elements (in the propagator-specific representation), not the osculating.
+        // Add short period terms -> osculating elements
+        // equinoctialComponents += shortPeriodTermsMap.at( time );
 
         EquinoctialElements equinoctialElements( equinoctialComponents, meanType,
                                                  auxiliaryElements.equinoctialElements.isRetrograde() );
@@ -361,6 +379,15 @@ private:
     //! Values are pointers to the force models.
     std::map< std::string, boost::shared_ptr< sst::force_models::ForceModel > > forceModels;
 
+
+    //! Computed mean element rates for each epoch
+    std::map< double, Eigen::Vector6d > meanElementRatesMap;
+
+    //! Computed short period terms for each epoch
+    std::map< double, Eigen::Vector6d > shortPeriodTermsMap;
+
+
+    //! Time spent on computing the effects of each of the forces and "ALL"
     std::map< std::string, double > computationTimes;
 
 };

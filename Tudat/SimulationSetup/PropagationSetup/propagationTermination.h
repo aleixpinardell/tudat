@@ -22,6 +22,14 @@ namespace tudat
 namespace propagators
 {
 
+//! MISSINGDOC
+enum PropagationTerminationReason
+{
+    unknown_reason,
+    termination_condition_reached,
+    runtime_error_caught
+};
+
 //! Base class for checking whether the numerical propagation is to be stopped at current time step or not
 /*!
  *  Base class for checking whether the numerical propagation is to be stopped at current time step or not. Derived

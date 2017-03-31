@@ -345,6 +345,12 @@ public:
         return propagationTerminationCondition_;
     }
 
+    //! MISSINGDOC
+    PropagationTerminationReason getPropagationTerminationReason()
+    {
+        return propagationTerminationReason_;
+    }
+
 protected:
 
     //! This function updates the environment with the numerical solution of the propagation.
@@ -415,6 +421,8 @@ protected:
     //! Boolean to determine whether to automatically use the integrated results to set ephemerides.
     bool setIntegratedResult_;
 
+    //! MISSINGDOC
+    PropagationTerminationReason propagationTerminationReason_;
 
 };
 
@@ -441,6 +449,7 @@ public:
     using DynamicsSimulator< StateScalarType, TimeType >::integratedStateProcessors_;
     using DynamicsSimulator< StateScalarType, TimeType >::propagationTerminationCondition_;
     using DynamicsSimulator< StateScalarType, TimeType >::dependentVariablesFunctions_;
+    using DynamicsSimulator< StateScalarType, TimeType >::propagationTerminationReason_;
 
 
     //! Constructor of simulator.
@@ -490,6 +499,7 @@ public:
             const Eigen::Matrix< StateScalarType, Eigen::Dynamic, Eigen::Dynamic >& initialStates )
     {
 
+        propagationTerminationReason_ = unknown_reason;
         equationsOfMotionNumericalSolution_.clear( );
 
         dynamicsStateDerivative_->setPropagationSettings( std::vector< IntegratedStateType >( ), 1, 0 );
@@ -502,6 +512,7 @@ public:
                     boost::bind( &PropagationTerminationCondition::checkStopCondition,
                                  propagationTerminationCondition_, _1 ),
                     dependentVariableHistory_,
+                    propagationTerminationReason_,
                     dependentVariablesFunctions_,
                     propagatorSettings_->getPrintInterval( ),
                     dynamicsStateDerivative_->getPropagationShouldTerminateFunction() );

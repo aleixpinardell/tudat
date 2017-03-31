@@ -440,6 +440,25 @@ public:
         return stateTypeStartIndex_;
     }
 
+    /*
+    //! MISSINGDOC
+    bool getPropagationShouldTerminate( const double time )
+    {
+        return propagationShouldTerminateFunction_( time );
+    }
+    */
+    //! MISSINGDOC
+    boost::function< bool( const double ) > getPropagationShouldTerminateFunction( )
+    {
+        return propagationShouldTerminateFunction_;
+    }
+
+    //! MISSINGDOC
+    void setPropagationShouldTerminateFunction( boost::function< bool( const double ) > terminateFunction )
+    {
+        propagationShouldTerminateFunction_ = terminateFunction;
+    }
+
 private:
 
     //! Function to convert the to the conventional form in the global frame per dynamics type.
@@ -546,6 +565,9 @@ private:
     //! convertCurrentStateToGlobalRepresentationPerType
     std::unordered_map< IntegratedStateType, Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > >
             currentStatesPerTypeInConventionalRepresentation_;
+
+    //! MISSINGDOC
+    boost::function< bool( const double ) > propagationShouldTerminateFunction_ = boost::lambda::constant( false );
 };
 
 //! Function to retrieve a single given acceleration model from a list of models

@@ -12,6 +12,7 @@
 #define TUDAT_INTEGRATEEQUATIONS_H
 
 #include <Eigen/Core>
+#include <boost/lambda/lambda.hpp>
 
 #include <map>
 
@@ -105,13 +106,17 @@ void integrateEquationsFromIntegrator(
                 if( !dependentVariableFunction.empty( ) )
                 {
                     integrator->getStateDerivativeFunction( )( currentTime, newState );
-                    dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
+                    breakPropagation = integrator->getPropagationShouldTerminate();
+                    if ( !breakPropagation )
+                    {
+                        dependentVariableHistory[ currentTime ] = dependentVariableFunction( );
+                    }
                 }
             }
 
 
             // Print solutions
-            if( printInterval == printInterval )
+            if( printInterval == printInterval && !breakPropagation )
             {
                 if( ( static_cast<int>( std::fabs( static_cast< double >( currentTime - initialTime ) ) ) %
                       static_cast< int >( printInterval ) ) <
@@ -161,6 +166,7 @@ public:
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
+     *  \param propagationShouldTerminateFunction MISSINGDOC
      */
     static void integrateEquations(
             boost::function< StateType( const TimeType, const StateType& ) > stateDerivativeFunction,
@@ -171,7 +177,9 @@ public:
             std::map< TimeType, Eigen::VectorXd >& dependentVariableHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
-            const TimeType printInterval = TUDAT_NAN );
+            const TimeType printInterval = TUDAT_NAN,
+            const boost::function< bool( const double ) > propagationShouldTerminateFunction =
+            boost::lambda::constant( false ) );
 };
 
 //! Interface class for integrating some state derivative function.
@@ -194,6 +202,7 @@ public:
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
+     *  \param propagationShouldTerminateFunction MISSINGDOC
      */
     static void integrateEquations(
             boost::function< StateType( const double, const StateType& ) > stateDerivativeFunction,
@@ -204,12 +213,16 @@ public:
             std::map< double, Eigen::VectorXd >& dependentVariableHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
-            const double printInterval = TUDAT_NAN )
+            const double printInterval = TUDAT_NAN,
+            const boost::function< bool( const double ) > propagationShouldTerminateFunction =
+            boost::lambda::constant( false ) )
     {
         // Create numerical integrator.
         boost::shared_ptr< numerical_integrators::NumericalIntegrator< double, StateType, StateType > > integrator =
                 numerical_integrators::createIntegrator< double, StateType >(
                     stateDerivativeFunction, initialState, integratorSettings );
+
+        integrator->setPropagationShouldTerminateFunction( propagationShouldTerminateFunction );
 
         integrateEquationsFromIntegrator< StateType, double >(
                     integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,
@@ -239,6 +252,7 @@ public:
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
+     *  \param propagationShouldTerminateFunction MISSINGDOC
      */
     static void integrateEquations(
             boost::function< StateType( const Time, const StateType& ) > stateDerivativeFunction,
@@ -249,12 +263,16 @@ public:
             std::map< Time, Eigen::VectorXd >& dependentVariableHistory,
             const boost::function< Eigen::VectorXd( ) > dependentVariableFunction =
             boost::function< Eigen::VectorXd( ) >( ),
-            const Time printInterval = TUDAT_NAN )
+            const Time printInterval = TUDAT_NAN,
+            const boost::function< bool( const double ) > propagationShouldTerminateFunction =
+            boost::lambda::constant( false ) )
     {
         // Create numerical integrator.
         boost::shared_ptr< numerical_integrators::NumericalIntegrator< Time, StateType, StateType, long double > > integrator =
                 numerical_integrators::createIntegrator< Time, StateType, long double  >(
                     stateDerivativeFunction, initialState, integratorSettings );
+
+        integrator->setPropagationShouldTerminateFunction( propagationShouldTerminateFunction );
 
         integrateEquationsFromIntegrator< StateType, Time, long double >(
                     integrator, integratorSettings->initialTimeStep_, stopPropagationFunction, solutionHistory,

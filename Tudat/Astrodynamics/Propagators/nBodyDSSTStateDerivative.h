@@ -18,7 +18,6 @@
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationSettings.h"
 #include "Tudat/SimulationSetup/PropagationSetup/createEnvironmentUpdater.h"
-#include "Tudat/SimulationSetup/PropagationSetup/propagationTermination.h"
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/orbitalElementConversions.h"
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
@@ -62,9 +61,6 @@ public:
 
         using namespace sst;
         using namespace sst::force_models;
-
-        terminationConditions = createPropagationTerminationConditions(
-                    propagatorSettings->getTerminationSettings(), bodyMap, initialEpoch );
 
         // Check only one propagated body
         if ( propagatorSettings->bodiesToIntegrate_.size() > 1 )
@@ -239,7 +235,7 @@ public:
         Eigen::Vector6d equinoctialComponents = stateOfSystemToBeIntegrated.template cast< double >();
         auxiliaryElements.updateState( time, equinoctialComponents, meanType );
 
-        std::cout << time << ": " << auxiliaryElements.equinoctialElements.getComponents().transpose() << std::endl;
+        // std::cout << time << ": " << auxiliaryElements.equinoctialElements.getComponents().transpose() << std::endl;
 
         Vector6d meanElementRates = Vector6d::Zero();
         Vector6d shortPeriodTerms = Vector6d::Zero();
@@ -292,7 +288,7 @@ public:
         meanElementRatesMap[ time ] = meanElementRates;
         shortPeriodTermsMap[ time ] = shortPeriodTerms;
 
-        std::cout << "Total mean element rates: " << meanElementRates.transpose() << std::endl;
+        // std::cout << "Total mean element rates: " << meanElementRates.transpose() << std::endl;
 
         // Rate of change of the perigee altitude
         const double a = auxiliaryElements.a;
@@ -305,9 +301,9 @@ public:
         const double dhp = da * ( 1 - e ) - a / e * ( h * dh + k * dk );
         // std::cout << dhp / 1e3 * physical_constants::JULIAN_DAY << " km/day" << std::endl;
 
-        std::cout << "hp = " << a * ( 1 - e ) / 1e3 << " km" << std::endl;
+        // std::cout << "hp = " << a * ( 1 - e ) / 1e3 << " km" << std::endl;
 
-        std::cout << "\n" << std::endl;
+        // std::cout << "\n" << std::endl;
 
         // Update state derivative (only one body being propagated, thus only first column needs to be updated)
         stateDerivative.col( 0 ) = meanElementRates.template cast< StateScalarType >();
@@ -397,9 +393,6 @@ private:
 
     //! Auxiliary elements shared amongst all the force models
     sst::AuxiliaryElements auxiliaryElements;
-
-    //! Auxiliary elements shared amongst all the force models
-    boost::shared_ptr< PropagationTerminationCondition > terminationConditions;
 
     //! Map of DSST force models
     //! Keys are the name of the forces, e.g. Earth-DRAG, Moon-3RD, etc.

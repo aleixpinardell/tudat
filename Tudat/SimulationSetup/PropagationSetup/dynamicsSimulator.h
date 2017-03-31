@@ -195,6 +195,36 @@ public:
         propagationTerminationCondition_ = createPropagationTerminationConditions(
                     propagatorSettings->getTerminationSettings( ), bodyMap_, integratorSettings->initialTimeStep_ );
 
+        std::vector< boost::shared_ptr< PropagatorSettings< StateScalarType > > > listOfPropagatorSettings;
+        boost::shared_ptr< MultiTypePropagatorSettings< StateScalarType > >
+                multiTypePropagatorSettings = boost::dynamic_pointer_cast<
+                MultiTypePropagatorSettings< StateScalarType > >( propagatorSettings );
+        if ( multiTypePropagatorSettings != NULL )
+        {
+            listOfPropagatorSettings = multiTypePropagatorSettings->propagatorSettingsMap_.at( transational_state );
+        }
+        else
+        {
+            listOfPropagatorSettings = { propagatorSettings };
+        }
+
+        for ( auto propSettings: listOfPropagatorSettings )
+        {
+            boost::shared_ptr< TranslationalStatePropagatorSettings< StateScalarType > >
+                    translationalPropagatorSettings = boost::dynamic_pointer_cast<
+                    TranslationalStatePropagatorSettings< StateScalarType > >( propSettings );
+            if ( translationalPropagatorSettings != NULL )
+            {
+                if ( translationalPropagatorSettings->propagator_ == dsst )
+                {
+                    dynamicsStateDerivative_->setPropagationShouldTerminateFunction(
+                                boost::bind( &PropagationTerminationCondition::checkStopCondition,
+                                             propagationTerminationCondition_, _1 ) );
+                    break;
+                }
+            }
+        }
+
         if( propagatorSettings_->getDependentVariablesToSave( ) != NULL )
         {
             std::pair< boost::function< Eigen::VectorXd( ) >, std::map< int, std::string > > dependentVariableData =
@@ -473,7 +503,8 @@ public:
                                  propagationTerminationCondition_, _1 ),
                     dependentVariableHistory_,
                     dependentVariablesFunctions_,
-                    propagatorSettings_->getPrintInterval( ) );
+                    propagatorSettings_->getPrintInterval( ),
+                    dynamicsStateDerivative_->getPropagationShouldTerminateFunction() );
         equationsOfMotionNumericalSolution_ = dynamicsStateDerivative_->
                 convertNumericalStateSolutionsToOutputSolutions( equationsOfMotionNumericalSolution_ );
 

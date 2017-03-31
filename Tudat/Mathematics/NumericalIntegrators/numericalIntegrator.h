@@ -16,6 +16,7 @@
 #include <limits>
 
 #include <boost/function.hpp>
+#include <boost/lambda/lambda.hpp>
 
 #include <Eigen/Core>
 
@@ -137,6 +138,19 @@ public:
         return stateDerivativeFunction_;
     }
 
+    //! Function to return a boolean indicating whether the propagation should terminate, discarding the last
+    //! integrated state.
+    bool getPropagationShouldTerminate( )
+    {
+        return propagationShouldTerminate_;
+    }
+
+    //! MISSINGDOC
+    void setPropagationShouldTerminateFunction( boost::function< bool( const double ) > terminateFunction )
+    {
+        propagationShouldTerminateFunction_ = terminateFunction;
+    }
+
 protected:
 
     //! Function that returns the state derivative.
@@ -145,6 +159,12 @@ protected:
      */
     StateDerivativeFunction stateDerivativeFunction_;
 
+    //! Whether the propagation should terminate silently (no error), without saving the last integrated state.
+    //! This variable can be modified by the propagator when a certain codition is reached.
+    bool propagationShouldTerminate_ = false;
+
+    //! MISSINGDOC
+    boost::function< bool( const double ) > propagationShouldTerminateFunction_ = boost::lambda::constant( false );
 };
 
 //! Perform an integration to a specified independent variable value.

@@ -12,6 +12,8 @@
 #ifndef TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H
 #define TUDAT_RUNGE_KUTTA_4_INTEGRATOR_H
 
+#include <vector>
+
 #include <boost/shared_ptr.hpp>
 
 #include <Eigen/Core>
@@ -105,28 +107,58 @@ public:
      */
     virtual StateType performIntegrationStep( const TimeStepType stepSize )
     {
+        using namespace Eigen;
+
         lastIndependentVariable_ = currentIndependentVariable_;
         lastState_ = currentState_;
 
         // Calculate k1-k4.
-        const StateDerivativeType k1 = stepSize * this->stateDerivativeFunction_(
-                    currentIndependentVariable_, currentState_ );
+        StateDerivativeType k1, k2, k3, k4;
+        for ( unsigned int i = 1; i <= 4; i++ )
+        {
+            IndependentVariableType time;
+            StateType state;
+            switch ( i ) {
+            case 1:
+                time = currentIndependentVariable_;
+                state = currentState_;
+                k1 = stepSize * this->stateDerivativeFunction_( time, state );
+                break;
+            case 2:
+                time = currentIndependentVariable_ + stepSize / 2.0;
+                state = static_cast< StateType >( currentState_ + k1 / 2.0 );
+                k2 = stepSize * this->stateDerivativeFunction_( time, state );
+                break;
+            case 3:
+                time = currentIndependentVariable_ + stepSize / 2.0;
+                state = static_cast< StateType >( currentState_ + k2 / 2.0 );
+                k3 = stepSize * this->stateDerivativeFunction_( time, state );
+                break;
+            case 4:
+                time = currentIndependentVariable_ + stepSize;
+                state = static_cast< StateType >( currentState_ + k3 );
+                k4 = stepSize * this->stateDerivativeFunction_( time, state );
+                break;
+            default:
+                break;
+            }
 
-        const StateDerivativeType k2 = stepSize * this->stateDerivativeFunction_(
-                    currentIndependentVariable_ + stepSize / 2.0,
-                    static_cast< StateType >( currentState_ + k1 / 2.0 ) );
+            // Check if propagation should terminate because the propagation termination condition has been reached
+            // while computing k1, k2, k3 or k4
+            this->propagationShouldTerminate_ = this->propagationShouldTerminateFunction_(
+                        static_cast< double >( time ) );
+            if ( this->propagationShouldTerminate_ )
+            {
+                break;
+            }
+        }
 
-        const StateDerivativeType k3 = stepSize * this->stateDerivativeFunction_(
-                    currentIndependentVariable_ + stepSize / 2.0,
-                    static_cast< StateType >( currentState_ + k2 / 2.0 ) );
-
-        const StateDerivativeType k4 = stepSize * this->stateDerivativeFunction_(
-                    currentIndependentVariable_ + stepSize,
-                    static_cast< StateType >( currentState_ + k3 ) );
-
-        stepSize_ = stepSize;
-        currentIndependentVariable_ += stepSize_;
-        currentState_ += ( k1 + 2.0 * k2 + 2.0 * k3 + k4 ) / 6.0;
+        if ( ! this->propagationShouldTerminate_ )
+        {
+            stepSize_ = stepSize;
+            currentIndependentVariable_ += stepSize_;
+            currentState_ += ( k1 + 2.0 * k2 + 2.0 * k3 + k4 ) / 6.0;
+        }
 
         // Return the integration result.
         return currentState_;

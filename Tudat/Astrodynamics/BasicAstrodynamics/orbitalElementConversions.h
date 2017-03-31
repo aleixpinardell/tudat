@@ -1071,6 +1071,8 @@ ScalarType getEccentricLongitudeFromMean( Eigen::Matrix< ScalarType, 6, 1 > equi
     // Iterate
     ScalarType change = 1;
     const ScalarType tolerance = 1e-12;
+    const unsigned int maximumNumberOfIterations = 100;
+    unsigned int iterations = 0;
     while ( std::abs( change ) > tolerance )
     {
         // Eq. 7.1-(2)
@@ -1078,9 +1080,15 @@ ScalarType getEccentricLongitudeFromMean( Eigen::Matrix< ScalarType, 6, 1 > equi
         const ScalarType cosF = std::cos( F );
         change = ( F + h * cosF - k * sinF - lambda ) / ( 1 - h * sinF - k * cosF );
         F -= change;
+
+        if ( ++iterations > maximumNumberOfIterations ) {
+            std::cout << equinoctialElements.transpose() << std::endl;
+            throw std::runtime_error( "Could not determine eccentric longitude from mean longitude. "
+                                      "Maximum number of iterations (100) reached." );
+        }
     }
 
-    return computeModulo( F, 2*PI );
+    return computeModulo( F, 2 * PI );
 }
 
 
@@ -1408,12 +1416,27 @@ Eigen::Matrix< ScalarType, 6, 1 > convertEquinoctialToCartesianElements(
     // Declare converted Cartesian elements.
     Eigen::Matrix< ScalarType, 6, 1 > cartesianElements;
 
+    // Copy equinoctial elements into modifiable variable and limit the fast variable to the range [0,2π]
+    Eigen::Matrix< ScalarType, 6, 1 > elements = equinoctialElements;
+    elements( fastVariableIndex ) = basic_mathematics::computeModulo(
+                elements( fastVariableIndex ), 2 * mathematical_constants::PI );
+
     // Read equinoctial elements
-    const ScalarType a =      equinoctialElements( semiMajorAxisIndex );
-    const ScalarType h =      equinoctialElements( hIndex );
-    const ScalarType k =      equinoctialElements( kIndex );
-    const ScalarType p =      equinoctialElements( pIndex );
-    const ScalarType q =      equinoctialElements( qIndex );
+    const ScalarType a = elements( semiMajorAxisIndex );
+    const ScalarType h = elements( hIndex );
+    const ScalarType k = elements( kIndex );
+    const ScalarType p = elements( pIndex );
+    const ScalarType q = elements( qIndex );
+
+    // Check valid stated
+    const ScalarType h2 = pow( h, 2 );
+    const ScalarType k2 = pow( k, 2 );
+    const ScalarType eccentricity = std::sqrt( h2 + k2 );
+    if ( a < 0 || eccentricity < 0 || eccentricity > 1 )
+    {
+        std::cout << elements.transpose() << std::endl;
+        throw std::runtime_error( "Equinoctial state is not valid." );
+    }
 
     // Get f and g vectors of the equinoctial reference frame
     const Eigen::Matrix< ScalarType, 3, 3 > fg = getEquinoctialReferenceFrameBasisVectors( p, q, retrogradeElements,
@@ -1424,15 +1447,13 @@ Eigen::Matrix< ScalarType, 6, 1 > convertEquinoctialToCartesianElements(
     // Get true longitude
     ScalarType L;
     switch ( fastVariableType ) {
-    case meanType:      L = getTrueLongitudeFromMean( equinoctialElements );      break;
-    case eccentricType: L = getTrueLongitudeFromEccentric( equinoctialElements ); break;
-    case trueType:      L = equinoctialElements( fastVariableIndex );             break;
-    default: throw std::runtime_error( "Unrecognized fast variable type");        break;
+    case meanType:      L = getTrueLongitudeFromMean( elements );           break;
+    case eccentricType: L = getTrueLongitudeFromEccentric( elements );      break;
+    case trueType:      L = elements( fastVariableIndex );                  break;
+    default: throw std::runtime_error( "Unrecognized fast variable type");  break;
     }
 
     // Compute repeated parameters
-    const ScalarType h2 = pow( h, 2 );
-    const ScalarType k2 = pow( k, 2 );
     const ScalarType B = sqrt( 1 - h2 - k2 );
     const ScalarType n = sqrt( centralBodyGravitationalParameter / pow( a, 3 ) );
     const ScalarType sinL = std::sin( L );
@@ -1581,42 +1602,52 @@ Eigen::Matrix< ScalarType, 6, 1 > convertEquinoctialToKeplerianElements(
     // Declare converted equinoctial elements.
     Eigen::Matrix< ScalarType, 6, 1 > keplerianElements;
 
-    // Read equinoctial elements
-    const ScalarType a =      equinoctialElements( semiMajorAxisIndex );
-    const ScalarType h =      equinoctialElements( hIndex );
-    const ScalarType k =      equinoctialElements( kIndex );
-    const ScalarType p =      equinoctialElements( pIndex );
-    const ScalarType q =      equinoctialElements( qIndex );
+    // Copy equinoctial elements into modifiable variable and restrict the fast variable to the range [0,2π]
+    Eigen::Matrix< ScalarType, 6, 1 > elements = equinoctialElements;
+    elements( fastVariableIndex ) = computeModulo( elements( fastVariableIndex ), 2 * PI );
 
-    // Compute repeated parameters
-    const ScalarType sqrth2k2 = sqrt( pow( h, 2 ) + pow( k, 2 ) );
-    const ScalarType sqrtp2q2 = sqrt( pow( p, 2 ) + pow( q, 2 ) );
+    // Read equinoctial elements
+    const ScalarType a = elements( semiMajorAxisIndex );
+    const ScalarType h = elements( hIndex );
+    const ScalarType k = elements( kIndex );
+    const ScalarType p = elements( pIndex );
+    const ScalarType q = elements( qIndex );
+
+    // Check valid stated
+    const ScalarType h2 = pow( h, 2 );
+    const ScalarType k2 = pow( k, 2 );
+    const ScalarType eccentricity = std::sqrt( h2 + k2 );
+    if ( a < 0 || eccentricity < 0 || eccentricity > 1 )
+    {
+        std::cout << elements.transpose() << std::endl;
+        throw std::runtime_error( "Equinoctial state is not valid." );
+    }
 
     // Compute auxiliary angle [Eq. (1)]
-    const ScalarType sinAux = h / sqrth2k2;
-    const ScalarType cosAux = k / sqrth2k2;
+    const ScalarType sinAux = h / eccentricity;
+    const ScalarType cosAux = k / eccentricity;
     const ScalarType aux = std::atan2( sinAux, cosAux );
 
     // Compute longitude of the AN [Eq. (2)]
-    const ScalarType sinOmega = p / sqrtp2q2;
-    const ScalarType cosOmega = q / sqrtp2q2;
+    const ScalarType tani_2 = sqrt( pow( p, 2 ) + pow( q, 2 ) );
+    const ScalarType sinOmega = p / tani_2;
+    const ScalarType cosOmega = q / tani_2;
     const ScalarType Omega = std::atan2( sinOmega, cosOmega );
 
     // Get true longitude
-    // Get true longitude
     ScalarType L;
     switch ( fastVariableType ) {
-    case meanType:      L = getTrueLongitudeFromMean( equinoctialElements );      break;
-    case eccentricType: L = getTrueLongitudeFromEccentric( equinoctialElements ); break;
-    case trueType:      L = equinoctialElements( fastVariableIndex );             break;
-    default: throw std::runtime_error( "Unrecognized fast variable type");        break;
+    case meanType:      L = getTrueLongitudeFromMean( elements );           break;
+    case eccentricType: L = getTrueLongitudeFromEccentric( elements );      break;
+    case trueType:      L = elements( fastVariableIndex );                  break;
+    default: throw std::runtime_error( "Unrecognized fast variable type");  break;
     }
 
     // Store values [Eq. (2), (3)]
     keplerianElements( semiMajorAxisIndex )             = a;
-    keplerianElements( eccentricityIndex )              = sqrth2k2;
+    keplerianElements( eccentricityIndex )              = eccentricity;
     keplerianElements( inclinationIndex )               = computeModulo( PI / 2 * ( 1 - I ) +
-                                                                         2 * I * std::atan( sqrtp2q2 ), 2*PI );
+                                                                         2 * I * std::atan( tani_2 ), 2*PI );
     keplerianElements( argumentOfPeriapsisIndex )       = computeModulo( aux - I * Omega, 2*PI );
     keplerianElements( longitudeOfAscendingNodeIndex )  = computeModulo( Omega, 2*PI );
     keplerianElements( trueAnomalyIndex )               = computeModulo( L - aux, 2*PI );

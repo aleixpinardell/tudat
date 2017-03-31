@@ -24,8 +24,6 @@ void AuxiliaryElements::updateMembers()
 {
     using namespace tudat::orbital_element_conversions;
     using namespace tudat::mathematical_constants;
-    using std::sqrt;
-    using std::pow;
 
     // Properties that depend on other bodies (constant through the integration step)
     // mass = propagatedBody->getMass();
@@ -45,23 +43,26 @@ void AuxiliaryElements::updateMembers()
     q = equinoctialElements( qIndex );
 
     // Define repeated values
-    const double h2 = pow( h, 2 );
-    const double k2 = pow( k, 2 );
-    const double p2 = pow( p, 2 );
-    const double q2 = pow( q, 2 );
+    const double h2 = std::pow( h, 2 );
+    const double k2 = std::pow( k, 2 );
+    const double p2 = std::pow( p, 2 );
+    const double q2 = std::pow( q, 2 );
 
     // Eccentricity
-    e = sqrt( h2 + k2 );
-    if ( e > 1 ) {
-        throw std::runtime_error( "Orbit became hyperbolic. Spacecraft may be re-entering." );
+    e = std::sqrt( h2 + k2 );
+
+    // Check valid state
+    if ( a < 0 || e < 0 || e > 1 ) {
+        std::cout << equinoctialElements.getComponents( meanType ).transpose() << std::endl;
+        throw std::runtime_error( "Equinoctial state is not valid. Spacecraft may be re-entering." );
     }
 
     // Keplerian mean motion
-    meanMotion = sqrt( mu / a ) / a;
+    meanMotion = std::sqrt( mu / a ) / a;
 
     // Get A, B and C
-    A = sqrt( mu * a );
-    B = sqrt( 1 - h2 - k2 );
+    A = std::sqrt( mu * a );
+    B = std::sqrt( 1 - h2 - k2 );
     C = 1 + p2 + q2;
 
     // Get equinoctial reference frame vectors

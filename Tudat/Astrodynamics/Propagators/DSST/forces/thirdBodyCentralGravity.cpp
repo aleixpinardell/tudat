@@ -59,13 +59,13 @@ Eigen::Vector6d ThirdBodyCentralGravity::computeShortPeriodTerms( )
     /// Same as with getwCoefficient. Moreover, they need to be recalculated for every integration step, so no need
     /// to store them. Can be created and destructed inside computeShortPeriodTerms().
 
-    const unsigned int eccPow = std::max( maxEccPow, maxEccPowShort );
+    const unsigned int eccstd::pow = std::max( maxEccstd::pow, maxEccstd::powShort );
 
     // Vns coefficients
-    NestedVectord Vns = VnsFactory.getCoefficientsUpTo( maxAR3Pow, eccPow );
+    NestedVectord Vns = VnsFactory.getCoefficientsUpTo( maxAR3std::pow, eccstd::pow );
 
     // Qns coefficients
-    QnsFactory.setSuborder( eccPow );
+    QnsFactory.setSuborder( eccstd::pow );
 
     // C^j, S^j = getFourierCjSjCoefficients()
 
@@ -79,15 +79,13 @@ std::pair< double, double > ThirdBodyCentralGravity::getewjCoefficients(
         const int n, const int s, const int j )
 {
     using namespace coefficients_factories;
-    using std::fabs;
-    using std::pow;
 
     double ewpj = 0.0;
     double ewmj = 0.0;
 
     // Construct JacobiKey
-    const double absjms = fabs( j - s );
-    const double absjps = fabs( j + s );
+    const double absjms = std::abs( j - s );
+    const double absjps = std::abs( j + s );
     const JacobiKey key( absjms, absjps );
 
     // Create JacobiPolynomialsFactory (with initial order 0) if it does not exist
@@ -97,21 +95,21 @@ std::pair< double, double > ThirdBodyCentralGravity::getewjCoefficients(
 
     // Shared terms
     // c = e / ( 1 + sqrt(1 - e²) ) = e / ( 1 + B ) = e * b
-    const double eterm = pow( ecc, -absjms );
+    const double eterm = std::pow( ecc, -absjms );
     const double c = ecc * b;
     const double c2 = c * c;
     const double omc2 = 1 - c2;
-    const double term1 = pow( omc2 / ( 1 + c2 ), n );
-    const double term2 = pow( -c, absjms );
+    const double term1 = std::pow( omc2 / ( 1 + c2 ), n );
+    const double term2 = std::pow( -c, absjms );
     const double term = term1 * term2;
     JacobiPolynomialsFactory &jacobiFactory = jacobiFactories[ key ];
 
     // Compute and return
-    if( fabs( s ) > fabs( j ) ) {
+    if( std::abs( s ) > std::abs( j ) ) {
         ewpj = eterm * term * factorial( n + s ) * factorial( n - s ) / ( factorial( n + j ) * factorial( n - j ) )
-                * pow( omc2, -fabs( s ) ) * jacobiFactory.getPolynomial( n - fabs(s) );
+                * std::pow( omc2, -std::abs( s ) ) * jacobiFactory.getPolynomial( n - std::abs(s) );
     } else {
-        ewpj = eterm * term * pow( omc2, -fabs( j ) ) * jacobiFactory.getPolynomial( n - fabs(j) );
+        ewpj = eterm * term * std::pow( omc2, -std::abs( j ) ) * jacobiFactory.getPolynomial( n - std::abs(j) );
     }
 
     // e terms

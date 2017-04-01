@@ -217,9 +217,7 @@ public:
             {
                 if ( translationalPropagatorSettings->propagator_ == dsst )
                 {
-                    dynamicsStateDerivative_->setPropagationShouldTerminateFunction(
-                                boost::bind( &PropagationTerminationCondition::checkStopCondition,
-                                             propagationTerminationCondition_, _1 ) );
+                    dynamicsStateDerivative_->assessPropagationTerminationConditionDuringIntegrationSubsteps = true;
                     break;
                 }
             }
@@ -515,7 +513,7 @@ public:
                     propagationTerminationReason_,
                     dependentVariablesFunctions_,
                     propagatorSettings_->getPrintInterval( ),
-                    dynamicsStateDerivative_->getPropagationShouldTerminateFunction() );
+                    dynamicsStateDerivative_->assessPropagationTerminationConditionDuringIntegrationSubsteps );
         equationsOfMotionNumericalSolution_ = dynamicsStateDerivative_->
                 convertNumericalStateSolutionsToOutputSolutions( equationsOfMotionNumericalSolution_ );
 

@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( dsst_propagation )
             boost::make_shared< TranslationalStatePropagatorSettings< double > >
             ( centralBodies, accelerationModelMap, bodiesToPropagate, asterixInitialState, simulationEndEpoch, ptype );
 
-    const double fixedStepSize = ptype == dsst ? 2 * physical_constants::JULIAN_DAY : 30.0;
+    const double fixedStepSize = ptype == dsst ? physical_constants::JULIAN_DAY : 30.0;
     boost::shared_ptr< IntegratorSettings< > > integratorSettings =
             boost::make_shared< IntegratorSettings< > >
             ( rungeKutta4, simulationStartEpoch, fixedStepSize );

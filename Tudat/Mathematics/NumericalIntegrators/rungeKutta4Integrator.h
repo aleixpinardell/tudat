@@ -139,14 +139,11 @@ public:
                 state = static_cast< StateType >( currentState_ + k3 );
                 k4 = stepSize * this->stateDerivativeFunction_( time, state );
                 break;
-            default:
-                break;
             }
 
             // Check if propagation should terminate because the propagation termination condition has been reached
             // while computing k1, k2, k3 or k4
-            this->propagationShouldTerminate_ = this->propagationShouldTerminateFunction_(
-                        static_cast< double >( time ) );
+            this->propagationShouldTerminate_ = this->propagationTerminationFunction_( static_cast< double >( time ) );
             if ( this->propagationShouldTerminate_ )
             {
                 break;

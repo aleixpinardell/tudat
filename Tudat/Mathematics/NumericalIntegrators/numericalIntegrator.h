@@ -146,9 +146,9 @@ public:
     }
 
     //! MISSINGDOC
-    void setPropagationShouldTerminateFunction( boost::function< bool( const double ) > terminateFunction )
+    void setPropagationTerminationFunction( boost::function< bool( const double ) > terminationFunction )
     {
-        propagationShouldTerminateFunction_ = terminateFunction;
+        propagationTerminationFunction_ = terminationFunction;
     }
 
 protected:
@@ -164,7 +164,7 @@ protected:
     bool propagationShouldTerminate_ = false;
 
     //! MISSINGDOC
-    boost::function< bool( const double ) > propagationShouldTerminateFunction_ = boost::lambda::constant( false );
+    boost::function< bool( const double ) > propagationTerminationFunction_ = boost::lambda::constant( false );
 };
 
 //! Perform an integration to a specified independent variable value.

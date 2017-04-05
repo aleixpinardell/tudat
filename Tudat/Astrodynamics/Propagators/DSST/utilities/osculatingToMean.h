@@ -25,7 +25,7 @@ namespace element_conversions
  * \param forceModels The force models generating the short period terms needed to do the transformation.
  */
 void transformOsculatingToMeanElements( AuxiliaryElements &osculatingAuxiliaryElements,
-                    std::vector< boost::shared_ptr< force_models::ForceModel > > &forceModels );
+                    std::map< std::string, boost::shared_ptr< force_models::ForceModel > > &forceModels );
 
 
 } // namespace element_conversions

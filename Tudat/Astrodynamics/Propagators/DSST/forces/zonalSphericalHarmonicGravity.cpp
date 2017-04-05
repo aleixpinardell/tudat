@@ -115,7 +115,111 @@ Eigen::Vector6d ZonalSphericalHarmonicGravity::computeMeanDisturbingFunctionPart
 //! Get the short period terms for the current auxiliary elements
 Eigen::Vector6d ZonalSphericalHarmonicGravity::computeShortPeriodTerms( )
 {
-    return Eigen::Vector6d::Zero();
+    using namespace Eigen;
+    using namespace orbital_element_conversions;
+
+    Vector6d shortPeriodTerms = Vector6d::Zero();
+    /*
+    // Only J2
+    // Wakker Section 23.4 (p. 632)
+
+    Vector6d keplerianElements = aux.equinoctialElements.toKeplerian();
+    // std::cout << "EQU:  " << aux.equinoctialElements.getComponents( meanType ).transpose() << std::endl;
+    // std::cout << "KEP:  " << keplerianElements.transpose() << std::endl;
+    const double p = a * ( 1 - e * e );                                         // mean semilatus rectum
+    const double i = keplerianElements( inclinationIndex );                     // mean inclination
+    const double w = keplerianElements( argumentOfPeriapsisIndex );             // mean argument of perigee
+    const double raan = keplerianElements( longitudeOfAscendingNodeIndex );     // mean RAAN
+    const double f = keplerianElements( trueAnomalyIndex );                     // mean true anomaly
+    const double E = convertTrueAnomalyToEllipticalEccentricAnomaly( f, e );    // mean eccentric anomaly
+    const double M = convertEllipticalEccentricAnomalyToMeanAnomaly( E, e );    // mean mean anomaly
+
+    Vector6d cartesianElements = aux.equinoctialElements.toCartesian( aux.mu );
+    const double r = cartesianElements.segment( 0, 3 ).norm();                  // mean distance
+    const double v = cartesianElements.segment( 3, 3 ).norm();                  // mean speed
+
+    const double J2 = J( 2 );
+
+    // Eq. (23.41)
+    // Repeated terms
+    const double JR_p2 = J2 * std::pow( R / p, 2 );
+    const double JR2_p = J2 * std::pow( R, 2 ) / p;
+    const double u = w + f;
+    const double uu = u + u;
+    const double wwf = u + w;
+    const double wwfff = wwf + f + f;
+    const double sinuu    = std::sin( uu );
+    const double sinwwf   = std::sin( wwf );
+    const double sinwwfff = std::sin( wwfff );
+    const double cosuu    = std::cos( uu );
+    const double coswwf   = std::cos( wwf );
+    const double coswwfff = std::cos( wwfff );
+    const double ip_bracket = cosuu + e * coswwf + e / 3 * coswwfff;
+    const double sin2i = std::pow( std::sin( i ), 2 );
+    const double cosi = std::cos( i );
+    const double cos2i = std::pow( cosi, 2 );
+    const double esinf = e * std::sin( f );
+    const double ee = std::pow( e, 2 );
+    const double sqrt1ee = std::sqrt( 1 - ee );
+    const double ecosf = e * std::cos( f );
+    const double ecosf1 = ecosf + 1;
+    const double tcos2i1 = 3 * cos2i - 1;
+    const double sqrt1ee1 = sqrt1ee + 1;
+    const double ecosf12 = std::pow( ecosf1, 2 );
+    const double uterm = - tcos2i1 / sqrt1ee1;
+
+    // Short-period terms in auxiliary element set
+    const double i_sh = 0.375 * JR_p2 * std::sin( 2 * i ) * ip_bracket;
+    const double p_sh = 1.5 * JR2_p * sin2i * ip_bracket;
+    const double raan_sh = -1.5 * JR_p2 * cosi * ( f - M + esinf - 0.5 * sinuu - 0.5 * e * sinwwf - e / 6 * sinwwfff );
+    const double r_sh = -0.25 * JR2_p * ( tcos2i1 * ( 2 * sqrt1ee / ecosf1 + ecosf / sqrt1ee1 + 1 ) - sin2i * cosuu );
+    const double v_sh = 0.25 * std::sqrt( aux.mu / p ) * JR_p2 * ( tcos2i1 * esinf * ( sqrt1ee + ecosf12 / sqrt1ee1 )
+                                                                   - 2 * sin2i * ecosf12 * sinuu );
+    const double u_sh = -0.125 * JR_p2 * ( 6 * ( 1 - 5 * cos2i ) * ( f - M )
+                                           + 4 * esinf * ( ( 1 - 6 * cos2i ) + uterm )
+                                           + uterm * ee * std::sin( 2 * f )
+                                           + 2 * e * ( 5 * cos2i - 2 ) * sinwwf
+                                           + ( 7 * cos2i - 1 ) * sinuu
+                                           + 2 * e * cos2i * sinwwfff );
+
+    // Osculating elements in auxiliary element set
+    const double i_osc = i + i_sh;
+    const double p_osc = p + p_sh;
+    const double raan_osc = raan + raan_sh;
+    const double r_osc = r + r_sh;
+    const double v_osc = v + v_sh;
+    const double u_osc = u + u_sh;
+
+    // Osculating Keplerian elements
+    const double p_r = p_osc / r_osc;
+    const double ecosf_osc = p_r - 1;
+    const double esin2f_osc = p_osc / aux.mu * std::pow( v_osc, 2 ) - std::pow( p_r, 2 );
+    const double esinf_osc = std::sqrt( std::fabs( esin2f_osc ) );
+    const double e_osc = std::sqrt( esin2f_osc + std::pow( ecosf_osc, 2 ) );
+    const double f_osc = std::atan2( esinf_osc, ecosf_osc );
+    const double a_osc = p_osc / ( 1 - e_osc * e_osc );
+    const double w_osc = u_osc - f_osc;
+
+    Vector6d oscKeplerianElements;
+    oscKeplerianElements( semiMajorAxisIndex            ) = a_osc;
+    oscKeplerianElements( eccentricityIndex             ) = e_osc;
+    oscKeplerianElements( inclinationIndex              ) = i_osc;
+    oscKeplerianElements( argumentOfPeriapsisIndex      ) = w_osc;
+    oscKeplerianElements( longitudeOfAscendingNodeIndex ) = raan_osc;
+    oscKeplerianElements( trueAnomalyIndex              ) = f_osc;
+
+    // Osculating equinoctial elements
+    Vector6d oscEquinoctialElements = convertKeplerianToEquinoctialElements(
+                oscKeplerianElements, meanType, aux.equinoctialElements.isRetrograde() );
+
+    std::cout << "SP kep: " << ( oscKeplerianElements - keplerianElements ).transpose() << std::endl;
+
+    // Short-period terms in equinoctial elements
+    shortPeriodTerms = oscEquinoctialElements - aux.equinoctialElements.getComponents( meanType );
+
+    std::cout << "SP equ: " << shortPeriodTerms.transpose() << "\n" << std::endl;
+    */
+    return shortPeriodTerms;
 }
 
 

@@ -42,7 +42,7 @@ namespace propagators
  *  (time as key; returned by reference)
  *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
  *  (time as key; returned by reference)
- *  \param propagationTerminationReason MISSINGDOC
+ *  \param propagationTerminationReason Event that triggered the termination of the propagation (returned by reference)
  *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
  *  derivative model).
  *  \param saveFrequency Frequency at which to save the numerical integrated states (in units of i.e. per n integration time
@@ -173,11 +173,14 @@ public:
      *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
-     *  \param propagationTerminationReason MISSINGDOC
+     *  \param propagationTerminationReason Event that triggered the termination of the propagation (returned by
+     *  reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
-     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps MISSINGDOC
+     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  conditions should be evaluated during the intermediate state updates performed by the integrator to compute
+     *  the quantities necessary to integrate the state to a new epoch (default value is false).
      */
     static void integrateEquations(
             boost::function< StateType( const TimeType, const StateType& ) > stateDerivativeFunction,
@@ -210,11 +213,14 @@ public:
      *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
-     *  \param propagationTerminationReason MISSINGDOC
+     *  \param propagationTerminationReason Event that triggered the termination of the propagation (returned by
+     *  reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
-     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps MISSINGDOC
+     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  conditions should be evaluated during the intermediate state updates performed by the integrator to compute
+     *  the quantities necessary to integrate the state to a new epoch (default value is false).
      */
     static void integrateEquations(
             boost::function< StateType( const double, const StateType& ) > stateDerivativeFunction,
@@ -264,11 +270,14 @@ public:
      *  \param stopPropagationFunction Function determining whether the propagation is to be stopped at the current time.
      *  \param dependentVariableHistory History of dependent variables that are to be saved given as map
      *  (time as key; returned by reference)
-     *  \param propagationTerminationReason MISSINGDOC
+     *  \param propagationTerminationReason Event that triggered the termination of the propagation (returned by
+     *  reference)
      *  \param dependentVariableFunction Function returning dependent variables (obtained from environment and state
      *  derivative model).
      *  \param printInterval Frequency with which to print progress to console (nan = never).
-     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps MISSINGDOC
+     *  \param assessPropagationTerminationConditionDuringIntegrationSubsteps Whether the propagation termination
+     *  conditions should be evaluated during the intermediate state updates performed by the integrator to compute
+     *  the quantities necessary to integrate the state to a new epoch (default value is false).
      */
     static void integrateEquations(
             boost::function< StateType( const Time, const StateType& ) > stateDerivativeFunction,

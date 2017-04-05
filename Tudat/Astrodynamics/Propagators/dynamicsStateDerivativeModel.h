@@ -440,7 +440,10 @@ public:
         return stateTypeStartIndex_;
     }
 
-    //! MISSINGDOC
+    //! Whether the propagation termination conditions should be evaluated during the intermediate state updates
+    //! performed by the integrator to compute the quantities necessary to integrate the state to a new epoch.
+    //! The default value is false, so the propagation termination condition is only checked at the end of each
+    //! integration step.
     bool assessPropagationTerminationConditionDuringIntegrationSubsteps = false;
 
 private:

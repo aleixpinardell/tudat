@@ -413,13 +413,13 @@ public:
     //! Add vector to the current element's components and update epoch
     void updateStateByAdding( const double epoch, const Eigen::Vector6d vector,
               const orbital_element_conversions::FastVariableType type = orbital_element_conversions::meanType ) {
-        updateState( epoch, equinoctialElements.getComponents( type ) + vector );
+        updateState( epoch, equinoctialElements.getComponents( type ) + vector, type );
     }
 
     //! Add vector to the current element's components, but don't unpdate epoch
     void updateComponentsByAdding( const Eigen::Vector6d vector,
               const orbital_element_conversions::FastVariableType type = orbital_element_conversions::meanType ) {
-        updateStateByAdding( epoch, vector );
+        updateStateByAdding( epoch, vector, type );
     }
 
 

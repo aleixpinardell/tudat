@@ -36,6 +36,10 @@ void NonConservative::updateMembers( )
     // Determine number of nodes for the Gaussian quadrature
     N = std::max( std::ceil( maximumScalableNumberOfQuadratureNodes * ( L2 - L1 ) / ( 2 * PI ) ),
                   double( fixedNumberOfQuadratureNodes ) );
+
+    // Restrict to range [2, 64]
+    N = std::max( 2, std::min( int( N ), 64 ) );
+
     // std::cout << N << std::endl;
 }
 

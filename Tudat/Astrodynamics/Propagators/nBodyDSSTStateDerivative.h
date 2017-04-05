@@ -263,6 +263,7 @@ public:
             shortPeriodTerms += mui;
 
             // std::cout << forceModelName << ": " << Ai.transpose() << std::endl;
+            // std::cout << forceModelName << ": " << shortPeriodTerms.transpose() << std::endl;
         }
 /*
         for ( auto ent: computationTimes )

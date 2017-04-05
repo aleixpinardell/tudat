@@ -22,7 +22,7 @@ namespace tudat
 namespace propagators
 {
 
-//! MISSINGDOC
+//! Possible events that can trigger the termination of a propagation
 enum PropagationTerminationReason
 {
     unknown_reason,

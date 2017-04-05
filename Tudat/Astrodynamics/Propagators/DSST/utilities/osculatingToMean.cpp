@@ -24,51 +24,57 @@ namespace element_conversions
 
 //! Transform osculating to mean elements.
 void transformOsculatingToMeanElements( AuxiliaryElements &auxiliaryElements,
-                    std::vector< boost::shared_ptr< force_models::ForceModel > > &forceModels )
+                    std::map< std::string, boost::shared_ptr< force_models::ForceModel > > &forceModels )
 {
-    using namespace tudat::mathematical_constants;
-    using namespace tudat::orbital_element_conversions;
+    using namespace Eigen;
+    using namespace mathematical_constants;
+    using namespace orbital_element_conversions;
 
-    // Reference to mean elements
-    EquinoctialElements &mean = auxiliaryElements.equinoctialElements;
+    // Reference to equinoctial elements
+    EquinoctialElements &equinoctialElements = auxiliaryElements.equinoctialElements;
 
     // Store initial osculating elements
-    Eigen::Vector6d osculating = mean.getComponents( meanType );
+    Vector6d initialOsc = equinoctialElements.getComponents( meanType );
+    // std::cout << "Initial osculating: " << initialOsc.transpose() << std::endl;
 
     // threshold for each parameter
-    Eigen::Vector6d keplerian = auxiliaryElements.equinoctialElements.toKeplerian();
-    const double epsilon    = 1.0e-13;
+    Vector6d keplerian = equinoctialElements.toKeplerian();
+    const double epsilon    = 1e-10;
     const double thresholdA = epsilon * ( 1 + std::fabs( keplerian( semiMajorAxisIndex ) ) );
     const double thresholdE = epsilon * ( 1 + keplerian( eccentricityIndex ) );
     const double thresholdI = epsilon * ( 1 + keplerian( inclinationIndex ) );
     const double thresholdL = epsilon * PI;
-    Eigen::Vector6d thresholds;
+    Vector6d thresholds;
     thresholds << thresholdA, thresholdE, thresholdE, thresholdI, thresholdI, thresholdL;
 
     unsigned int i = 0;
     const unsigned int maxIterations = 200;
     while ( i++ < maxIterations ) {
         // Initialize rebuilt to be equal to the current mean elements
-        Eigen::Vector6d rebuilt = mean.getComponents( meanType );
+        Vector6d currentOsc = equinoctialElements.getComponents( meanType );
 
         // Add short period terms to rebuilt to make it osculating
-        for ( auto forceModel: forceModels ) {
-            rebuilt += forceModel->getShortPeriodTerms();
+        for ( auto ent: forceModels ) {
+            boost::shared_ptr< sst::force_models::ForceModel > forceModel = ent.second;
+            currentOsc += forceModel->getShortPeriodTerms();
         }
 
-        // Get difference between osculating and rebuilt
-        Eigen::Vector6d delta = osculating - rebuilt;
+        // Get difference
+        Vector6d delta = currentOsc - initialOsc;
 
         // Convert last element to range [-π, π]
-        delta( 5 ) -= 2*PI * std::floor( 0.5 * ( delta( 5 ) / PI + 1 ) );
+        delta( fastVariableIndex ) -= 2 * PI * std::floor( 0.5 * ( delta( fastVariableIndex ) / PI + 1 ) );
+        // std::cout << i << ": " << delta.transpose() << std::endl;
 
         // Check convergence
         if ( ( delta.array().abs() < thresholds.array() ).all() ) {
             return;
         }
 
-        // Update mean elements and auxiliaryElements' members
+        // Update auxiliaryElements' members
+        std::cout << "before: " << auxiliaryElements.equinoctialElements.toKeplerian().transpose() << std::endl;
         auxiliaryElements.updateComponentsByAdding( delta );
+        std::cout << "after:  " << auxiliaryElements.equinoctialElements.toKeplerian().transpose() << std::endl;
     }
 
     throw std::runtime_error( "Impossible to transform osculating to mean elements: "

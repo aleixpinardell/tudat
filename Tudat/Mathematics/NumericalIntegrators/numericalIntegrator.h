@@ -145,7 +145,8 @@ public:
         return propagationShouldTerminate_;
     }
 
-    //! MISSINGDOC
+    //! Setter for the propagation termination function to be evaluated during the intermediate state updates
+    //! performed to compute the quantities necessary to integrate the state to a new epoch.
     void setPropagationTerminationFunction( boost::function< bool( const double ) > terminationFunction )
     {
         propagationTerminationFunction_ = terminationFunction;
@@ -163,7 +164,10 @@ protected:
     //! This variable can be modified by the propagator when a certain codition is reached.
     bool propagationShouldTerminate_ = false;
 
-    //! MISSINGDOC
+    //! Propagation termination function to be evaluated during the intermediate state updates performed to compute
+    //! the quantities necessary to integrate the state to a new epoch.
+    //! By default, this function evaluates always to false, so the propagation termination conditions will not be
+    //! checked during the integration subteps.
     boost::function< bool( const double ) > propagationTerminationFunction_ = boost::lambda::constant( false );
 };
 

@@ -343,7 +343,7 @@ public:
         return propagationTerminationCondition_;
     }
 
-    //! MISSINGDOC
+    //! Event that triggered the termination of the propagation
     PropagationTerminationReason getPropagationTerminationReason()
     {
         return propagationTerminationReason_;
@@ -419,7 +419,7 @@ protected:
     //! Boolean to determine whether to automatically use the integrated results to set ephemerides.
     bool setIntegratedResult_;
 
-    //! MISSINGDOC
+    //! Event that triggered the termination of the propagation
     PropagationTerminationReason propagationTerminationReason_;
 
 };

@@ -203,7 +203,8 @@ public:
         // Convert initial state from osculating to mean elements
         // FIXME: Currently, short-period terms are implemented as vectors of zeros, so this does virtually nothing
         // element_conversions::transformOsculatingToMeanElements( auxiliaryElements, forceModels );
-        shortPeriodTermsMap[ initialEpoch ] = auxiliaryElements.equinoctialElements.getComponents( meanType ) -
+        shortPeriodTermsMap[ "TOTAL" ][ initialEpoch ] =
+                auxiliaryElements.equinoctialElements.getComponents( meanType ) -
                 equinoctialElements.getComponents( meanType );
     }
 
@@ -232,35 +233,37 @@ public:
 
         using namespace std::chrono;
 
-        Eigen::Vector6d equinoctialComponents = stateOfSystemToBeIntegrated.template cast< double >();
+        Vector6d equinoctialComponents = stateOfSystemToBeIntegrated.template cast< double >();
         auxiliaryElements.updateState( time, equinoctialComponents, meanType );
 
         // std::cout << time << ": " << auxiliaryElements.equinoctialElements.getComponents().transpose() << std::endl;
 
         Vector6d meanElementRates = Vector6d::Zero();
         Vector6d shortPeriodTerms = Vector6d::Zero();
+        double totalComputationTime = 0.0;
 
-        if ( computationTimes.count( "ALL" ) == 0 ) {
-            computationTimes[ "ALL" ] = 0.0;
-        }
         for ( auto ent: forceModels )
         {
             const std::string forceModelName = ent.first;
             boost::shared_ptr< sst::force_models::ForceModel > forceModel = ent.second;
-
             auto t = steady_clock::now();
-            Eigen::Vector6d Ai = forceModel->getMeanElementRates();
-            Eigen::Vector6d mui = forceModel->getShortPeriodTerms();
 
+            // Compute mean element rates and short period terms for the current force model and epoch
+            Vector6d forceModelMeanElementRates = forceModel->getMeanElementRates();
+            Vector6d forceModelShortPeriodTerms = forceModel->getShortPeriodTerms();
+
+            // Determine and store computation time
             double computationTime = duration_cast< microseconds >( steady_clock::now() - t ).count() / 1e6;  // s
-            if ( computationTimes.count( forceModelName ) == 0 ) {
-                computationTimes[ forceModelName ] = 0.0;
-            }
-            computationTimes[ forceModelName ] += computationTime;
-            computationTimes[ "ALL" ] += computationTime;
+            computationTimes[ forceModelName ][ time ] = computationTime;
+            totalComputationTime += computationTime;
 
-            meanElementRates += Ai;
-            shortPeriodTerms += mui;
+            // Store mean element rates and short period terms for the current force model and epoch
+            meanElementRatesMap[ forceModelName ][ time ] = forceModelMeanElementRates;
+            shortPeriodTermsMap[ forceModelName ][ time ] = forceModelShortPeriodTerms;
+
+            // Add mean element rates and short period terms of the current force model to the total
+            meanElementRates += forceModelMeanElementRates;
+            shortPeriodTerms += forceModelShortPeriodTerms;
 
             // std::cout << forceModelName << ": " << Ai.transpose() << std::endl;
             // std::cout << forceModelName << ": " << shortPeriodTerms.transpose() << std::endl;
@@ -285,12 +288,13 @@ public:
         // Add mean motion to the mean longitude rate
         meanElementRates( fastVariableIndex ) += auxiliaryElements.meanMotion;
 
-        // Store for later reconstruction of osculating terms
-        meanElementRatesMap[ time ] = meanElementRates;
-        shortPeriodTermsMap[ time ] = shortPeriodTerms;
+        // Store mean element rates and short period terms for later reconstruction of osculating terms and/or output
+        meanElementRatesMap[ "TOTAL" ][ time ] = meanElementRates;
+        shortPeriodTermsMap[ "TOTAL" ][ time ] = shortPeriodTerms;
+        computationTimes   [ "TOTAL" ][ time ] = totalComputationTime;
 
         // std::cout << "Total mean element rates: " << meanElementRates.transpose() << std::endl;
-
+        /*
         // Rate of change of the perigee altitude
         const double a = auxiliaryElements.a;
         const double e = auxiliaryElements.e;
@@ -301,7 +305,7 @@ public:
         const double dk = meanElementRates( kIndex );
         const double dhp = da * ( 1 - e ) - a / e * ( h * dh + k * dk );
         // std::cout << dhp / 1e3 * physical_constants::JULIAN_DAY << " km/day" << std::endl;
-
+        */
         // std::cout << "hp = " << a * ( 1 - e ) / 1e3 << " km" << std::endl;
 
         // std::cout << "\n" << std::endl;
@@ -401,15 +405,14 @@ private:
     std::map< std::string, boost::shared_ptr< sst::force_models::ForceModel > > forceModels;
 
 
-    //! Computed mean element rates for each epoch
-    std::map< double, Eigen::Vector6d > meanElementRatesMap;
+    //! Computed mean element rates for each force model (and "TOTAL") at each integrated epoch
+    std::map< std::string, std::map< double, Eigen::Vector6d > > meanElementRatesMap;
 
-    //! Computed short period terms for each epoch
-    std::map< double, Eigen::Vector6d > shortPeriodTermsMap;
+    //! Computed short perido terms for each force model (and "TOTAL") at each integrated epoch
+    std::map< std::string, std::map< double, Eigen::Vector6d > > shortPeriodTermsMap;
 
-
-    //! Time spent on computing the effects of each of the forces and "ALL"
-    std::map< std::string, double > computationTimes;
+    //! Cummulative time spent on computing the effects of each force model (and "TOTAL") at each integrated epoch
+    std::map< std::string, std::map< double, double > > computationTimes;
 
 };
 

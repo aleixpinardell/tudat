@@ -37,10 +37,15 @@ void NonConservative::updateMembers( )
     N = std::max( std::ceil( maximumScalableNumberOfQuadratureNodes * ( L2 - L1 ) / ( 2 * PI ) ),
                   double( fixedNumberOfQuadratureNodes ) );
 
-    // Restrict to range [2, 64]
-    N = std::max( 2, std::min( int( N ), 64 ) );
+    // Make N odd so that drag is always assessed at perigee (Gaussian quadrature with odd order includes node 0)
+    if ( N % 2 == 0 ) {
+        // N--;
+    }
 
-    // std::cout << N << std::endl;
+    // Restrict to range [3, 63]
+    N = std::max( 3, std::min( int( N ), 63 ) );
+
+    // std::cout << N << " nodes, spaced by " << ( L2 - L1 ) / N * 180 / PI << " deg." << std::endl;
 }
 
 

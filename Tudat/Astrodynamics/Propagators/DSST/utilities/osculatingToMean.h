@@ -21,7 +21,8 @@ namespace element_conversions
 /*!
  * Transforms the equinoctial elements contained by osculatingAuxiliaryElements from osculating to mean.
  * Based on a fixed-point interative process from Section 7.4-2.
- * \param osculatingAuxiliaryElements AuxiliaryElements containing the osculating equinoctial elements.
+ * \param osculatingAuxiliaryElements Auxiliary elements containing the osculating equinoctial elements.
+ * Passed by reference and modified by this function so that they end up containing the mean equioctial elements.
  * \param forceModels The force models generating the short period terms needed to do the transformation.
  */
 void transformOsculatingToMeanElements( AuxiliaryElements &osculatingAuxiliaryElements,

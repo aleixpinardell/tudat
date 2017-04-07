@@ -117,6 +117,7 @@ public:
             for ( AccelerationModel3dPointer accelerationModel: accelerationModels )
             {
                 AvailableAcceleration accelerationType = getAccelerationModelType( accelerationModel );
+                ForceIdentifier forceID( perturbingBody, accelerationType );
                 switch ( accelerationType ) {
                 case central_gravity:
                 {
@@ -127,7 +128,7 @@ public:
                 {
                     SphericalHarmonicsAM sphericalHarmonicsAM = boost::dynamic_pointer_cast<
                             SphericalHarmonicsGravitationalAccelerationModel >( accelerationModel );
-                    forceModels[ perturbingBody + "-SH" ] = boost::make_shared< ZonalSphericalHarmonicGravity >(
+                    forceModels[ forceID ] = boost::make_shared< ZonalSphericalHarmonicGravity >(
                                                auxiliaryElements, sphericalHarmonicsAM );
                     break;
                 }
@@ -135,7 +136,7 @@ public:
                 {
                     ThirdBodyAM thirdBodyAM = boost::dynamic_pointer_cast<
                             ThirdBodyCentralGravityAcceleration >( accelerationModel );
-                    forceModels[ perturbingBody + "-3RD" ] = boost::make_shared< ThirdBodyCentralGravity >(
+                    forceModels[ forceID ] = boost::make_shared< ThirdBodyCentralGravity >(
                                                auxiliaryElements, thirdBodyAM );
                     break;
                 }
@@ -143,7 +144,7 @@ public:
                 {
                     AerodynamicAM aerodynamicAM = boost::dynamic_pointer_cast<
                             AerodynamicAcceleration >( accelerationModel );
-                    forceModels[ perturbingBody + "-DRAG" ] = boost::make_shared< AtmosphericDrag >(
+                    forceModels[ forceID ] = boost::make_shared< AtmosphericDrag >(
                                                auxiliaryElements, perturbingBody, aerodynamicAM );
                     break;
                 }
@@ -154,10 +155,10 @@ public:
                     const unsigned int numberOfOcultingBodies =
                             radiationPressureAM->getRadiationPressureInterface()->getOccultingBodyRadii().size();
                     if ( numberOfOcultingBodies == 0 ) {
-                        forceModels[ perturbingBody + "-SRP" ] = boost::make_shared< ConservativeRadiationPressure >(
+                        forceModels[ forceID ] = boost::make_shared< ConservativeRadiationPressure >(
                                                    auxiliaryElements, radiationPressureAM );
                     } else if ( numberOfOcultingBodies == 1 ) {
-                        forceModels[ perturbingBody + "-SRP" ] = boost::make_shared< RadiationPressure >(
+                        forceModels[ forceID ] = boost::make_shared< RadiationPressure >(
                                                    auxiliaryElements, perturbingBody, radiationPressureAM );
                     } else {
                         throw std::runtime_error( "Multiple occultations is not supported by the DSST propagator." );
@@ -203,7 +204,7 @@ public:
         // Convert initial state from osculating to mean elements
         // FIXME: Currently, short-period terms are implemented as vectors of zeros, so this does virtually nothing
         // element_conversions::transformOsculatingToMeanElements( auxiliaryElements, forceModels );
-        shortPeriodTermsMap[ "TOTAL" ][ initialEpoch ] =
+        shortPeriodTermsMap[ ForceIdentifier() ][ initialEpoch ] =
                 auxiliaryElements.equinoctialElements.getComponents( meanType ) -
                 equinoctialElements.getComponents( meanType );
     }
@@ -230,6 +231,7 @@ public:
         using namespace Eigen;
         using namespace orbital_element_conversions;
         using namespace sst;
+        using namespace sst::force_models;
 
         using namespace std::chrono;
 
@@ -244,8 +246,8 @@ public:
 
         for ( auto ent: forceModels )
         {
-            const std::string forceModelName = ent.first;
-            boost::shared_ptr< sst::force_models::ForceModel > forceModel = ent.second;
+            const ForceIdentifier forceID = ent.first;
+            boost::shared_ptr< ForceModel > forceModel = ent.second;
             auto t = steady_clock::now();
 
             // Compute mean element rates and short period terms for the current force model and epoch
@@ -254,19 +256,19 @@ public:
 
             // Determine and store computation time
             double computationTime = duration_cast< microseconds >( steady_clock::now() - t ).count() / 1e6;  // s
-            computationTimes[ forceModelName ][ time ] = computationTime;
+            computationTimes[ forceID ][ time ] = computationTime;
             totalComputationTime += computationTime;
 
             // Store mean element rates and short period terms for the current force model and epoch
-            meanElementRatesMap[ forceModelName ][ time ] = forceModelMeanElementRates;
-            shortPeriodTermsMap[ forceModelName ][ time ] = forceModelShortPeriodTerms;
+            meanElementRatesMap[ forceID ][ time ] = forceModelMeanElementRates;
+            shortPeriodTermsMap[ forceID ][ time ] = forceModelShortPeriodTerms;
 
             // Add mean element rates and short period terms of the current force model to the total
             meanElementRates += forceModelMeanElementRates;
             shortPeriodTerms += forceModelShortPeriodTerms;
 
-            // std::cout << forceModelName << ": " << Ai.transpose() << std::endl;
-            // std::cout << forceModelName << ": " << shortPeriodTerms.transpose() << std::endl;
+            // std::cout << forceID << ": " << forceModelMeanElementRates.transpose() << std::endl;
+            // std::cout << forceID << ": " << forceModelShortPeriodTerms.transpose() << std::endl;
         }
 /*
         for ( auto ent: computationTimes )
@@ -289,9 +291,9 @@ public:
         meanElementRates( fastVariableIndex ) += auxiliaryElements.meanMotion;
 
         // Store mean element rates and short period terms for later reconstruction of osculating terms and/or output
-        meanElementRatesMap[ "TOTAL" ][ time ] = meanElementRates;
-        shortPeriodTermsMap[ "TOTAL" ][ time ] = shortPeriodTerms;
-        computationTimes   [ "TOTAL" ][ time ] = totalComputationTime;
+        meanElementRatesMap[ ForceIdentifier() ][ time ] = meanElementRates;
+        shortPeriodTermsMap[ ForceIdentifier() ][ time ] = shortPeriodTerms;
+        computationTimes   [ ForceIdentifier() ][ time ] = totalComputationTime;
 
         // std::cout << "Total mean element rates: " << meanElementRates.transpose() << std::endl;
         /*
@@ -394,6 +396,22 @@ public:
     }
 
 
+    //! Get mean element rates for the current (i.e. last) epoch for a specific ForceIdentifier
+    Eigen::Vector6d getCurrentMeanElementRates( const sst::force_models::ForceIdentifier& forceID ) {
+        return ( --meanElementRatesMap.at( forceID ).end( ) )->second;
+    }
+
+    //! Get short period terms for the current (i.e. last) epoch for a specific ForceIdentifier
+    Eigen::Vector6d getCurrentShortPeriodTerms( const sst::force_models::ForceIdentifier& forceID ) {
+        return ( --shortPeriodTermsMap.at( forceID ).end( ) )->second;
+    }
+
+    //! Get computation time for the current (i.e. last) epoch for a specific ForceIdentifier
+    double getCurrentComputationTimes( const sst::force_models::ForceIdentifier& forceID ) {
+        return ( --computationTimes.at( forceID ).end( ) )->second;
+    }
+
+
 private:
 
     //! Auxiliary elements shared amongst all the force models
@@ -402,17 +420,17 @@ private:
     //! Map of DSST force models
     //! Keys are the name of the forces, e.g. Earth-DRAG, Moon-3RD, etc.
     //! Values are pointers to the force models.
-    std::map< std::string, boost::shared_ptr< sst::force_models::ForceModel > > forceModels;
+    sst::force_models::ForceModelMap forceModels;
 
 
-    //! Computed mean element rates for each force model (and "TOTAL") at each integrated epoch
-    std::map< std::string, std::map< double, Eigen::Vector6d > > meanElementRatesMap;
+    //! Computed mean element rates for each force model at each integrated epoch
+    sst::force_models::HistoryForceMap< Eigen::Vector6d > meanElementRatesMap;
 
-    //! Computed short perido terms for each force model (and "TOTAL") at each integrated epoch
-    std::map< std::string, std::map< double, Eigen::Vector6d > > shortPeriodTermsMap;
+    //! Computed short perido terms for each force model at each integrated epoch
+    sst::force_models::HistoryForceMap< Eigen::Vector6d > shortPeriodTermsMap;
 
-    //! Cummulative time spent on computing the effects of each force model (and "TOTAL") at each integrated epoch
-    std::map< std::string, std::map< double, double > > computationTimes;
+    //! Cummulative time spent on computing the effects of each force model at each integrated epoch
+    sst::force_models::HistoryForceMap< double > computationTimes;
 
 };
 

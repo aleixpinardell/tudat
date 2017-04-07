@@ -20,6 +20,8 @@
 #include "Tudat/Astrodynamics/Propagators/dynamicsStateDerivativeModel.h"
 #include "Tudat/SimulationSetup/EnvironmentSetup/body.h"
 #include "Tudat/SimulationSetup/PropagationSetup/propagationOutputSettings.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/forces/forceIdentifier.h"
+#include "Tudat/Astrodynamics/Propagators/nBodyDSSTStateDerivative.h"
 
 namespace tudat
 {
@@ -522,6 +524,41 @@ boost::function< double( ) > getDoubleDependentVariableFunction(
                                         functionToEvaluate, firstInput, secondInput, thirdInput );
         break;
     }
+    case dsst_computation_times:
+    {
+        using namespace sst::force_models;
+
+        // By default, return total mean element rates
+        ForceIdentifier forceID;
+
+        // Check if user requested only the effects of a specific force model
+        boost::shared_ptr< ForceIdentifiableDependentVariableSaveSettings > forceDependentVariableSettings =
+                boost::dynamic_pointer_cast< ForceIdentifiableDependentVariableSaveSettings >(
+                    dependentVariableSettings );
+        if ( forceDependentVariableSettings != NULL )
+        {
+            forceID = forceDependentVariableSettings->forceIdentifier_;
+        }
+
+        // Get the state derivative model
+        boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > stateDerivativeModel =
+                getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
+        boost::shared_ptr< NBodyDSSTStateDerivative< StateScalarType, TimeType > > dsstStateDerivativeModel =
+                boost::dynamic_pointer_cast< NBodyDSSTStateDerivative< StateScalarType, TimeType > >(
+                    stateDerivativeModel );
+        if ( dsstStateDerivativeModel == NULL )
+        {
+            std::string errorMessage =
+                    "Error, did not find a NBodyDSSTStateDerivative for the propagated body when getting variable: " +
+                    boost::lexical_cast< std::string >( dependentVariable );
+            throw std::runtime_error( errorMessage );
+        }
+
+        variableFunction = boost::bind(
+                    &NBodyDSSTStateDerivative< StateScalarType, TimeType >::getCurrentComputationTimes,
+                    dsstStateDerivativeModel, forceID );
+        break;
+    }
     default:
         std::string errorMessage =
                 "Error, did not recognize double dependent variable type when making variable function: " +
@@ -764,6 +801,53 @@ std::pair< boost::function< Eigen::VectorXd( ) >, int > getVectorDependentVariab
                     &getVectorRepresentationForRotationMatrixFunction, rotationFunction );
 
         parameterSize = 9;
+
+        break;
+    }
+    case dsst_mean_element_rates:
+    case dsst_short_period_terms:
+    {
+        using namespace sst::force_models;
+
+        // By default, return total mean element rates
+        ForceIdentifier forceID;
+
+        // Check if user requested only the effects of a specific force model
+        boost::shared_ptr< ForceIdentifiableDependentVariableSaveSettings > forceDependentVariableSettings =
+                boost::dynamic_pointer_cast< ForceIdentifiableDependentVariableSaveSettings >(
+                    dependentVariableSettings );
+        if ( forceDependentVariableSettings != NULL )
+        {
+            forceID = forceDependentVariableSettings->forceIdentifier_;
+        }
+
+        // Get the state derivative model
+        boost::shared_ptr< NBodyStateDerivative< StateScalarType, TimeType > > stateDerivativeModel =
+                getTranslationalStateDerivativeModelForBody( bodyWithProperty, stateDerivativeModels );
+        boost::shared_ptr< NBodyDSSTStateDerivative< StateScalarType, TimeType > > dsstStateDerivativeModel =
+                boost::dynamic_pointer_cast< NBodyDSSTStateDerivative< StateScalarType, TimeType > >(
+                    stateDerivativeModel );
+        if ( dsstStateDerivativeModel == NULL )
+        {
+            std::string errorMessage =
+                    "Error, did not find a NBodyDSSTStateDerivative for the propagated body when getting variable: " +
+                    boost::lexical_cast< std::string >( dependentVariable );
+            throw std::runtime_error( errorMessage );
+        }
+
+        if ( dependentVariable == dsst_mean_element_rates )
+        {
+            variableFunction = boost::bind(
+                        &NBodyDSSTStateDerivative< StateScalarType, TimeType >::getCurrentMeanElementRates,
+                        dsstStateDerivativeModel, forceID );
+        }
+        else
+        {
+            variableFunction = boost::bind(
+                        &NBodyDSSTStateDerivative< StateScalarType, TimeType >::getCurrentShortPeriodTerms,
+                        dsstStateDerivativeModel, forceID );
+        }
+        parameterSize = 6;
 
         break;
     }

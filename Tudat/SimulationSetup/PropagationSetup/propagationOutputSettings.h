@@ -15,6 +15,7 @@
 
 #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 #include "Tudat/Astrodynamics/ReferenceFrames/aerodynamicAngleCalculator.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/forces/forceIdentifier.h"
 
 namespace tudat
 {
@@ -52,7 +53,10 @@ enum PropagationDependentVariables
     control_surface_deflection_dependent_variable = 23,
     total_mass_rate_dependent_variables = 24,
     lvlh_to_inertial_frame_rotation_dependent_variable = 25,
-    periapsis_altitude_dependent_variable = 26
+    periapsis_altitude_dependent_variable = 26,
+    dsst_mean_element_rates = 27,
+    dsst_short_period_terms = 28,
+    dsst_computation_times = 29
 };
 
 //! Functional base class for defining settings for dependent variables that are to be saved during propagation
@@ -126,6 +130,35 @@ public:
     basic_astrodynamics::AvailableAcceleration accelerationModeType_;
 
 };
+
+
+//! Class to define settings for saving a variable associated to a specific ForceIdentifier
+class ForceIdentifiableDependentVariableSaveSettings: public SingleDependentVariableSaveSettings
+{
+public:
+
+    //! Constructor for the contribution of a specific force model
+    /*!
+     *
+     * \param variableType Type of dependent variable that is to be saved.
+     * \param bodyUndergoingAcceleration Name of body undergoing the acceleration.
+     * \param bodyExertingAcceleration Name of body exerting the acceleration.
+     * \param accelerationType Type of acceleration that is to be saved.
+     */
+    ForceIdentifiableDependentVariableSaveSettings(
+            const PropagationDependentVariables variableType,
+            const std::string& bodyUndergoingAcceleration,
+            const std::string& bodyExertingAcceleration,
+            const basic_astrodynamics::AvailableAcceleration accelerationType ) :
+        SingleDependentVariableSaveSettings( variableType, bodyUndergoingAcceleration, bodyExertingAcceleration ),
+        forceIdentifier_(
+            propagators::sst::force_models::ForceIdentifier( bodyExertingAcceleration, accelerationType ) ) { }
+
+    //! Force identifier
+    propagators::sst::force_models::ForceIdentifier forceIdentifier_;
+
+};
+
 
 //! Class to define settings for saving a rotation matrix between two AerodynamicsReferenceFrames
 class IntermediateAerodynamicRotationVariableSaveSettings: public SingleDependentVariableSaveSettings

@@ -1,7 +1,7 @@
 #ifndef TUDAT_PROPAGATORS_DSST_FORCEMODELS_FORCEMODEL_H
 #define TUDAT_PROPAGATORS_DSST_FORCEMODELS_FORCEMODEL_H
 
-// #include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
+#include "Tudat/Astrodynamics/BasicAstrodynamics/accelerationModelTypes.h"
 // #include "Tudat/Mathematics/BasicMathematics/mathematicalConstants.h"
 
 #include "Tudat/Astrodynamics/Propagators/DSST/utilities/vectors.h"
@@ -142,9 +142,28 @@ private:
     //! Returns the short period terms.
     virtual Eigen::Vector6d computeShortPeriodTerms( ) = 0;
 
-
 };
 
+
+/// Typedefs
+
+//! Typedef for a map in which the key is a ForceIdentifier and the value a pointer to a ForceModel
+typedef std::unordered_map< ForceIdentifier, boost::shared_ptr< ForceModel > > ForceModelMap;
+
+//! Typedef for a map in which the key is a ForceIdentifier and the value a pointer a sorted map with key an epoch
+//! and value an arbirtrary type
+template < typename T >
+using HistoryForceMap = std::unordered_map< ForceIdentifier, std::map< double, T > >;
+
+/*
+//! Typedef for a map in which the key is a ForceIdentifier and the value a pointer a sorted map with key an epoch
+//! and value a state (6 components)
+typedef HistoryForceMap< Eigen::Vector6d > StateHistoryForceMap;
+
+//! Typedef for a map in which the key is a ForceIdentifier and the value a pointer a sorted map with key an epoch
+//! and value a double
+typedef HistoryForceMap< double > DoubleHistoryForceMap;
+*/
 
 
 } // namespace force_models
@@ -154,5 +173,6 @@ private:
 } // namespace propagators
 
 } // namespace tudat
+
 
 #endif // TUDAT_PROPAGATORS_DSST_FORCEMODELS_FORCEMODEL_H

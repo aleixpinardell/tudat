@@ -92,13 +92,25 @@ std::string getDependentVariableName( const PropagationDependentVariables propag
         variableName = "Geodetic latitude ";
         break;
     case control_surface_deflection_dependent_variable:
-        variableName = "Control Surface Deflection";
+        variableName = "Control Surface Deflection ";
         break;
     case total_mass_rate_dependent_variables:
-        variableName = "Body mass rate";
+        variableName = "Body mass rate ";
         break;
     case lvlh_to_inertial_frame_rotation_dependent_variable:
-        variableName = "LVLH to inertial frame rotation matrix";
+        variableName = "LVLH to inertial frame rotation matrix ";
+        break;
+    case periapsis_altitude_dependent_variable:
+        variableName = "Periapsis altitude ";
+        break;
+    case dsst_mean_element_rates:
+        variableName = "DSST propagator's mean element rates ";
+        break;
+    case dsst_short_period_terms:
+        variableName = "DSST propagator's short period terms ";
+        break;
+    case dsst_computation_times:
+        variableName = "DSST propagator's computation times ";
         break;
     default:
         std::string errorMessage = "Error, dependent variable " +

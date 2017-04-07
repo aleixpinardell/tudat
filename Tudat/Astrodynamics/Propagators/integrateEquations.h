@@ -86,6 +86,7 @@ void integrateEquationsFromIntegrator(
 
     int saveIndex = 0;
 
+    propagationTerminationReason = termination_condition_reached;
     bool breakPropagation = 0;
     // Perform numerical integration steps until end time reached.
     do
@@ -145,8 +146,6 @@ void integrateEquationsFromIntegrator(
         }
     }
     while( !stopPropagationFunction( static_cast< double >( currentTime ) ) && !breakPropagation );
-
-    propagationTerminationReason = termination_condition_reached;
 }
 
 

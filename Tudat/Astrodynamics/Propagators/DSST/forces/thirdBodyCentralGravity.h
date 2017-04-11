@@ -34,9 +34,10 @@ public:
      * \param auxiliaryElements Auxiliary elements used to compute the mean element rates and short period terms.
      * \param thirdBody The third body exerting the acceleration.
      */
-    ThirdBodyCentralGravity( AuxiliaryElements &auxiliaryElements, ThirdBodyAM thirdBodyAM ) :
-        ForceModel( auxiliaryElements ),
-        ConservativeThirdBodyPerturbed( auxiliaryElements ),
+    ThirdBodyCentralGravity( AuxiliaryElements &auxiliaryElements, ThirdBodyAM thirdBodyAM,
+                             boost::shared_ptr< ConservativeSettings > settings = NULL ) :
+        ForceModel( auxiliaryElements, settings ),
+        ConservativeThirdBodyPerturbed( auxiliaryElements, settings ),
         thirdBodyAM( thirdBodyAM ) { }
 
 

@@ -467,7 +467,7 @@ public:
     double meanMotion;
 
     //! Keplerian period
-    // double period;
+    double period;
 
     //! Semi-major axis
     double a;

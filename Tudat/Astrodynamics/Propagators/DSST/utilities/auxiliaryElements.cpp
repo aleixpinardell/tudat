@@ -60,6 +60,9 @@ void AuxiliaryElements::updateMembers()
     // Keplerian mean motion
     meanMotion = std::sqrt( mu / a ) / a;
 
+    // Keplerian period
+    period = 2 * PI / meanMotion;
+
     // Get A, B and C
     A = std::sqrt( mu * a );
     B = std::sqrt( 1 - h2 - k2 );

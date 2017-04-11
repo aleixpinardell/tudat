@@ -20,19 +20,28 @@ namespace force_models
 {
 
 
+//! Struct for storing settings for RadiationPressure ForceModel
+struct RadiationPressureSettings: NonConservativeSettings {
+    //! Default constructor
+    RadiationPressureSettings( unsigned int numberOfQuadratureNodes   = 12,
+                               bool numberOfQuadratureNodesIsScalable = false,
+                               bool alwaysIncludeCentralNode          = false )
+        : NonConservativeSettings( numberOfQuadratureNodes, numberOfQuadratureNodesIsScalable,
+                                   alwaysIncludeCentralNode ) { }
+};
+
+
 //! Abstract class for perturbations that can be expressed as a disturbing potential
 class RadiationPressure final : public ThirdBodyPerturbed, public NonConservative {
 public:
 
     RadiationPressure( AuxiliaryElements &auxiliaryElements, const std::string &perturbingBody,
-               RadiationPressureAM radiationPressureAM,
-               const unsigned int maximumScalableNumberOfQuadratureNodes = 0,
-               const unsigned int fixedNumberOfQuadratureNodes = 20 ) :
-    ForceModel( auxiliaryElements ),
-    ThirdBodyPerturbed( auxiliaryElements ),
-    NonConservative( auxiliaryElements, perturbingBody, radiationPressureAM,
-             maximumScalableNumberOfQuadratureNodes, fixedNumberOfQuadratureNodes ),
-    radiationPressureAM( radiationPressureAM ) { }
+                       RadiationPressureAM radiationPressureAM,
+                       boost::shared_ptr< RadiationPressureSettings > settings = NULL ) :
+        ForceModel( auxiliaryElements, settings ),
+        ThirdBodyPerturbed( auxiliaryElements ),
+        NonConservative( auxiliaryElements, perturbingBody, radiationPressureAM, settings ),
+        radiationPressureAM( radiationPressureAM ) { }
 
 
 private:

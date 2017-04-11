@@ -22,6 +22,30 @@ namespace force_models
 typedef boost::shared_ptr< basic_astrodynamics::AccelerationModel< Eigen::Vector3d > > AccelerationModel;
 
 
+//! Struct for storing settings for NonConservative ForceModel
+struct NonConservativeSettings: ForceModelSettings {
+    //! Default constructor
+    NonConservativeSettings( unsigned int numberOfQuadratureNodes   = 40,
+                             bool numberOfQuadratureNodesIsScalable = false,
+                             bool alwaysIncludeCentralNode          = false )
+        : ForceModelSettings( ),
+          numberOfQuadratureNodes( numberOfQuadratureNodes ),
+          numberOfQuadratureNodesIsScalable( numberOfQuadratureNodesIsScalable ),
+          alwaysIncludeCentralNode( alwaysIncludeCentralNode ) { }
+
+    //! Number of quadrature nodes to be used for the Gaussian quadrature in the averaging integral
+    unsigned int numberOfQuadratureNodes;
+
+    //! Whether the actual number of quadrature nodes used is scaled based on `numberOfQuadratureNodes` and the
+    //! integral limits (L2 - L1) comapred to 2π
+    bool numberOfQuadratureNodesIsScalable;
+
+    //! Wether the central node (halfway between L1 and L2) should always be evaluated.
+    //! When this is set to true, the actual number of nodes is always chosen odd (increasing it by 1 if necessary).
+    bool alwaysIncludeCentralNode;
+};
+
+
 //! Abstract class for perturbations that can be expressed as a disturbing potential
 class NonConservative : public virtual ForceModel {
 public:
@@ -38,21 +62,23 @@ public:
         environmentUpdater = updater;
     }
 
+    boost::shared_ptr< NonConservativeSettings > getSettings( ) {
+        boost::shared_ptr< NonConservativeSettings > castedSettings =
+                boost::dynamic_pointer_cast< NonConservativeSettings >( settings );
+        return castedSettings != NULL ? castedSettings : boost::make_shared< NonConservativeSettings >( );
+    }
+
 
 protected:
 
     //! Derived (non-abstract) classes must call this constructor with either
-    //! maximumScalableNumberOfQuadratureNodes or fixedNumberOfQuadratureNodes ≥ 2
-    NonConservative( AuxiliaryElements &auxiliaryElements,
-                     const std::string &perturbingBody,
+    //! maximumScalableNumberOfQuadratureNodes or fixedNumberOfQuadratureNodes ≥ 3
+    NonConservative( AuxiliaryElements &auxiliaryElements, const std::string &perturbingBody,
                      AccelerationModel accelerationModel,
-                     const unsigned int maximumScalableNumberOfQuadratureNodes,
-                     const unsigned int fixedNumberOfQuadratureNodes = 0 ) :
-        ForceModel( auxiliaryElements ),
+                     boost::shared_ptr< NonConservativeSettings > settings = NULL ) :
+        ForceModel( auxiliaryElements, settings ),
         perturbingBody( perturbingBody ),
-        accelerationModel( accelerationModel ),
-        maximumScalableNumberOfQuadratureNodes( maximumScalableNumberOfQuadratureNodes ),
-        fixedNumberOfQuadratureNodes( fixedNumberOfQuadratureNodes ) { }
+        accelerationModel( accelerationModel ) { }
 
 
     //! Name of the body exerting the acceleration
@@ -84,7 +110,7 @@ protected:
     //! Upper limit for the true longitude in the averaging integral ( L2 - L1 ≤ 2π )
     double L2 = mathematical_constants::PI;
 
-    //! Number of nodes for the quadrature of the averaging integral ( must be between 2 and 64 )
+    //! Number of nodes for the quadrature of the averaging integral
     unsigned int N;
 
     //! The value of the true longitude during the current integration step
@@ -125,13 +151,6 @@ protected:
 
 
 private:
-
-    //! Number of steps for the numerical quadrature of the averaging integral when the limits of the integral
-    //! differ by 2π.
-    const unsigned int maximumScalableNumberOfQuadratureNodes;
-
-    //! Fixed number of steps for the numerical quadrature of the averaging integral, regardless of integral limits.
-    const unsigned int fixedNumberOfQuadratureNodes;
 
     //! Update the values of the minimum and maximum true longitude for the averaging integral.
     virtual void determineIntegrationLimits( ) = 0;

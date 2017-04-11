@@ -15,13 +15,24 @@ namespace sst
 namespace force_models
 {
 
+//! Struct for storing settings for ForceModel
+//! To be extended by derived classes
+struct ForceModelSettings {
+    //! Empty constructor
+    ForceModelSettings( ) { }
+
+    //! Destructor (makes struct polymorphic)
+    virtual ~ForceModelSettings() { }
+};
+
+
 //! Force identifier defined by the name of the body exerting the acceleration and the type of acceleration
 struct ForceIdentifier
 {
 public:
     //! Empty constructor.
     //! By default, body is "" and type is undefined_acceleration, which is used by DSST propagator to represent all
-    //! acceleration scaused by all perturbing bodies, storing the total values in the key ForceIdentifier() of maps.
+    //! accelerations caused by all perturbing bodies, storing the total values in the key ForceIdentifier() of maps.
     ForceIdentifier( ) { }
 
     //! Constructor with a body name and acceleration type.

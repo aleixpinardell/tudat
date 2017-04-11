@@ -28,10 +28,13 @@ namespace force_models
 
 //! Set the values of N and S for the series expansion of the disturbing potential.
 void ConservativeThirdBodyPerturbed::determineTruncationValues() {
-    // FIXME
-    N = 2;
-    S = 2;
-    return;
+    // Get N and S specified by user.
+    // If both are at least 2, use them. Otherwise, find right values based on orbit characteristics.
+    N = getSettings()->maxN;
+    S = getSettings()->maxS;
+    if ( N >= 2 && S >= 2 ) {
+        return;
+    }
 
     // Truncation tolerance.
     const double aor = a / R3;
@@ -94,11 +97,11 @@ void ConservativeThirdBodyPerturbed::determineTruncationValues() {
 
     S = std::min( N, S );
 
-    // FIXME: is this necessary? If so, which should be the minimum N and S?
-    N = std::max( (int) N, 4 );
+    // Ensure N and S are ≥ 2
+    N = std::max( (int) N, 2 );
     S = std::max( (int) S, 2 );
 
-    std::cout << "N = " << N << ", S = " << S << std::endl;
+    // std::cout << "N = " << N << ", S = " << S << std::endl;
 }
 
 

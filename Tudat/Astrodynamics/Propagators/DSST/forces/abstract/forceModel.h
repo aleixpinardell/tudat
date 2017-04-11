@@ -42,8 +42,9 @@ public:
 
 protected:
 
-    ForceModel( AuxiliaryElements &auxiliaryElements ) :
+    ForceModel( AuxiliaryElements &auxiliaryElements, boost::shared_ptr< ForceModelSettings > settings = NULL ) :
         aux               ( auxiliaryElements                     ),
+        settings          ( settings                              ),
         I                 ( auxiliaryElements.I                   ),
         a                 ( auxiliaryElements.a                   ),
         h                 ( auxiliaryElements.h                   ),
@@ -59,6 +60,9 @@ protected:
 
 
     AuxiliaryElements &aux;
+
+    //! Settings for the force model
+    boost::shared_ptr< ForceModelSettings > settings;
 
     //! Retrograde factor I
     const int &I;

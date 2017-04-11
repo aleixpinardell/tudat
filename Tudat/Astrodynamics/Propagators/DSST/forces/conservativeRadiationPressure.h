@@ -37,9 +37,10 @@ public:
      * \param auxiliaryElements Auxiliary elements used to compute the mean element rates and short period terms.
      * \param thirdBody The third body exerting the acceleration.
      */
-    ConservativeRadiationPressure( AuxiliaryElements &auxiliaryElements, RadiationPressureAM radiationPressureAM ) :
-        ForceModel( auxiliaryElements ),
-        ConservativeThirdBodyPerturbed( auxiliaryElements ),
+    ConservativeRadiationPressure( AuxiliaryElements &auxiliaryElements, RadiationPressureAM radiationPressureAM,
+                                   boost::shared_ptr< ConservativeSettings > settings = NULL ) :
+        ForceModel( auxiliaryElements, settings ),
+        ConservativeThirdBodyPerturbed( auxiliaryElements, settings ),
         radiationPressureAM( radiationPressureAM ) { }
 
 

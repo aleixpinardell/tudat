@@ -40,11 +40,11 @@ protected:
      * \param auxiliaryElements Auxiliary elements used to compute the mean element rates and short period terms.
      */
     SphericalHarmonicGravity( AuxiliaryElements &auxiliaryElements, SphericalHarmonicsAM sphericalHarmonicsAM ) :
-          ForceModel( auxiliaryElements	),
-          CentralBodyPerturbed( auxiliaryElements ),
-          Conservative( auxiliaryElements ),
-          sphericalHarmonicsAM( sphericalHarmonicsAM ),
-          R( sphericalHarmonicsAM->getReferenceRadius() )
+        ForceModel( auxiliaryElements ),
+        CentralBodyPerturbed( auxiliaryElements ),
+        Conservative( auxiliaryElements ),
+        sphericalHarmonicsAM( sphericalHarmonicsAM ),
+        R( sphericalHarmonicsAM->getReferenceRadius() )
     {
         using namespace Eigen;
         using namespace basic_mathematics;

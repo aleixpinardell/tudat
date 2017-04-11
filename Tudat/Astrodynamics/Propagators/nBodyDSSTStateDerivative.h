@@ -68,6 +68,12 @@ public:
             throw std::runtime_error("DSST propagator does not support simultaneous propagation of multiple bodies.");
         }
 
+        // Check if user provided settings for Force Models (by using a DSSTTranslationalStatePropagatorSettings)
+        boost::shared_ptr< DSSTTranslationalStatePropagatorSettings< StateScalarType > > dsstPropagatorSettings =
+                boost::dynamic_pointer_cast< DSSTTranslationalStatePropagatorSettings< StateScalarType > >(
+                    propagatorSettings );
+        const bool dsstPropagatorSettingsProvided = dsstPropagatorSettings != NULL;
+
         // Get initial Cartesian elements
         const Eigen::Vector6d initialCartesianElements =
                 propagatorSettings->getInitialStates().segment( 0, 6 ).template cast< double >();
@@ -118,6 +124,8 @@ public:
             {
                 AvailableAcceleration accelerationType = getAccelerationModelType( accelerationModel );
                 ForceIdentifier forceID( perturbingBody, accelerationType );
+                boost::shared_ptr< ForceModelSettings > settings = dsstPropagatorSettingsProvided ?
+                            dsstPropagatorSettings->getForceModelSettings( forceID ) : NULL;
                 switch ( accelerationType ) {
                 case central_gravity:
                 {
@@ -137,7 +145,8 @@ public:
                     ThirdBodyAM thirdBodyAM = boost::dynamic_pointer_cast<
                             ThirdBodyCentralGravityAcceleration >( accelerationModel );
                     forceModels[ forceID ] = boost::make_shared< ThirdBodyCentralGravity >(
-                                               auxiliaryElements, thirdBodyAM );
+                                auxiliaryElements, thirdBodyAM,
+                                boost::dynamic_pointer_cast< ConservativeSettings >( settings ) );
                     break;
                 }
                 case aerodynamic:
@@ -145,7 +154,8 @@ public:
                     AerodynamicAM aerodynamicAM = boost::dynamic_pointer_cast<
                             AerodynamicAcceleration >( accelerationModel );
                     forceModels[ forceID ] = boost::make_shared< AtmosphericDrag >(
-                                               auxiliaryElements, perturbingBody, aerodynamicAM );
+                                auxiliaryElements, perturbingBody, aerodynamicAM,
+                                boost::dynamic_pointer_cast< AtmosphericDragSettings >( settings ) );
                     break;
                 }
                 case cannon_ball_radiation_pressure:
@@ -156,10 +166,12 @@ public:
                             radiationPressureAM->getRadiationPressureInterface()->getOccultingBodyRadii().size();
                     if ( numberOfOcultingBodies == 0 ) {
                         forceModels[ forceID ] = boost::make_shared< ConservativeRadiationPressure >(
-                                                   auxiliaryElements, radiationPressureAM );
+                                    auxiliaryElements, radiationPressureAM,
+                                    boost::dynamic_pointer_cast< ConservativeSettings >( settings ) );
                     } else if ( numberOfOcultingBodies == 1 ) {
                         forceModels[ forceID ] = boost::make_shared< RadiationPressure >(
-                                                   auxiliaryElements, perturbingBody, radiationPressureAM );
+                                    auxiliaryElements, perturbingBody, radiationPressureAM,
+                                    boost::dynamic_pointer_cast< RadiationPressureSettings >( settings ) );
                     } else {
                         throw std::runtime_error( "Multiple occultations is not supported by the DSST propagator." );
                     }
@@ -201,12 +213,25 @@ public:
             }
         }
 
+        /* FIXME
         // Convert initial state from osculating to mean elements
-        // FIXME: Currently, short-period terms are implemented as vectors of zeros, so this does virtually nothing
-        // element_conversions::transformOsculatingToMeanElements( auxiliaryElements, forceModels );
+        element_conversions::transformOsculatingToMeanElements( auxiliaryElements, forceModels );
+
+        // std::cout << propagatorSettings->getInitialStates().transpose() << std::endl;
+
+        const Eigen::Vector6d meanInitialCartesianElements =
+                auxiliaryElements.equinoctialElements.toCartesian( auxiliaryElements.mu );
+        const Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > templatedMeanInitialCartesianElements =
+                meanInitialCartesianElements.template cast< StateScalarType >();
+        propagatorSettings->resetInitialStates( templatedMeanInitialCartesianElements );
+
+        // std::cout << propagatorSettings->getInitialStates().transpose() << std::endl;
+
+        // Store initial (total) short-period terms
         shortPeriodTermsMap[ ForceIdentifier() ][ initialEpoch ] =
                 auxiliaryElements.equinoctialElements.getComponents( meanType ) -
                 equinoctialElements.getComponents( meanType );
+        */
     }
 
 
@@ -252,7 +277,8 @@ public:
 
             // Compute mean element rates and short period terms for the current force model and epoch
             Vector6d forceModelMeanElementRates = forceModel->getMeanElementRates();
-            Vector6d forceModelShortPeriodTerms = forceModel->getShortPeriodTerms();
+            // FIXME: Vector6d forceModelShortPeriodTerms = forceModel->getShortPeriodTerms();
+            Vector6d forceModelShortPeriodTerms = Vector6d::Zero();
 
             // Determine and store computation time
             double computationTime = duration_cast< microseconds >( steady_clock::now() - t ).count() / 1e6;  // s
@@ -289,6 +315,7 @@ public:
 
         // Add mean motion to the mean longitude rate
         meanElementRates( fastVariableIndex ) += auxiliaryElements.meanMotion;
+        // meanElementRates( fastVariableIndex ) = 0;
 
         // Store mean element rates and short period terms for later reconstruction of osculating terms and/or output
         meanElementRatesMap[ ForceIdentifier() ][ time ] = meanElementRates;

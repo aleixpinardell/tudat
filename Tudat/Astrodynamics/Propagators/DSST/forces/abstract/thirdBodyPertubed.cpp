@@ -34,7 +34,6 @@ void ThirdBodyPerturbed::updateMembers( )
     alpha = bodyDir.dot( aux.f );
     beta  = bodyDir.dot( aux.g );
     gamma = bodyDir.dot( aux.w );
-
 }
 
 

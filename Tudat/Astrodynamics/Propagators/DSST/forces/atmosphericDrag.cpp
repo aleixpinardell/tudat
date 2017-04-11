@@ -38,7 +38,9 @@ void AtmosphericDrag::updateMembers( )
 void AtmosphericDrag::determineIntegrationLimits( ) {
     using namespace mathematical_constants;
 
-    if ( hmax <= 0.0 ) { // No altitude limit specified, thus consider drag thorughout all the revolution
+    const double hmax = getSettings()->altitudeLimit;
+    if ( hmax <= 0.0 ) {
+        // No altitude limit specified, thus consider drag thorughout all the revolution
         L1 = -PI;
         L2 =  PI;
         return;

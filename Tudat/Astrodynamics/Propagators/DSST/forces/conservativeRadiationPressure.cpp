@@ -32,6 +32,8 @@ void ConservativeRadiationPressure::updateMembers( )
     // std::cout << "SRP: " << r3.transpose() << std::endl;
 
     ConservativeThirdBodyPerturbed::updateMembers();
+
+    // std::cout << "SRP: S = " << S << ", N = " << N << std::endl;
 }
 
 

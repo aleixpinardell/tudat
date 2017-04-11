@@ -17,12 +17,35 @@ namespace force_models
 {
 
 
+//! Struct for storing settings for Conservative ForceModel
+struct ConservativeSettings: ForceModelSettings {
+    //! Default constructor
+    ConservativeSettings( unsigned int maxS = 0, unsigned int maxN = 0 )
+        : ForceModelSettings( ), maxS( maxS ), maxN( maxN ) { }
+
+    //! Maximum value for the outer summatory of the serie expansion (max s)
+    //! If set to 0, the force model may try to determine the right value based on orbital characteristics
+    unsigned int maxS;
+
+    //! Maximum value for the inner summatory of the serie expansion (max n)
+    //! If set to 0, the force model may try to determine the right value based on orbital characteristics
+    unsigned int maxN;
+};
+
+
 //! Abstract class for perturbations that can be expressed as a disturbing potential
 class Conservative : public virtual ForceModel {
+public:
+    boost::shared_ptr< ConservativeSettings > getSettings( ) {
+        boost::shared_ptr< ConservativeSettings > castedSettings =
+                boost::dynamic_pointer_cast< ConservativeSettings >( settings );
+        return castedSettings != NULL ? castedSettings : boost::make_shared< ConservativeSettings >( );
+    }
+
 protected:
 
-    Conservative( AuxiliaryElements &auxiliaryElements ) :
-        ForceModel( auxiliaryElements            ),
+    Conservative( AuxiliaryElements &auxiliaryElements, boost::shared_ptr< ConservativeSettings > settings = NULL ) :
+        ForceModel( auxiliaryElements, settings  ),
         VnsFactory( auxiliaryElements.VnsFactory ) { }
 
 

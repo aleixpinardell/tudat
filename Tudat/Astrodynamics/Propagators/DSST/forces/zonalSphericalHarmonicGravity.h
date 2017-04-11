@@ -19,6 +19,12 @@ namespace force_models
 {
 
 
+//! Transform mean elements to osculating elements using only the contribution of J2
+Eigen::Vector6d transformToOsculatingUsingJ2Contribution( const Eigen::Vector6d keplerianElements,
+                                                          const double gravitationalParameter,
+                                                          const double J2, const double referenceRadius );
+
+
 //! Final class for the contribution of the zonal terms of the spherical harmonic expansion of a gravity field
 class ZonalSphericalHarmonicGravity final : public SphericalHarmonicGravity
 {

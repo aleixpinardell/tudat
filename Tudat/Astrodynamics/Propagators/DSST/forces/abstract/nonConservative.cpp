@@ -33,19 +33,20 @@ void NonConservative::updateMembers( )
 
     determineIntegrationLimits();
 
-    // Determine number of nodes for the Gaussian quadrature
-    N = std::max( std::ceil( maximumScalableNumberOfQuadratureNodes * ( L2 - L1 ) / ( 2 * PI ) ),
-                  double( fixedNumberOfQuadratureNodes ) );
+    // std::cout << "numberOfQuadratureNodes: " << getSettings()->numberOfQuadratureNodes << std::endl;
+    // std::cout << "numberOfQuadratureNodesIsScalable: " << getSettings()->numberOfQuadratureNodesIsScalable << std::endl;
+    // std::cout << "alwaysIncludeCentralNode: " << getSettings()->alwaysIncludeCentralNode << std::endl;
 
-    // Make N odd so that drag is always assessed at perigee (Gaussian quadrature with odd order includes node 0)
-    if ( N % 2 == 0 ) {
-        // N--;
+    // Determine number of nodes for the Gaussian quadrature
+    N = getSettings()->numberOfQuadratureNodes;
+    if ( getSettings()->numberOfQuadratureNodesIsScalable ) {
+        N = std::round( N * ( L2 - L1 ) / ( 2 * PI ) );
+    }
+    if ( N % 2 == 0 && getSettings()->alwaysIncludeCentralNode ) {
+        N += 1;
     }
 
-    // Restrict to range [3, 63]
-    N = std::max( 3, std::min( int( N ), 63 ) );
-
-    // std::cout << N << " nodes, spaced by " << ( L2 - L1 ) / N * 180 / PI << " deg." << std::endl;
+    // std::cout << N << " nodes, average spacing of " << ( L2 - L1 ) / N * 180 / PI << " deg." << std::endl;
 }
 
 
@@ -147,9 +148,19 @@ Eigen::Vector6d NonConservative::computeMeanElementRates( )
         return Vector6d::Zero();
     }
 
-    aux.gaussianQuadrature.reset( boost::bind( &NonConservative::integrand, this, _1 ), L1, L2, N );
-    Vector6d integralResult = aux.gaussianQuadrature.getQuadrature();
-    Vector6d meanElementRates = integralResult / ( 2 * PI * B );
+    Vector6d meanElementRates;
+    if ( N == 1 ) {
+        // Evaluate integrand only at perigee and use an empirical polynomial fit based on perigee altitude
+        Vector6d perigeeIntegralResult = integrand( 0.5 * ( L2 + L1 ) ) * ( L2 - L1 );
+        Vector6d perigeeMeanElementRates = perigeeIntegralResult / ( 2 * PI * B );
+        const double hp = a * ( 1 - e ) - aux.centralBody->getShapeModel()->getAverageRadius();
+        meanElementRates = ( 3.72e-07 * hp + 0.208 ) * perigeeMeanElementRates;
+    } else {
+        // Solve the integral by Gaussian quadrature
+        aux.gaussianQuadrature.reset( boost::bind( &NonConservative::integrand, this, _1 ), L1, L2, N );
+        Vector6d integralResult = aux.gaussianQuadrature.getQuadrature();
+        meanElementRates = integralResult / ( 2 * PI * B );
+    }
     // std::cout << "Mean element rates due to drag: " << meanElementRates.transpose() << std::endl;
 
 
@@ -166,6 +177,9 @@ Eigen::Vector6d NonConservative::computeMeanElementRates( )
     environmentUpdater->updateEnvironment( aux.epoch, { { transational_state, cartesianState } } );
     // accelerationModel->updateMembers( aux.epoch );
     */
+
+    // std::cout << meanElementRates( 0 ) / perigeeMeanElementRates( 0 ) << std::endl;
+
     return meanElementRates;
 }
 

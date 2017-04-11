@@ -34,9 +34,11 @@ void ThirdBodyCentralGravity::updateMembers( )
     r3 = thirdBodyCentralGravity->getCurrentPositionOfBodyExertingAcceleration() -
             thirdBodyCentralGravity->getCurrentPositionOfBodySubjectToAcceleration();
 
-    // std::cout << "SUN: " << r3.transpose() << std::endl;
+    // std::cout << "r_3 = " << r3.transpose() << std::endl;
 
     ConservativeThirdBodyPerturbed::updateMembers();
+
+    // std::cout << "Third body: S = " << S << ", N = " << N << std::endl;
 }
 
 

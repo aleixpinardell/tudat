@@ -9,6 +9,7 @@
  */
 
 #include "osculatingToMean.h"
+#include "Tudat/Astrodynamics/Propagators/DSST/forces/zonalSphericalHarmonicGravity.h"
 
 namespace tudat
 {
@@ -23,15 +24,15 @@ namespace element_conversions
 {
 
 //! Transform osculating to mean elements.
-void transformOsculatingToMeanElements( AuxiliaryElements &auxiliaryElements,
-                    std::map< std::string, boost::shared_ptr< force_models::ForceModel > > &forceModels )
+void transformOsculatingToMeanElements( AuxiliaryElements& auxiliaryElements,
+                                        force_models::ForceModelMap forceModels )
 {
     using namespace Eigen;
     using namespace mathematical_constants;
     using namespace orbital_element_conversions;
 
     // Reference to equinoctial elements
-    EquinoctialElements &equinoctialElements = auxiliaryElements.equinoctialElements;
+    EquinoctialElements& equinoctialElements = auxiliaryElements.equinoctialElements;
 
     // Store initial osculating elements
     Vector6d initialOsc = equinoctialElements.getComponents( meanType );
@@ -51,16 +52,20 @@ void transformOsculatingToMeanElements( AuxiliaryElements &auxiliaryElements,
     const unsigned int maxIterations = 200;
     while ( i++ < maxIterations ) {
         // Initialize rebuilt to be equal to the current mean elements
-        Vector6d currentOsc = equinoctialElements.getComponents( meanType );
+        Vector6d rebuilt = equinoctialElements.getComponents( meanType );
 
         // Add short period terms to rebuilt to make it osculating
         for ( auto ent: forceModels ) {
             boost::shared_ptr< sst::force_models::ForceModel > forceModel = ent.second;
-            currentOsc += forceModel->getShortPeriodTerms();
+            // FIXME: only J2, calling this on ConservativeThirdBodyPerturbed breaks acceleration model
+            if ( boost::dynamic_pointer_cast< sst::force_models::ZonalSphericalHarmonicGravity >( forceModel ) != NULL )
+            {
+                rebuilt += forceModel->getShortPeriodTerms();
+            }
         }
 
         // Get difference
-        Vector6d delta = currentOsc - initialOsc;
+        Vector6d delta = initialOsc - rebuilt;
 
         // Convert last element to range [-π, π]
         delta( fastVariableIndex ) -= 2 * PI * std::floor( 0.5 * ( delta( fastVariableIndex ) / PI + 1 ) );
@@ -72,9 +77,16 @@ void transformOsculatingToMeanElements( AuxiliaryElements &auxiliaryElements,
         }
 
         // Update auxiliaryElements' members
-        std::cout << "before: " << auxiliaryElements.equinoctialElements.toKeplerian().transpose() << std::endl;
+
+        // std::cout << "equ before: " << auxiliaryElements.equinoctialElements.getComponents( meanType ).transpose() << std::endl;
+        // std::cout << "before: " << auxiliaryElements.equinoctialElements.toKeplerian().transpose() << std::endl;
+
         auxiliaryElements.updateComponentsByAdding( delta );
-        std::cout << "after:  " << auxiliaryElements.equinoctialElements.toKeplerian().transpose() << std::endl;
+
+        // std::cout << "after:  " << auxiliaryElements.equinoctialElements.toKeplerian().transpose() << std::endl;
+        // std::cout << "equ after: " << auxiliaryElements.equinoctialElements.getComponents( meanType ).transpose() << std::endl;
+
+        return;  // FIXME
     }
 
     throw std::runtime_error( "Impossible to transform osculating to mean elements: "

@@ -29,10 +29,11 @@ protected:
      * \param auxiliaryElements Auxiliary elements used to compute the mean element rates and short period terms.
      * \param thirdBody The third body exerting the acceleration.
      */
-    ConservativeThirdBodyPerturbed( AuxiliaryElements &auxiliaryElements ) :
-        ForceModel( auxiliaryElements ),
+    ConservativeThirdBodyPerturbed( AuxiliaryElements &auxiliaryElements,
+                                    boost::shared_ptr< ConservativeSettings > settings = NULL ) :
+        ForceModel( auxiliaryElements, settings ),
         ThirdBodyPerturbed( auxiliaryElements ),
-        Conservative( auxiliaryElements ) { }
+        Conservative( auxiliaryElements, settings ) { }
 
 
     //! Update instance's members that are computed from the current auxiliary elements.

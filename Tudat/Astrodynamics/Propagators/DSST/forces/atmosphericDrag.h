@@ -24,28 +24,37 @@ namespace force_models
 typedef boost::shared_ptr< aerodynamics::AerodynamicAcceleration > AerodynamicAM;
 
 
+//! Struct for storing settings for AtmosphericDrag ForceModel
+struct AtmosphericDragSettings: NonConservativeSettings {
+    //! Default constructor
+    AtmosphericDragSettings( double altitudeLimit                   = 0.0,
+                             unsigned int numberOfQuadratureNodes   = 40,
+                             bool numberOfQuadratureNodesIsScalable = true,
+                             bool alwaysIncludeCentralNode          = true )
+        : NonConservativeSettings( numberOfQuadratureNodes, numberOfQuadratureNodesIsScalable,
+                                   alwaysIncludeCentralNode ),
+          altitudeLimit( altitudeLimit ) { }
+
+    //! Altitude limit above which atmospheric drag is completely neglected.
+    //! If set to 0, drag is considered for all altitudes.
+    double altitudeLimit;
+};
+
+
 //! Abstract class for perturbations that can be expressed as a disturbing potential
 class AtmosphericDrag final : public CentralBodyPerturbed, public NonConservative {
 public:
 
     AtmosphericDrag( AuxiliaryElements &auxiliaryElements, const std::string &perturbingBody,
-                     AerodynamicAM aerodynamicAM, const double maximumAltitude = TUDAT_NAN,
-                     const unsigned int maximumScalableNumberOfQuadratureNodes = 48,
-                     const unsigned int fixedNumberOfQuadratureNodes = 0 ) :
-        ForceModel( auxiliaryElements ),
+                     AerodynamicAM aerodynamicAM, boost::shared_ptr< AtmosphericDragSettings > settings = NULL ) :
+        ForceModel( auxiliaryElements, settings ),
         CentralBodyPerturbed( auxiliaryElements ),
-        NonConservative( auxiliaryElements, perturbingBody, aerodynamicAM,
-                         maximumScalableNumberOfQuadratureNodes, fixedNumberOfQuadratureNodes )
-    {
-        // FIXME: user should be able to specify this altitude limit somehow during simulation setup
-        hmax = maximumAltitude;
-        if ( hmax != hmax ) {  // hmax is not a number, i.e. user has not defined it
-            if ( perturbingBody == "Earth" ) {
-                hmax = 600e3;   // drag is only considered below 600 km altitude
-            } else {
-                hmax = 0.0;     // 0 -> drag is considered for any altitude
-            }
-        }
+        NonConservative( auxiliaryElements, perturbingBody, aerodynamicAM, settings ) { }
+
+    boost::shared_ptr< AtmosphericDragSettings > getSettings( ) {
+        boost::shared_ptr< AtmosphericDragSettings > castedSettings =
+                boost::dynamic_pointer_cast< AtmosphericDragSettings >( settings );
+        return castedSettings != NULL ? castedSettings : boost::make_shared< AtmosphericDragSettings >( );
     }
 
 
@@ -58,11 +67,6 @@ private:
 
     //! Update instance's members that are computed from the current auxiliary elements.
     virtual void updateMembers( );
-
-
-    //! Distance limit for consideration of drag [ m ]
-    double hmax;
-
 
     //! Update the values of the minimum and maximum true longitude for the averaging integral.
     void determineIntegrationLimits( );

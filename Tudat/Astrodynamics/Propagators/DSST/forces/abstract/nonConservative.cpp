@@ -41,9 +41,10 @@ void NonConservative::updateMembers( )
     N = getSettings()->numberOfQuadratureNodes;
     if ( getSettings()->numberOfQuadratureNodesIsScalable ) {
         N = std::round( N * ( L2 - L1 ) / ( 2 * PI ) );
-    }
-    if ( N % 2 == 0 && getSettings()->alwaysIncludeCentralNode ) {
-        N += 1;
+        // Make N odd
+        if ( N % 2 == 0 && getSettings()->alwaysIncludeCentralNode ) {
+            N += 1;
+        }
     }
 
     // std::cout << N << " nodes, average spacing of " << ( L2 - L1 ) / N * 180 / PI << " deg." << std::endl;

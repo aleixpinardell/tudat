@@ -140,7 +140,7 @@ private:
 
     //! Whether computing the short period terms requires the mean element rates to be computed first.
     virtual bool computingShortPeriodTermsRequiresMeanElementRatesToBeComputedFirst() {
-        return true;
+        return true;  // FIXME
     }
 
     //! Returns the short period terms.

@@ -46,6 +46,12 @@ public:
 
 private:
 
+    //! Set up the force model.
+    void setUp() {
+        radiationPressureAM->updateMembers( aux.epoch );
+        Conservative::setUp();
+    }
+
     //! Update instance's members that are computed from the current auxiliary elements.
     void updateMembers();
 

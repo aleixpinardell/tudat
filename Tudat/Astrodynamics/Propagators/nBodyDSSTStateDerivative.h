@@ -213,7 +213,7 @@ public:
             }
         }
 
-        /* FIXME
+        // FIXME
         // Convert initial state from osculating to mean elements
         element_conversions::transformOsculatingToMeanElements( auxiliaryElements, forceModels );
 
@@ -231,7 +231,6 @@ public:
         shortPeriodTermsMap[ ForceIdentifier() ][ initialEpoch ] =
                 auxiliaryElements.equinoctialElements.getComponents( meanType ) -
                 equinoctialElements.getComponents( meanType );
-        */
     }
 
 

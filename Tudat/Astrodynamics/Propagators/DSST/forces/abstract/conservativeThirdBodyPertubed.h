@@ -46,6 +46,7 @@ protected:
 
 private:
 
+    //! Set up the force model.
     void setUp() {
         Conservative::setUp();
     }

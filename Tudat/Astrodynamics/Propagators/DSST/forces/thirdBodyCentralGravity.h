@@ -43,6 +43,12 @@ public:
 
 private:
 
+    //! Set up the force model.
+    void setUp() {
+        thirdBodyAM->updateMembers( aux.epoch );
+        Conservative::setUp();
+    }
+
     //! Pointer to thrid body acceleration model
     ThirdBodyAM thirdBodyAM;
 

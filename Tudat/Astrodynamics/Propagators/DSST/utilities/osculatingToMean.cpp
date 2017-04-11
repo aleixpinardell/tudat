@@ -58,10 +58,13 @@ void transformOsculatingToMeanElements( AuxiliaryElements& auxiliaryElements,
         for ( auto ent: forceModels ) {
             boost::shared_ptr< sst::force_models::ForceModel > forceModel = ent.second;
             // FIXME: only J2, calling this on ConservativeThirdBodyPerturbed breaks acceleration model
+            /*
             if ( boost::dynamic_pointer_cast< sst::force_models::ZonalSphericalHarmonicGravity >( forceModel ) != NULL )
             {
                 rebuilt += forceModel->getShortPeriodTerms();
             }
+            */
+            rebuilt += forceModel->getShortPeriodTerms();
         }
 
         // Get difference

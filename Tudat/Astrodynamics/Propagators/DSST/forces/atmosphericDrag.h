@@ -7,6 +7,7 @@
 
 #include "Tudat/Astrodynamics/Propagators/DSST/forces/abstract/nonConservative.h"
 #include "Tudat/Astrodynamics/Propagators/DSST/forces/abstract/centralBodyPertubed.h"
+#include "Tudat/Astrodynamics/Aerodynamics/nrlmsise00Atmosphere.h"
 
 namespace tudat
 {
@@ -49,9 +50,14 @@ public:
                      AerodynamicAM aerodynamicAM, boost::shared_ptr< AtmosphericDragSettings > settings = NULL ) :
         ForceModel( auxiliaryElements, settings ),
         CentralBodyPerturbed( auxiliaryElements ),
-        NonConservative( auxiliaryElements, perturbingBody, aerodynamicAM, settings ) { }
+        NonConservative( auxiliaryElements, perturbingBody, aerodynamicAM, settings )
+    {
+        atmosphereModel = boost::dynamic_pointer_cast< aerodynamics::NRLMSISE00Atmosphere >(
+                    aux.propagatedBody->getFlightConditions()->getAtmosphereModel() );
+    }
 
-    boost::shared_ptr< AtmosphericDragSettings > getSettings( ) {
+    boost::shared_ptr< AtmosphericDragSettings > getSettings( )
+    {
         boost::shared_ptr< AtmosphericDragSettings > castedSettings =
                 boost::dynamic_pointer_cast< AtmosphericDragSettings >( settings );
         return castedSettings != NULL ? castedSettings : boost::make_shared< AtmosphericDragSettings >( );
@@ -60,8 +66,12 @@ public:
 
 private:
 
+    //! Atmosphere model describing the atmosphere the propagated body passes through.
+    boost::shared_ptr< aerodynamics::NRLMSISE00Atmosphere > atmosphereModel;
+
     //! Set up the force model.
-    void setUp() {
+    void setUp()
+    {
         updateMembers();
     }
 
@@ -70,6 +80,9 @@ private:
 
     //! Update the values of the minimum and maximum true longitude for the averaging integral.
     void determineIntegrationLimits( );
+
+    //! Get the mean element rates for the current auxiliary elements [ Eq. 3.1-(1) ]
+    Eigen::Vector6d computeMeanElementRates( );
 
 
 };

@@ -9,7 +9,6 @@
  */
 
 #include "nonConservative.h"
-
 #include "boost/bind.hpp"
 
 
@@ -139,8 +138,6 @@ Eigen::Vector6d NonConservative::integrand( const double trueLongitude )
 //! Get the mean element rates for the current auxiliary elements [ Eq. 3.4-(1b) ]
 Eigen::Vector6d NonConservative::computeMeanElementRates( )
 {
-    // std::cout << "My altitude = " << ( aux.equinoctialElements.toCartesian( aux.mu ).segment( 0, 3 ).norm() - aux.centralBody->getShapeModel()->getAverageRadius() ) / 1e3 << " km" << std::endl;
-
     using namespace Eigen;
     using namespace numerical_quadrature;
     using namespace mathematical_constants;
@@ -149,39 +146,10 @@ Eigen::Vector6d NonConservative::computeMeanElementRates( )
         return Vector6d::Zero();
     }
 
-    Vector6d meanElementRates;
-    if ( N == 1 ) {
-        // Evaluate integrand only at perigee and use an empirical polynomial fit based on perigee altitude
-        Vector6d perigeeIntegralResult = integrand( 0.5 * ( L2 + L1 ) ) * ( L2 - L1 );
-        Vector6d perigeeMeanElementRates = perigeeIntegralResult / ( 2 * PI * B );
-        const double hp = a * ( 1 - e ) - aux.centralBody->getShapeModel()->getAverageRadius();
-        meanElementRates = ( 3.72e-07 * hp + 0.208 ) * perigeeMeanElementRates;
-    } else {
-        // Solve the integral by Gaussian quadrature
-        aux.gaussianQuadrature.reset( boost::bind( &NonConservative::integrand, this, _1 ), L1, L2, N );
-        Vector6d integralResult = aux.gaussianQuadrature.getQuadrature();
-        meanElementRates = integralResult / ( 2 * PI * B );
-    }
-    // std::cout << "Mean element rates due to drag: " << meanElementRates.transpose() << std::endl;
-
-
-    // FIXME: is this necessary?
-    /*
-    // Reset central body and environment to current actual state
-
-    // Create current global Cartesian state from r and v
-    Eigen::Matrix< double, Eigen::Dynamic, 1 > cartesianState( 6 );
-    cartesianState << aux.equinoctialElements.toCartesian( aux.mu );
-    cartesianState += aux.centralBody->getStateInBaseFrameFromEphemeris( aux.epoch );
-
-    // Update environment
-    environmentUpdater->updateEnvironment( aux.epoch, { { transational_state, cartesianState } } );
-    // accelerationModel->updateMembers( aux.epoch );
-    */
-
-    // std::cout << meanElementRates( 0 ) / perigeeMeanElementRates( 0 ) << std::endl;
-
-    return meanElementRates;
+    // Solve the integral by Gaussian quadrature
+    aux.gaussianQuadrature.reset( boost::bind( &NonConservative::integrand, this, _1 ), L1, L2, N );
+    Vector6d integralResult = aux.gaussianQuadrature.getQuadrature();
+    return integralResult / ( 2 * PI * B );
 }
 
 

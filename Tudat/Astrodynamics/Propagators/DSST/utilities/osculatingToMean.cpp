@@ -89,7 +89,7 @@ void transformOsculatingToMeanElements( AuxiliaryElements& auxiliaryElements,
         // std::cout << "after:  " << auxiliaryElements.equinoctialElements.toKeplerian().transpose() << std::endl;
         // std::cout << "equ after: " << auxiliaryElements.equinoctialElements.getComponents( meanType ).transpose() << std::endl;
 
-        return;  // FIXME
+        return;  // FIXME: currently only one iteration; more iterations -> diverges
     }
 
     throw std::runtime_error( "Impossible to transform osculating to mean elements: "

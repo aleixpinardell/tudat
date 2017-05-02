@@ -333,12 +333,15 @@ public:
 
     //! Constructor.
     AuxiliaryElements( const double epoch, const EquinoctialElements equinoctialElements,
-                       BodyPtr centralBody, CentralGravityAM centralGravityAM )
-        : centralBody( centralBody ), centralGravityAM( centralGravityAM )
+                       BodyPtr propagatedBody, BodyPtr centralBody, CentralGravityAM centralGravityAM )
+        : propagatedBody( propagatedBody), centralBody( centralBody ), centralGravityAM( centralGravityAM )
     {
         updateState( epoch, equinoctialElements );
     }
 
+
+    //! Pointer to the propagated body
+    BodyPtr propagatedBody;
 
     //! Pointer to the central body
     BodyPtr centralBody;

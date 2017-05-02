@@ -83,9 +83,10 @@ public:
         BodyPtr centralBody = bodyMap.at( centralBodyName );
 
         // Get acceleration models for propagated body
-        const std::string propagatedBody = *propagatorSettings->bodiesToIntegrate_.begin();
+        const std::string propagatedBodyName = *propagatorSettings->bodiesToIntegrate_.begin();
+        BodyPtr propagatedBody = bodyMap.at( propagatedBodyName );
         const SingleBodyAccelerationMap accelerationModelsMap =
-                propagatorSettings->accelerationsMap_.at( propagatedBody );
+                propagatorSettings->accelerationsMap_.at( propagatedBodyName );
 
         // First iteration through acceleration models, only to find central gravity model
         CentralGravityAM centralGravityAM;
@@ -113,7 +114,7 @@ public:
 
         // Create auxiliary elements
         auxiliaryElements =
-                AuxiliaryElements( initialEpoch, equinoctialElements, centralBody, centralGravityAM );
+                AuxiliaryElements( initialEpoch, equinoctialElements, propagatedBody, centralBody, centralGravityAM );
 
         // Iterate through all acceleration models to create the DSST force models
         for ( auto ent: accelerationModelsMap )
@@ -196,7 +197,7 @@ public:
             {
                 // Create partial acceleration map only with relevant acceleration model
                 AccelerationMap partialAccelerationMap =
-                { { propagatedBody, { { nonConservativeForceModel->getPerturbingBodyName(),
+                { { propagatedBodyName, { { nonConservativeForceModel->getPerturbingBodyName(),
                                         { nonConservativeForceModel->getAccelerationModel() } } } } };
 
                 // Create environment updater settings
@@ -204,7 +205,7 @@ public:
                             partialAccelerationMap, bodyMap );
                 std::map< IntegratedStateType, std::vector< std::pair< std::string, std::string > > >
                         integratedStates = { { transational_state, {
-                                                   std::pair< std::string, std::string >( propagatedBody, "" ) } } };
+                                                   std::pair< std::string, std::string >( propagatedBodyName,"" ) } } };
                 EnvironmentUpdater< double, double > updater( bodyMap, updateSettings, integratedStates );
 
                 // Set updater

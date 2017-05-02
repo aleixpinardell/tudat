@@ -74,6 +74,42 @@ void AtmosphericDrag::determineIntegrationLimits( ) {
 }
 
 
+//! Get the mean element rates for the current auxiliary elements [ Eq. 3.4-(1b) ]
+Eigen::Vector6d AtmosphericDrag::computeMeanElementRates( )
+{
+    using namespace Eigen;
+    using namespace mathematical_constants;
+
+    if ( N > 1 )  // use Gaussian Quadrature
+    {
+        return NonConservative::computeMeanElementRates();
+    }
+    else  // evaluate integrand only at perigee and use empirical polynomial fit based on perigee altitude (and F10.7)
+    {
+        Vector6d perigeeIntegralResult = integrand( 0.5 * ( L2 + L1 ) ) * ( L2 - L1 );
+        Vector6d perigeeMeanElementRates = perigeeIntegralResult / ( 2 * PI * B );
+
+        // Get perigee altitude
+        const double hp = a * ( 1 - e ) - aux.centralBody->getShapeModel()->getAverageRadius();
+
+        // Get F10.7 (if using NRLMSISE00 atmosphere)
+        double f107 = TUDAT_NAN;
+        if ( atmosphereModel != NULL ) {
+            f107 = atmosphereModel->getNRLMSISE00Input().f107;
+        }
+
+        double factor;
+        if ( f107 > 40 ) {
+            factor = ( 2e-07 * hp + 0.115 ) * std::pow( f107 - 40, 0.1 ) + 0.0534;
+        } else {
+            factor = 3.72e-07 * hp + 0.208;
+        }
+
+        return factor * perigeeMeanElementRates;
+    }
+}
+
+
 } // namespace force_models
 
 } // namespace sst

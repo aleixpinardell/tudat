@@ -150,7 +150,7 @@ protected:
     Eigen::Vector3d perturbingAcceleration;
 
 
-private:
+protected:
 
     //! Update the values of the minimum and maximum true longitude for the averaging integral.
     virtual void determineIntegrationLimits( ) = 0;

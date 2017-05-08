@@ -79,7 +79,7 @@ public:
      * Function to retrieve the initial state used as input for numerical integration
      * \return Initial state used as input for numerical integration
      */
-    virtual Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( )
+    Eigen::Matrix< StateScalarType, Eigen::Dynamic, 1 > getInitialStates( )
     {
         return initialStates_;
     }

@@ -50,8 +50,8 @@ namespace input_output
  * \param skipLinesCharacter Skip lines starting with this character.
  * \return The data map.
  */
-template< typename KeyType, typename ValueType >
-std::map< KeyType, std::vector< ValueType > > readMapFromFile( const std::string& relativePath,
+template< typename KeyType, typename ScalarValueType >
+std::map< KeyType, std::vector< ScalarValueType > > readMapFromFile( const std::string& relativePath,
                                                                const std::string& separators = "\t ;,",
                                                                const std::string& skipLinesCharacter = "%" )
 {
@@ -103,7 +103,7 @@ std::map< KeyType, std::vector< ValueType > > readMapFromFile( const std::string
     }
 
     // Initialize the map.
-    std::map< KeyType, std::vector< ValueType > > dataMap_;
+    std::map< KeyType, std::vector< ScalarValueType > > dataMap_;
 
     // If there are no lines, return an empty matrix.
     if ( lines_.empty( ) )
@@ -122,7 +122,7 @@ std::map< KeyType, std::vector< ValueType > > readMapFromFile( const std::string
 
         // Determine key and put single line entries into vector.
         KeyType key;
-        std::vector< ValueType > values;
+        std::vector< ScalarValueType > values;
         for ( unsigned int columnIndex = 0; columnIndex < lineSplit_.size( ); columnIndex++ )
         {
             boost::trim( lineSplit_.at( columnIndex ) );
@@ -132,7 +132,7 @@ std::map< KeyType, std::vector< ValueType > > readMapFromFile( const std::string
             }
             else
             {
-                values.push_back( boost::lexical_cast< ValueType >( lineSplit_.at( columnIndex ) ) );
+                values.push_back( boost::lexical_cast< ScalarValueType >( lineSplit_.at( columnIndex ) ) );
             }
         }
 

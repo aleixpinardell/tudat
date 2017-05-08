@@ -156,7 +156,7 @@ public:
     Eigen::Vector3d getAcceleration( )
     {
         return computeCannonBallRadiationPressureAcceleration(
-                    currentRadiationPressure_, currentUnitVectorToSource_, currentArea_,
+                    currentRadiationPressure_, currentVectorToSource_, currentArea_,
                     currentRadiationPressureCoefficient_, currentMass_ );
     }
 
@@ -171,8 +171,9 @@ public:
     {
         if( !( this->currentTime_ == currentTime ) )
         {
-            currentVectorToSource_ = sourcePositionFunction_( ) - acceleratedBodyPositionFunction_( );
-            currentUnitVectorToSource_ = currentVectorToSource_.normalized( );
+            const Eigen::Vector3d vectorToSource = sourcePositionFunction_( ) - acceleratedBodyPositionFunction_( );
+            currentVectorToSource_ = vectorToSource.normalized( );
+            currentDistanceToSource_ = vectorToSource.norm( );
             currentRadiationPressure_ = radiationPressureFunction_( );
             currentRadiationPressureCoefficient_ = radiationPressureCoefficientFunction_( );
             currentArea_ = areaFunction_( );
@@ -207,8 +208,8 @@ public:
         return currentVectorToSource_;
     }
 
-    Eigen::Vector3d getCurrentUnitVectorToSource() {
-        return currentUnitVectorToSource_;
+    double getCurrentDistanceToSource() {
+        return currentDistanceToSource_;
     }
 
     boost::shared_ptr< RadiationPressureInterface > getRadiationPressureInterface() {
@@ -264,11 +265,11 @@ private:
      */
     Eigen::Vector3d currentVectorToSource_;
 
-    //! Current unit vector from accelerated body to source.
+    //! Current distance from accelerated body to source.
     /*!
-     * Current unit vector from accelerated body to source (3D vector).
+     * Current distance from accelerated body to source [m].
      */
-    Eigen::Vector3d currentUnitVectorToSource_;
+    double currentDistanceToSource_;
 
     //! Current radiation pressure.
     /*!

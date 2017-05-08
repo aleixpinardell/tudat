@@ -27,7 +27,7 @@ namespace force_models
 void ConservativeRadiationPressure::updateMembers( )
 {
     // Update vector to source
-    r3 = radiationPressureAM->getCurrentVectorToSource();
+    r3 = radiationPressureAM->getCurrentDistanceToSource() * radiationPressureAM->getCurrentVectorToSource();
 
     // std::cout << "SRP: " << r3.transpose() << std::endl;
 

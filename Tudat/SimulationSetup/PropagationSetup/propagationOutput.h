@@ -81,7 +81,7 @@ OutputType evaluateBivariateFunction(
  *  \param firstInput Function returning first input to functionToEvaluate.
  *  \param secondInput Function returning second input to functionToEvaluate.
  *  \param thirdInput Function returning third input to functionToEvaluate.
- *  \return Output from functionToEvaluate, using functions firstInput and secondInput as input.
+ *  \return Output from functionToEvaluate, using functions firstInput, secondInput and thirdInput as input.
  */
 template< typename OutputType, typename FirstInputType, typename SecondInputType, typename ThirdInputType >
 OutputType evaluateTrivariateFunction(

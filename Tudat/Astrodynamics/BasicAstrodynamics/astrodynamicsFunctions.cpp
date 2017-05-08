@@ -73,9 +73,7 @@ double computePeriapsisAltitudeFromKeplerianState( const Eigen::Vector6d state,
                                                    const double centralBodyAverageRadius )
 {
     using namespace orbital_element_conversions;
-    const double hp = state( semiMajorAxisIndex ) * ( 1 - state( eccentricityIndex ) ) - centralBodyAverageRadius;
-    // std::cout << hp/1e3 << " km " << std::endl;
-    return hp;
+    return state( semiMajorAxisIndex ) * ( 1 - state( eccentricityIndex ) ) - centralBodyAverageRadius;
 }
 
 //! Compute periapsis altitude from Cartesian state.

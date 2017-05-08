@@ -95,10 +95,22 @@ double computeSynodicPeriod( const double orbitalPeriodBody1, const double orbit
 
 
 //! Compute periapsis altitude from Keplerian state.
+/*!
+ * Compute periapsis altitude from Keplerian state.
+ * \param state Keplerian state of the propagated body.
+ * \param centralBodyAverageRadius Average radius of the central body.
+ * \return The distance from the propagated body to the central body's surface at periapsis.
+ */
 double computePeriapsisAltitudeFromKeplerianState( const Eigen::Vector6d state,
                                                    const double centralBodyAverageRadius );
 
 //! Compute periapsis altitude from Cartesian state.
+/*!
+ * Compute periapsis altitude from Cartesian state.
+ * \param state Cartesian state of the propagated body.
+ * \param centralBodyAverageRadius Average radius of the central body.
+ * \return The distance from the propagated body to the central body's surface at periapsis.
+ */
 double computePeriapsisAltitudeFromCartesianState( const Eigen::Vector6d state,
                                                    const double centralBodyGravitationalParameter,
                                                    const double centralBodyAverageRadius );

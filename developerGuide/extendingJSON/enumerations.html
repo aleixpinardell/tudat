@@ -38,7 +38,7 @@
     <link rel="top" title="TU Delft Astrodynamic Toolbox  documentation" href="../../index.html"/>
         <link rel="up" title="Extending the JSON interface" href="index.html"/>
         <link rel="next" title="Adding support for polymorphic classes" href="polymorphicClasses.html"/>
-        <link rel="prev" title="Enhanced value set/access" href="enhancedValueGetSet.html"/> 
+        <link rel="prev" title="Enhanced value set" href="enhancedValueSet.html"/> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
@@ -96,11 +96,14 @@
 <li class="toctree-l2"><a class="reference internal" href="../githubBasics.html">Github Basics</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Extending the JSON interface</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="basics.html">Basics</a></li>
-<li class="toctree-l3"><a class="reference internal" href="basicValueGetSet.html">Basic value set/access</a></li>
-<li class="toctree-l3"><a class="reference internal" href="enhancedValueGetSet.html">Enhanced value set/access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="valueConversions.html">Value conversions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enhancedDeserialization.html">Enhanced deserialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enhancedValueAccess.html">Enhanced value access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enhancedValueSet.html">Enhanced value set</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Adding support for enumerations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="polymorphicClasses.html">Adding support for polymorphic classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="otherTypes.html">Adding support for other types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="unitTesting.html">Unit testing</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../howToWriteTheWiki.html">How to Write the Wiki</a></li>
@@ -175,6 +178,7 @@
             
   <div class="section" id="adding-support-for-enumerations">
 <span id="extendingjson-enumerations"></span><h1>Adding support for enumerations<a class="headerlink" href="#adding-support-for-enumerations" title="Permalink to this headline">¶</a></h1>
+<p>EnumValueError</p>
 </div>
 
 
@@ -190,7 +194,7 @@
         <a href="polymorphicClasses.html" class="btn btn-neutral float-right" title="Adding support for polymorphic classes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="enhancedValueGetSet.html" class="btn btn-neutral" title="Enhanced value set/access" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="enhancedValueSet.html" class="btn btn-neutral" title="Enhanced value set" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -222,6 +226,7 @@
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
             VERSION:'',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

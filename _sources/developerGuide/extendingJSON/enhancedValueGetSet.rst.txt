@@ -1,5 +1,0 @@
-.. _extendingJSON_enhancedValueGetSet:
-
-Enhanced value set/access
-=========================
-

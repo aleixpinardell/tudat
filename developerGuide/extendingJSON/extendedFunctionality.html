@@ -1,0 +1,683 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Extended functionality &mdash; TU Delft Astrodynamic Toolbox  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="TU Delft Astrodynamic Toolbox  documentation" href="../../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> TU Delft Astrodynamic Toolbox
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Start Page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation/index.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials and Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Developer Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">TU Delft Astrodynamic Toolbox</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Extended functionality</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/developerGuide/extendingJSON/extendedFunctionality.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="extended-functionality">
+<span id="extendingjson-extendedfunctionality"></span><h1>Extended functionality<a class="headerlink" href="#extended-functionality" title="Permalink to this headline">¶</a></h1>
+<p>This is how a basic JSON input file for Tudat looks like:</p>
+<div class="literal-block-wrapper docutils container" id="main-json">
+<div class="code-block-caption"><span class="caption-text"><code class="xref py py-class docutils literal"><span class="pre">main.json</span></code></span><a class="headerlink" href="#main-json" title="Permalink to this code">¶</a></div>
+<div class="highlight-json"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;initialEpoch&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="nt">&quot;finalEpoch&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
+  <span class="nt">&quot;spice&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;kernels&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="s2">&quot;${SPICE_KERNELS_PATH}/pck00009.tpc&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;${SPICE_KERNELS_PATH}/de-403-masses.tpc&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;${SPICE_KERNELS_PATH}/de421.bsp&quot;</span>
+    <span class="p">]</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;bodies&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;useDefaultSettings&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+      <span class="nt">&quot;ephemeris&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;constantState&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="mi">0</span><span class="p">,</span>
+          <span class="mi">0</span><span class="p">,</span>
+          <span class="mi">0</span><span class="p">,</span>
+          <span class="mi">0</span><span class="p">,</span>
+          <span class="mi">0</span><span class="p">,</span>
+          <span class="mi">0</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;constant&quot;</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;asterix&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;initialState&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;semiMajorAxis&quot;</span><span class="p">:</span> <span class="mf">7.5E+6</span><span class="p">,</span>
+        <span class="nt">&quot;eccentricity&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+        <span class="nt">&quot;inclination&quot;</span><span class="p">:</span> <span class="mf">1.4888</span><span class="p">,</span>
+        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;keplerian&quot;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;propagator&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;centralBodies&quot;</span><span class="p">:</span> <span class="s2">&quot;Earth&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;accelerations&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;asterix&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;integratedStateType&quot;</span><span class="p">:</span> <span class="s2">&quot;translational&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;bodiesToPropagate&quot;</span><span class="p">:</span> <span class="s2">&quot;asterix&quot;</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;integrator&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rungeKutta4&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;stepSize&quot;</span><span class="p">:</span> <span class="mi">10</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;export&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;@path(epochs.txt)&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;variables&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;independent&quot;</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;epochsInFirstColumn&quot;</span><span class="p">:</span> <span class="kc">false</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;@path(states.txt)&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;variables&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;state&quot;</span>
+        <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;epochsInFirstColumn&quot;</span><span class="p">:</span> <span class="kc">false</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nt">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;defaultValueUsedForMissingKey&quot;</span><span class="p">:</span> <span class="s2">&quot;continueSilently&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;unusedKey&quot;</span><span class="p">:</span> <span class="s2">&quot;printWarning&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;unidimensionalArrayInference&quot;</span><span class="p">:</span> <span class="s2">&quot;continueSilently&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table></div>
+</div>
+<p>The <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object created by parsing the contents of this file, referred to as <code class="docutils literal"><span class="pre">mainJson</span></code>, will be used throughout the examples in this section to explain the features that have been added to the <a class="reference internal" href="../../tutorials/jsonInterface/index.html#jsoninterface"><span class="std std-ref">JSON Interface</span></a> regarding enhanced deserialization, value access and value set.</p>
+<div class="section" id="enhanced-value-access">
+<h2>Enhanced value access<a class="headerlink" href="#enhanced-value-access" title="Permalink to this headline">¶</a></h2>
+<p>Once that the <span class="xref std std-ref">main-json</span> file has been deserialized into the <code class="docutils literal"><span class="pre">mainJson</span></code> object using the <code class="docutils literal"><span class="pre">getDeserializedJSON</span></code> function, its keys can be accessed using the default value-access operators and functions, e.g.:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="kt">double</span> <span class="n">initialEpoch</span> <span class="o">=</span> <span class="n">mainJson</span><span class="p">[</span> <span class="s">&quot;initialEpoch&quot;</span> <span class="p">];</span>                       <span class="c1">// 0.0</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">integratorType</span> <span class="o">=</span> <span class="n">mainJson</span><span class="p">.</span><span class="n">at</span><span class="p">(</span> <span class="s">&quot;integrator&quot;</span> <span class="p">).</span><span class="n">at</span><span class="p">(</span> <span class="s">&quot;type&quot;</span> <span class="p">);</span>  <span class="c1">// &quot;rungeKutta4&quot;</span>
+</pre></div>
+</div>
+<p>The main problem of this approach is that, in case that the user didn’t define the key <code class="docutils literal"><span class="pre">type</span></code> for the <code class="docutils literal"><span class="pre">integrator</span></code> object, the thrown value-access error will not provide sufficient information to uniquely identify the source of the problem:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span>libc++abi.dylib: terminating with uncaught exception of type nlohmann::detail::out_of_range:
+[json.exception.out_of_range.403] key &#39;type&#39; not found
+</pre></div>
+</div>
+<p>As it can be seen, for a simple input file such as <span class="xref std std-ref">main-json</span> the key <code class="docutils literal"><span class="pre">type</span></code> is defined for six objects. If we forget to define it for any of them, the message <code class="docutils literal"><span class="pre">key</span> <span class="pre">'type'</span> <span class="pre">not</span> <span class="pre">found</span></code> will be useless as we cannot know for which object it is missing. For more complex simulations, in which the JSON input file is hundreds of lines long, identification of the source of the problem becomes even more difficult. A message that <em>is</em> informative would be something like <code class="docutils literal"><span class="pre">key</span> <span class="pre">'integrator.type'</span> <span class="pre">not</span> <span class="pre">found</span></code>. In the <code class="docutils literal"><span class="pre">json_interface</span></code>, <code class="docutils literal"><span class="pre">integrator.type</span></code> is known as a key path.</p>
+<div class="section" id="key-paths">
+<h3>Key paths<a class="headerlink" href="#key-paths" title="Permalink to this headline">¶</a></h3>
+<p>A key path is a list of keys of a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> that are accessed sequentialy one after the other. The class <code class="xref py py-class docutils literal"><span class="pre">KeyPath</span></code> is declared in the file <code class="docutils literal"><span class="pre">Tudat/External/JsonInterface/Support/keys.h</span></code>. This class derives from <code class="xref py py-class docutils literal"><span class="pre">std::vector</span></code> and has some additional features, such as the possibility of being initialized directly from a single <code class="docutils literal"><span class="pre">std::string</span></code> or being outputted as text:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">KeyPath</span> <span class="n">simpleKeyPath</span> <span class="o">=</span> <span class="s">&quot;integrator&quot;</span><span class="p">;</span>                   <span class="c1">// { &quot;integrator&quot; }</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">simpleKeyPath</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>                <span class="c1">// integrator</span>
+
+<span class="n">KeyPath</span> <span class="n">compoundKeyPath</span> <span class="o">=</span> <span class="p">{</span> <span class="s">&quot;integrator&quot;</span><span class="p">,</span> <span class="s">&quot;type&quot;</span> <span class="p">};</span>     <span class="c1">// { &quot;integrator&quot;, &quot;type&quot; }</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">compoundKeyPath</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>              <span class="c1">// integrator.type</span>
+</pre></div>
+</div>
+<p>Additionally, the operator <code class="docutils literal"><span class="pre">/</span></code> is overloaded for <code class="xref py py-class docutils literal"><span class="pre">KeyPath</span></code> and <code class="xref py py-class docutils literal"><span class="pre">std::string</span></code>:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">KeyPath</span> <span class="n">simpleKeyPath</span> <span class="o">=</span> <span class="s">&quot;integrator&quot;</span><span class="p">;</span>                     <span class="c1">// { &quot;integrator&quot; }</span>
+<span class="n">KeyPath</span> <span class="n">compoundKeyPath</span> <span class="o">=</span> <span class="n">simpleKeyPath</span> <span class="o">/</span> <span class="s">&quot;integrator&quot;</span><span class="p">;</span>   <span class="c1">// { &quot;integrator&quot;, &quot;type&quot; }</span>
+</pre></div>
+</div>
+<p>Even the following is possible:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">KeyPath</span> <span class="n">compoundKeyPath</span> <span class="o">=</span> <span class="s">&quot;integrator&quot;</span> <span class="o">/</span> <span class="s">&quot;type&quot;</span><span class="p">;</span>          <span class="c1">// { &quot;integrator&quot;, &quot;type&quot; }</span>
+</pre></div>
+</div>
+<p>Now, image that the we want to access the values of the files to which to export the results. In our <span class="xref std std-ref">main-json</span> example, using basic value access methods, this would be done by:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">file0</span> <span class="o">=</span> <span class="n">mainJson</span><span class="p">.</span><span class="n">at</span><span class="p">(</span> <span class="s">&quot;export&quot;</span> <span class="p">).</span><span class="n">at</span><span class="p">(</span> <span class="mi">0</span> <span class="p">).</span><span class="n">at</span><span class="p">(</span> <span class="s">&quot;file&quot;</span> <span class="p">);</span>   <span class="c1">// &quot;epochs.txt&quot;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">file1</span> <span class="o">=</span> <span class="n">mainJson</span><span class="p">.</span><span class="n">at</span><span class="p">(</span> <span class="s">&quot;export&quot;</span> <span class="p">).</span><span class="n">at</span><span class="p">(</span> <span class="mi">1</span> <span class="p">).</span><span class="n">at</span><span class="p">(</span> <span class="s">&quot;file&quot;</span> <span class="p">);</span>   <span class="c1">// &quot;states.txt&quot;</span>
+</pre></div>
+</div>
+<p>However, a key path has been defined as a list of strings. If we want to define the key paths for those objects, we need to convert <code class="docutils literal"><span class="pre">0</span></code> and <code class="docutils literal"><span class="pre">1</span></code> to <code class="docutils literal"><span class="pre">&quot;0&quot;</span></code> and <code class="docutils literal"><span class="pre">&quot;1&quot;</span></code>. Thus:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">KeyPath</span> <span class="n">keyPathFile0</span> <span class="o">=</span> <span class="s">&quot;export&quot;</span> <span class="o">/</span> <span class="mi">0</span> <span class="o">/</span> <span class="s">&quot;file&quot;</span><span class="p">;</span>          <span class="c1">// { &quot;export&quot;, &quot;0&quot;, &quot;file&quot; }</span>
+<span class="n">KeyPath</span> <span class="n">keyPathFile1</span> <span class="o">=</span> <span class="s">&quot;export&quot;</span> <span class="o">/</span> <span class="mi">1</span> <span class="o">/</span> <span class="s">&quot;file&quot;</span><span class="p">;</span>          <span class="c1">// { &quot;export&quot;, &quot;1&quot;, &quot;file&quot; }</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">keyPathFile1</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>                <span class="c1">// export.1.file</span>
+</pre></div>
+</div>
+<p>Note that the <code class="docutils literal"><span class="pre">/</span></code> operator is also overloaded for combinations of <code class="xref py py-class docutils literal"><span class="pre">unsigned</span> <span class="pre">int</span></code> with <code class="xref py py-class docutils literal"><span class="pre">string</span></code> or <code class="xref py py-class docutils literal"><span class="pre">KeyPath</span></code> (but not for two pairs of <code class="xref py py-class docutils literal"><span class="pre">unsigned</span> <span class="pre">int</span></code>), so <code class="docutils literal"><span class="pre">0</span></code> and <code class="docutils literal"><span class="pre">1</span></code> are implicitely converted to strings.</p>
+<p>Although there is ambiguity when printing <code class="docutils literal"><span class="pre">keyPathFile1</span></code>, since <code class="docutils literal"><span class="pre">export.1</span></code> can be read as “the second element of an array defined at key <code class="docutils literal"><span class="pre">export</span></code>” or “the element at key <code class="docutils literal"><span class="pre">&quot;1&quot;</span></code> of an object defined at key <code class="docutils literal"><span class="pre">export</span></code>”, there is no ambiguity when actually using the key path to access the values. If the <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object obtained when accessing the key <code class="docutils literal"><span class="pre">export</span></code> is of value type <code class="docutils literal"><span class="pre">object</span></code>, the key <code class="docutils literal"><span class="pre">&quot;1&quot;</span></code> will be used, while the integer value <code class="docutils literal"><span class="pre">1</span></code> will be used when the <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object at the key <code class="docutils literal"><span class="pre">export</span></code> is of value type <code class="docutils literal"><span class="pre">array</span></code>.</p>
+</div>
+<div class="section" id="error-handling">
+<h3>Error handling<a class="headerlink" href="#error-handling" title="Permalink to this headline">¶</a></h3>
+<p>The templated function <code class="docutils literal"><span class="pre">ValueType</span> <span class="pre">getValue(</span> <span class="pre">const</span> <span class="pre">json&amp;</span> <span class="pre">jsonObject,</span> <span class="pre">const</span> <span class="pre">KeyPath&amp;</span> <span class="pre">keyPath</span> <span class="pre">)</span></code> declared in <code class="xref py py-class docutils literal"><span class="pre">Tudat/External/JsonInterface/Support/valueAccess.h</span></code> returns the value of <code class="docutils literal"><span class="pre">jsonObject</span></code> defined at <code class="docutils literal"><span class="pre">keyPath</span></code> as a <code class="xref py py-class docutils literal"><span class="pre">ValueType</span></code>. For instance:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">getValue</span><span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">mainJson</span><span class="p">,</span> <span class="s">&quot;integrator&quot;</span> <span class="o">/</span> <span class="s">&quot;type&quot;</span> <span class="p">);</span>   <span class="c1">// &quot;rungeKutta4&quot;</span>
+<span class="n">getValue</span><span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">mainJson</span><span class="p">,</span> <span class="s">&quot;export&quot;</span> <span class="o">/</span> <span class="mi">1</span> <span class="o">/</span> <span class="s">&quot;file&quot;</span> <span class="p">);</span>   <span class="c1">// &quot;states.txt&quot;</span>
+</pre></div>
+</div>
+<p>In addition to recursively accessing the keys contained in <code class="docutils literal"><span class="pre">keyPath</span></code> and eventually transforming the last retrieved <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object to <code class="xref py py-class docutils literal"><span class="pre">ValueType</span></code>, this function adds support for comprehensive value-access and value-conversion errors. For instance:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">getValue</span><span class="o">&lt;</span> <span class="kt">double</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">mainJson</span><span class="p">,</span> <span class="s">&quot;integrator&quot;</span> <span class="o">/</span> <span class="s">&quot;errorTolerance&quot;</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>throws an <code class="xref py py-class docutils literal"><span class="pre">UndefinedKeyError</span></code>:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">libc</span><span class="o">++</span><span class="n">abi</span><span class="p">.</span><span class="nl">dylib</span><span class="p">:</span> <span class="n">terminating</span> <span class="n">with</span> <span class="n">uncaught</span> <span class="n">exception</span> <span class="n">of</span> <span class="n">type</span> <span class="n">tudat</span><span class="o">::</span><span class="n">json_interface</span><span class="o">::</span><span class="nl">UndefinedKeyError</span><span class="p">:</span>
+<span class="n">Undefined</span> <span class="nl">key</span><span class="p">:</span> <span class="n">integrator</span><span class="p">.</span><span class="n">errorTolerance</span>
+</pre></div>
+</div>
+<p>And the following:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">getValue</span><span class="o">&lt;</span> <span class="kt">double</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">mainJson</span><span class="p">,</span> <span class="s">&quot;export&quot;</span> <span class="o">/</span> <span class="mi">1</span> <span class="o">/</span> <span class="s">&quot;file&quot;</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>throws an <code class="xref py py-class docutils literal"><span class="pre">IllegalValueError</span></code>:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">libc</span><span class="o">++</span><span class="n">abi</span><span class="p">.</span><span class="nl">dylib</span><span class="p">:</span> <span class="n">terminating</span> <span class="n">with</span> <span class="n">uncaught</span> <span class="n">exception</span> <span class="n">of</span> <span class="n">type</span> <span class="n">tudat</span><span class="o">::</span><span class="n">json_interface</span><span class="o">::</span><span class="nl">IllegalValueError</span><span class="p">:</span>
+<span class="n">Could</span> <span class="n">not</span> <span class="n">convert</span> <span class="n">value</span> <span class="n">to</span> <span class="n">expected</span> <span class="n">type</span> <span class="kt">double</span>
+<span class="n">Illegal</span> <span class="n">value</span> <span class="k">for</span> <span class="nl">key</span><span class="p">:</span> <span class="k">export</span><span class="mf">.1</span><span class="p">.</span><span class="n">file</span>
+</pre></div>
+</div>
+<p>Now, image that we have an <code class="xref py py-class docutils literal"><span class="pre">Integrator</span></code> class and we define its <code class="docutils literal"><span class="pre">from_json</span></code> function so that it can be created from <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects:</p>
+<div class="literal-block-wrapper docutils container" id="integrator-h">
+<div class="code-block-caption"><span class="caption-text"><code class="xref py py-class docutils literal"><span class="pre">integrator.h</span></code></span><a class="headerlink" href="#integrator-h" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Integrator</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">type</span><span class="p">;</span>
+    <span class="kt">double</span> <span class="n">stepSize</span><span class="p">;</span>
+
+    <span class="n">Integrator</span><span class="p">(</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">type</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="k">const</span> <span class="kt">double</span> <span class="n">stepSize</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="p">)</span> <span class="o">:</span>
+      <span class="n">type</span><span class="p">(</span> <span class="n">type</span> <span class="p">),</span> <span class="n">stepSize</span><span class="p">(</span> <span class="n">stepSize</span> <span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kr">inline</span> <span class="kt">void</span> <span class="nf">from_json</span><span class="p">(</span> <span class="k">const</span> <span class="n">json</span><span class="o">&amp;</span> <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="n">Integrator</span><span class="o">&amp;</span> <span class="n">integrator</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">integrator</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">getValue</span><span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="s">&quot;type&quot;</span> <span class="p">);</span>
+    <span class="n">integrator</span><span class="p">.</span><span class="n">stepSize</span> <span class="o">=</span> <span class="n">getValue</span><span class="o">&lt;</span> <span class="kt">double</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="s">&quot;stepSize&quot;</span> <span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>If, somewhere else, we write:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">Integrator</span> <span class="n">integrator</span> <span class="o">=</span> <span class="n">mainJson</span><span class="p">.</span><span class="n">at</span><span class="p">(</span> <span class="s">&quot;integrator&quot;</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>the default value access functions will be used, leading to error messages in case of missing keys or illegal values that are difficult to debug. Thus, the following should be used instead:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">Integrator</span> <span class="n">integrator</span> <span class="o">=</span> <span class="n">getValue</span><span class="o">&lt;</span> <span class="n">Integrator</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">mainJson</span><span class="p">,</span> <span class="s">&quot;integrator&quot;</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>Note that, in both cases, a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object containing only the integrator object is passed to the <code class="docutils literal"><span class="pre">from_json</span></code> function. However, this object is not the same in both cases. When using the default basic value access, the following object is passed:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rungeKutta4&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;stepSize&quot;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>When using the <code class="docutils literal"><span class="pre">getValue</span></code> function, the following <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object is passed:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rungeKutta4&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;stepSize&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="nt">&quot;#keypath&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="s2">&quot;~&quot;</span><span class="p">,</span> <span class="s2">&quot;integrator&quot;</span> <span class="p">],</span>
+  <span class="nt">&quot;#root&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;initialEpoch&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nt">&quot;finalEpoch&quot;</span><span class="p">:</span> <span class="mi">3600</span><span class="p">,</span>
+    <span class="nt">&quot;spice&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;kernels&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;${SPICE_KERNELS_PATH}/pck00009.tpc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;${SPICE_KERNELS_PATH}/de-403-masses.tpc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;${SPICE_KERNELS_PATH}/de421.bsp&quot;</span>
+      <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;bodies&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;useDefaultSettings&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nt">&quot;ephemeris&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;constantState&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">0</span>
+          <span class="p">],</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;constant&quot;</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;asterix&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;initialState&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;semiMajorAxis&quot;</span><span class="p">:</span> <span class="mf">7.5E+6</span><span class="p">,</span>
+          <span class="nt">&quot;eccentricity&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+          <span class="nt">&quot;inclination&quot;</span><span class="p">:</span> <span class="mf">1.4888</span><span class="p">,</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;keplerian&quot;</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;propagator&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;centralBodies&quot;</span><span class="p">:</span> <span class="s2">&quot;Earth&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;accelerations&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;asterix&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="nt">&quot;integratedStateType&quot;</span><span class="p">:</span> <span class="s2">&quot;translational&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;bodiesToPropagate&quot;</span><span class="p">:</span> <span class="s2">&quot;asterix&quot;</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;integrator&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rungeKutta4&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;stepSize&quot;</span><span class="p">:</span> <span class="mi">10</span>
+    <span class="p">},</span>
+    <span class="nt">&quot;export&quot;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;@path(epochs.txt)&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;variables&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;independent&quot;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;epochsInFirstColumn&quot;</span><span class="p">:</span> <span class="kc">false</span>
+      <span class="p">},</span>
+      <span class="p">{</span>
+        <span class="nt">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;@path(states.txt)&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;variables&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;state&quot;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;epochsInFirstColumn&quot;</span><span class="p">:</span> <span class="kc">false</span>
+      <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="nt">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;defaultValueUsedForMissingKey&quot;</span><span class="p">:</span> <span class="s2">&quot;continueSilently&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;unusedKey&quot;</span><span class="p">:</span> <span class="s2">&quot;printWarning&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;unidimensionalArrayInference&quot;</span><span class="p">:</span> <span class="s2">&quot;continueSilently&quot;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>I.e. the original <code class="xref py py-class docutils literal"><span class="pre">mainObject</span></code> and the key path from which the integrator can be retrieved are also passed. Although the first two keys are not necessary (they contain redundant information), they are also included in the passed object in order to make it possible to use the default basic value access (i.e. the <code class="docutils literal"><span class="pre">[]</span></code> operator and the <code class="docutils literal"><span class="pre">at</span></code> method) on the passed <code class="docutils literal"><span class="pre">jsonIntegrator</span></code> object.</p>
+</div>
+<div class="section" id="special-keys">
+<h3>Special keys<a class="headerlink" href="#special-keys" title="Permalink to this headline">¶</a></h3>
+<p>In order to make possible this advanced error handling in which the full key path is printed, a set of special keys are defined in <code class="docutils literal"><span class="pre">json_interface</span></code>. These special keys are subdivided in two categories:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Object-related. These special keys are assigned to <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects by the <code class="docutils literal"><span class="pre">getValue</span></code> function. These keys must never be used in a JSON input file.<ul>
+<li><code class="docutils literal"><span class="pre">#root</span></code> Key storing the contents of the root <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object.</li>
+<li><code class="docutils literal"><span class="pre">#keypath</span></code> Key storing the (absolute) key path from which a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object was retrieved.</li>
+</ul>
+</li>
+<li>Path-related. These special keys are used only in <code class="xref py py-class docutils literal"><span class="pre">KeyPath</span></code> objects.<ul>
+<li><code class="docutils literal"><span class="pre">~</span></code> Known as root key. Used to denote that a key path is absolute (i.e. relative to the root <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object). Relative paths start with a key other than <code class="docutils literal"><span class="pre">~</span></code>.</li>
+<li><code class="docutils literal"><span class="pre">..</span></code> Known as up key. Used to navigate up one level in the key tree.</li>
+</ul>
+</li>
+</ul>
+</div></blockquote>
+<p>For instance, imagine that our <code class="xref py py-class docutils literal"><span class="pre">Integrator</span></code> has an <code class="docutils literal"><span class="pre">initialTime</span></code> property. If we want this property to be retrieved from the <code class="docutils literal"><span class="pre">initialEpoch</span></code> key of the <code class="docutils literal"><span class="pre">mainJson</span></code> object in case it is not defined for the integrator, we can update its <code class="docutils literal"><span class="pre">from_json</span></code> like this:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="kr">inline</span> <span class="kt">void</span> <span class="nf">from_json</span><span class="p">(</span> <span class="k">const</span> <span class="n">json</span><span class="o">&amp;</span> <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="n">Integrator</span><span class="o">&amp;</span> <span class="n">integrator</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="p">...</span>
+    <span class="k">try</span>
+    <span class="p">{</span>
+        <span class="n">integrator</span><span class="p">.</span><span class="n">initialTime</span> <span class="o">=</span> <span class="n">getValue</span><span class="o">&lt;</span> <span class="kt">double</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="s">&quot;initialTime&quot;</span> <span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">(</span> <span class="n">UndefinedKeyError</span><span class="o">&amp;</span> <span class="n">e</span> <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">integrator</span><span class="p">.</span><span class="n">initialTime</span> <span class="o">=</span> <span class="n">getValue</span><span class="o">&lt;</span> <span class="kt">double</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="s">&quot;..&quot;</span> <span class="o">/</span> <span class="s">&quot;initialEpoch&quot;</span> <span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In this case, we navigate one level up in the key by using the special key <code class="docutils literal"><span class="pre">..</span></code>, so we end up in the <code class="docutils literal"><span class="pre">mainJson</span></code> object, and then we <em>can</em> access the key <code class="docutils literal"><span class="pre">initialEpoch</span></code>. However, in case it is possible for integrator objects to be defined at different levels in the key tree (i.e. not always immediately under the <code class="docutils literal"><span class="pre">mainJson</span></code>), it is better to use an absolute key path:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">integrator</span><span class="p">.</span><span class="n">initialTime</span> <span class="o">=</span> <span class="n">getValue</span><span class="o">&lt;</span> <span class="kt">double</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="s">&quot;~&quot;</span> <span class="o">/</span> <span class="s">&quot;initialEpoch&quot;</span> <span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="multi-source-values">
+<h3>Multi-source values<a class="headerlink" href="#multi-source-values" title="Permalink to this headline">¶</a></h3>
+<p>As illustrated in the previous section, some values (referred to as multi-source values), such as the integrator’s initial time, can be retrieved from different key paths (<code class="docutils literal"><span class="pre">initialEpoch</span></code> or <code class="docutils literal"><span class="pre">integrator.initialTime</span></code>) This is so because the value at <code class="docutils literal"><span class="pre">initialEpoch</span></code> can also be used by other parts of the simulation (such as by Spice, to load the ephemeris from an initial time until a final time). In order to avoid repeating information, this value can be ommitted for the individual Spice and integrator objects and retrieved from the <code class="docutils literal"><span class="pre">mainJson</span></code> object instead. However, if Spice is not being used, it makes more sense to define inside the integrator object. Catching the <code class="docutils literal"><span class="pre">UndefinedKeyError</span></code>, as shown above, allows to use any of these values. Since this is done frequently in many parts of the <code class="docutils literal"><span class="pre">json_interface</span></code>, the <code class="docutils literal"><span class="pre">getValue</span></code> function has been overloaded to allow an <code class="xref py py-class docutils literal"><span class="pre">std::vector</span></code> as second argument. The value will be retrieved from the first defined key path in that list. If the none of the key paths in the list are defined, an <code class="docutils literal"><span class="pre">UndefinedKeyError</span></code> will be thrown printing the last key path in the key. Thus, the <code class="docutils literal"><span class="pre">try-catch</span></code> block shown above can be replaced by:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">integrator</span><span class="p">.</span><span class="n">initialTime</span> <span class="o">=</span> <span class="n">getValue</span><span class="o">&lt;</span> <span class="kt">double</span> <span class="o">&gt;</span><span class="p">(</span>
+  <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="p">{</span> <span class="s">&quot;initialTime&quot;</span><span class="p">,</span> <span class="s">&quot;~&quot;</span> <span class="o">/</span> <span class="s">&quot;initialEpoch&quot;</span> <span class="p">}</span> <span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="defaultable-values">
+<h3>Defaultable values<a class="headerlink" href="#defaultable-values" title="Permalink to this headline">¶</a></h3>
+<p>Imagine that the <code class="docutils literal"><span class="pre">type</span></code> property of our <code class="xref py py-class docutils literal"><span class="pre">Integrator</span></code> class can take several values, e.g. <code class="docutils literal"><span class="pre">&quot;euler&quot;</span></code> and <code class="docutils literal"><span class="pre">&quot;rungeKutta4&quot;</span></code>. If we want the Runge-Kutta 4 integrator to be used when the key <code class="docutils literal"><span class="pre">type</span></code> is not defined by the user, we could modify the <code class="docutils literal"><span class="pre">from_json</span></code> method:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="kr">inline</span> <span class="kt">void</span> <span class="nf">from_json</span><span class="p">(</span> <span class="k">const</span> <span class="n">json</span><span class="o">&amp;</span> <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="n">Integrator</span><span class="o">&amp;</span> <span class="n">integrator</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">try</span>
+    <span class="p">{</span>
+        <span class="n">integrator</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">getValue</span><span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="s">&quot;type&quot;</span> <span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">(</span> <span class="n">UndefinedKeyError</span><span class="o">&amp;</span> <span class="n">e</span> <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">integrator</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="s">&quot;rungeKutta4&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="p">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This is also done frequently throughout the <code class="docutils literal"><span class="pre">json_interface</span></code>, so an overload for the <code class="docutils literal"><span class="pre">getValue</span></code> function with a third argument (the default value) is provided. Since the template type is inferred by the compiler from the third argument’s type, in most cases we can safely remove the template arguments <code class="docutils literal"><span class="pre">&lt;</span> <span class="pre">std::string</span> <span class="pre">&gt;</span></code> from the function call. Thus, the previous <code class="docutils literal"><span class="pre">try-catch</span></code> block becomes:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">integrator</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span> <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="s">&quot;type&quot;</span><span class="p">,</span> <span class="s">&quot;rungeKutta4&quot;</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>Note that, if the user <em>does</em> provide a value for the integrator’s type, but it is not of the expected type (i.e. not a string), the default value will not be used, and an <code class="docutils literal"><span class="pre">IllegalValueError</span></code> will be thrown.</p>
+</div>
+<div class="section" id="other-value-access-functions">
+<h3>Other value-access functions<a class="headerlink" href="#other-value-access-functions" title="Permalink to this headline">¶</a></h3>
+<p>In this subsection, a few functions widely used in the <code class="docutils literal"><span class="pre">json_interface</span></code>, all defined in <code class="xref py py-class docutils literal"><span class="pre">Tudat/External/JsonInterface/Support/valueAccess.h</span></code>, are mentioned together with an example. For more information, see the Doxygen documentation [LINK].</p>
+<ul>
+<li><p class="first"><code class="docutils literal"><span class="pre">bool</span> <span class="pre">isDefined(</span> <span class="pre">const</span> <span class="pre">json&amp;</span> <span class="pre">jsonObject,</span> <span class="pre">const</span> <span class="pre">KeyPath&amp;</span> <span class="pre">keyPath</span> <span class="pre">)</span></code></p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">isDefined</span><span class="p">(</span> <span class="n">mainJson</span><span class="p">,</span> <span class="s">&quot;integrator&quot;</span> <span class="o">/</span> <span class="s">&quot;initialTime&quot;</span> <span class="p">);</span>   <span class="c1">// false</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">ValueType</span> <span class="pre">getAs(</span> <span class="pre">const</span> <span class="pre">json&amp;</span> <span class="pre">jsonObject</span> <span class="pre">)</span></code></p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">Integrator</span> <span class="n">integrator</span> <span class="o">=</span> <span class="n">getAs</span><span class="o">&lt;</span> <span class="n">Integrator</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">jsonIntegrator</span> <span class="p">);</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">json</span> <span class="pre">getRootObject(</span> <span class="pre">const</span> <span class="pre">json&amp;</span> <span class="pre">jsonObject</span> <span class="pre">)</span></code></p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">getRootObject</span><span class="p">(</span> <span class="n">jsonIntegrator</span> <span class="p">);</span>   <span class="c1">// mainJson</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">KeyPath</span> <span class="pre">getKeyPath(</span> <span class="pre">const</span> <span class="pre">json&amp;</span> <span class="pre">jsonObject</span> <span class="pre">)</span></code></p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">getKeyPath</span><span class="p">(</span> <span class="n">jsonIntegrator</span> <span class="p">);</span>   <span class="c1">// { &quot;~&quot;, &quot;integrator&quot; }</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first"><code class="docutils literal"><span class="pre">std::string</span> <span class="pre">getParentKey(</span> <span class="pre">const</span> <span class="pre">json&amp;</span> <span class="pre">jsonObject</span> <span class="pre">)</span></code></p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">getParentKey</span><span class="p">(</span> <span class="n">jsonIntegrator</span> <span class="p">);</span>   <span class="c1">// &quot;integrator&quot;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="enhanced-value-access-for-arrays">
+<h3>Enhanced value access for arrays<a class="headerlink" href="#enhanced-value-access-for-arrays" title="Permalink to this headline">¶</a></h3>
+</div>
+</div>
+<div class="section" id="enhanced-value-set">
+<h2>Enhanced value set<a class="headerlink" href="#enhanced-value-set" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Delft University of Technology.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -37,7 +37,7 @@
         <link rel="search" title="Search" href="../../search.html"/>
     <link rel="top" title="TU Delft Astrodynamic Toolbox  documentation" href="../../index.html"/>
         <link rel="up" title="Extending the JSON interface" href="index.html"/>
-        <link rel="next" title="Enhanced value access" href="enhancedValueAccess.html"/>
+        <link rel="next" title="Enhanced deserialization" href="enhancedDeserialization.html"/>
         <link rel="prev" title="Basics" href="basics.html"/> 
 
   
@@ -101,10 +101,13 @@
 <li class="toctree-l4"><a class="reference internal" href="#conversion-from-json">Conversion from <code class="docutils literal"><span class="pre">json</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="enhancedDeserialization.html">Enhanced deserialization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="enhancedValueAccess.html">Enhanced value access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enhancedValueSet.html">Enhanced value set</a></li>
 <li class="toctree-l3"><a class="reference internal" href="enumerations.html">Adding support for enumerations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="polymorphicClasses.html">Adding support for polymorphic classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="otherTypes.html">Adding support for other types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="unitTesting.html">Unit testing</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../howToWriteTheWiki.html">How to Write the Wiki</a></li>
@@ -208,9 +211,9 @@
 </pre></div>
 </div>
 <p>Indeed, <code class="docutils literal"><span class="pre">to_json</span></code> functions are defined for many frequently used types in the file <code class="docutils literal"><span class="pre">&quot;json/src/json.hpp&quot;</span></code>. These functions are always defined in the namespace of the type that is on the right-hand side of the assignment. We can create <code class="docutils literal"><span class="pre">to_json</span></code> functions for our custom classes:</p>
-<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// dog.h</span>
-
-<span class="k">namespace</span> <span class="n">animals</span>
+<div class="literal-block-wrapper docutils container" id="dog-h">
+<div class="code-block-caption"><span class="caption-text"><code class="xref py py-class docutils literal"><span class="pre">dog.h</span></code></span><a class="headerlink" href="#dog-h" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="k">namespace</span> <span class="n">animals</span>
 <span class="p">{</span>
     <span class="k">class</span> <span class="nc">Dog</span>
     <span class="p">{</span>
@@ -224,9 +227,10 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// jsonInterface.h</span>
-
-<span class="cp">#include</span> <span class="cpf">&quot;json/src/json.hpp&quot;</span><span class="cp"></span>
+</div>
+<div class="literal-block-wrapper docutils container" id="jsoninterface-h">
+<div class="code-block-caption"><span class="caption-text"><code class="xref py py-class docutils literal"><span class="pre">jsonInterface.h</span></code></span><a class="headerlink" href="#jsoninterface-h" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;json/src/json.hpp&quot;</span><span class="cp"></span>
 <span class="k">using</span> <span class="n">json</span> <span class="o">=</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">;</span>
 <span class="cp">#include</span> <span class="cpf">&quot;dog.h&quot;</span><span class="cp"></span>
 
@@ -240,9 +244,10 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// jsonInterface.cpp</span>
-
-<span class="cp">#include</span> <span class="cpf">&quot;jsonInterface.h&quot;</span><span class="cp"></span>
+</div>
+<div class="literal-block-wrapper docutils container" id="jsoninterface-cpp">
+<div class="code-block-caption"><span class="caption-text"><code class="xref py py-class docutils literal"><span class="pre">jsonInterface.cpp</span></code></span><a class="headerlink" href="#jsoninterface-cpp" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;jsonInterface.h&quot;</span><span class="cp"></span>
 
 <span class="kt">void</span> <span class="nf">printDog</span><span class="p">(</span> <span class="p">)</span>
 <span class="p">{</span>
@@ -250,6 +255,7 @@
     <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">jsonDog</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>    <span class="c1">// {&quot;name&quot;:&quot;Senda&quot;,&quot;weight&quot;:20}</span>
 <span class="p">}</span>
 </pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="conversion-from-json">
@@ -290,14 +296,16 @@
 </pre></div>
 </div>
 <p>We have to define its <code class="docutils literal"><span class="pre">from_json</span></code> function:</p>
-<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// jsonInterface.h</span>
-
-<span class="cp">#include</span> <span class="cpf">&quot;json/src/json.hpp&quot;</span><span class="cp"></span>
+<div class="literal-block-wrapper docutils container" id="jsoninterface-h-from-json">
+<div class="code-block-caption"><span class="caption-text"><code class="xref py py-class docutils literal"><span class="pre">jsonInterface.h</span></code></span><a class="headerlink" href="#jsoninterface-h-from-json" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;json/src/json.hpp&quot;</span><span class="cp"></span>
 <span class="k">using</span> <span class="n">json</span> <span class="o">=</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="p">;</span>
 <span class="cp">#include</span> <span class="cpf">&quot;dog.h&quot;</span><span class="cp"></span>
 
 <span class="k">namespace</span> <span class="n">animals</span>
 <span class="p">{</span>
+    <span class="p">...</span>
+
     <span class="kt">void</span> <span class="n">from_json</span><span class="p">(</span> <span class="k">const</span> <span class="n">json</span><span class="o">&amp;</span> <span class="n">j</span><span class="p">,</span> <span class="n">Dog</span><span class="o">&amp;</span> <span class="n">dog</span> <span class="p">)</span>
     <span class="p">{</span>
         <span class="n">dog</span> <span class="o">=</span> <span class="n">Dog</span><span class="p">(</span> <span class="n">j</span><span class="p">.</span><span class="n">at</span><span class="p">(</span> <span class="s">&quot;name&quot;</span> <span class="p">),</span> <span class="n">j</span><span class="p">.</span><span class="n">at</span><span class="p">(</span> <span class="s">&quot;weight&quot;</span> <span class="p">)</span> <span class="p">);</span>
@@ -305,15 +313,16 @@
 <span class="p">}</span>
 </pre></div>
 </div>
+</div>
 <p>However, we are still getting a compile error, because this is happening behind the scenes:</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">animals</span><span class="o">::</span><span class="n">Dog</span> <span class="n">dog</span><span class="p">;</span>                  <span class="c1">// compile error: Dog is not default-constructible!</span>
 <span class="n">animals</span><span class="o">::</span><span class="n">from_json</span><span class="p">(</span> <span class="n">j</span><span class="p">,</span> <span class="n">dog</span> <span class="p">);</span>
 </pre></div>
 </div>
-<p>Thus, we need to define a default constructor to the class <code class="xref py py-class docutils literal"><span class="pre">Dog</span></code>. We can do that by providing default values for all the arguments in the constructor:</p>
-<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// dog.h</span>
-
-<span class="k">namespace</span> <span class="n">animals</span>
+<p>Thus, we need to define a default constructor for the class <code class="xref py py-class docutils literal"><span class="pre">Dog</span></code>. We can do this by providing default values for all the arguments in the constructor:</p>
+<div class="literal-block-wrapper docutils container" id="dog-h-default-constructible">
+<div class="code-block-caption"><span class="caption-text"><code class="xref py py-class docutils literal"><span class="pre">dog.h</span></code></span><a class="headerlink" href="#dog-h-default-constructible" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="k">namespace</span> <span class="n">animals</span>
 <span class="p">{</span>
     <span class="k">class</span> <span class="nc">Dog</span>
     <span class="p">{</span>
@@ -326,6 +335,7 @@
     <span class="p">};</span>
 <span class="p">}</span>
 </pre></div>
+</div>
 </div>
 <p>Now, we can do:</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">jsonDog</span> <span class="o">=</span> <span class="p">{</span> <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;Senda&quot;</span> <span class="p">},</span> <span class="p">{</span> <span class="s">&quot;weight&quot;</span><span class="p">,</span> <span class="mi">20</span> <span class="p">}</span> <span class="p">};</span>
@@ -345,7 +355,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="enhancedValueAccess.html" class="btn btn-neutral float-right" title="Enhanced value access" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="enhancedDeserialization.html" class="btn btn-neutral float-right" title="Enhanced deserialization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="basics.html" class="btn btn-neutral" title="Basics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -380,6 +390,7 @@
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
             VERSION:'',
+            LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

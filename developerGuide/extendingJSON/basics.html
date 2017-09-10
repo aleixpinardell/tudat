@@ -37,7 +37,7 @@
         <link rel="search" title="Search" href="../../search.html"/>
     <link rel="top" title="TU Delft Astrodynamic Toolbox  documentation" href="../../index.html"/>
         <link rel="up" title="Extending the JSON interface" href="index.html"/>
-        <link rel="next" title="Basic value set/access" href="basicValueGetSet.html"/>
+        <link rel="next" title="Value conversions" href="valueConversions.html"/>
         <link rel="prev" title="Extending the JSON interface" href="index.html"/> 
 
   
@@ -97,12 +97,12 @@
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Extending the JSON interface</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Basics</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#including-the-library">Including the library</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#converting-between-json-objects-and-json-formatted-text">Converting between <code class="docutils literal"><span class="pre">json</span></code> objects and JSON-formatted text</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#serialization-and-deserialization">Serialization and deserialization</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#value-types">Value types</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="basicValueGetSet.html">Basic value set/access</a></li>
-<li class="toctree-l3"><a class="reference internal" href="enhancedValueGetSet.html">Enhanced value set/access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="valueConversions.html">Value conversions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enhancedValueAccess.html">Enhanced value access</a></li>
 <li class="toctree-l3"><a class="reference internal" href="enumerations.html">Adding support for enumerations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="polymorphicClasses.html">Adding support for polymorphic classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="otherTypes.html">Adding support for other types</a></li>
@@ -188,27 +188,27 @@
 </pre></div>
 </div>
 </div>
-<div class="section" id="converting-between-json-objects-and-json-formatted-text">
-<h2>Converting between <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects and JSON-formatted text<a class="headerlink" href="#converting-between-json-objects-and-json-formatted-text" title="Permalink to this headline">¶</a></h2>
-<p>Parse a JSON-formatted <code class="xref py py-class docutils literal"><span class="pre">std::string</span></code> as <code class="xref py py-class docutils literal"><span class="pre">json</span></code>:</p>
+<div class="section" id="serialization-and-deserialization">
+<h2>Serialization and deserialization<a class="headerlink" href="#serialization-and-deserialization" title="Permalink to this headline">¶</a></h2>
+<p>Parse a JSON-formatted <code class="xref py py-class docutils literal"><span class="pre">std::string</span></code> as <code class="xref py py-class docutils literal"><span class="pre">json</span></code> (deserialization):</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">str</span> <span class="o">=</span> <span class="s">&quot;[0, 1, 2]&quot;</span><span class="p">;</span>
 <span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span> <span class="n">str</span> <span class="p">);</span>
 </pre></div>
 </div>
-<p>Parse a JSON file as <code class="xref py py-class docutils literal"><span class="pre">json</span></code>:</p>
+<p>Parse a JSON file as <code class="xref py py-class docutils literal"><span class="pre">json</span></code> (deserialization):</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filePath</span> <span class="o">=</span> <span class="p">...</span>
 <span class="n">std</span><span class="o">::</span><span class="n">ifstream</span> <span class="n">stream</span><span class="p">(</span> <span class="n">filePath</span> <span class="p">);</span>
 <span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span> <span class="n">stream</span> <span class="p">);</span>
 </pre></div>
 </div>
-<p>Convert a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object to JSON-formatted <code class="xref py py-class docutils literal"><span class="pre">std::string</span></code>:</p>
+<p>Convert a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object to JSON-formatted <code class="xref py py-class docutils literal"><span class="pre">std::string</span></code> (serialization):</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="p">...</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">oneLineString</span> <span class="o">=</span> <span class="n">j</span><span class="p">.</span><span class="n">dump</span><span class="p">(</span> <span class="p">);</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">multiLineStringWithIndent</span> <span class="o">=</span> <span class="n">j</span><span class="p">.</span><span class="n">dump</span><span class="p">(</span> <span class="mi">2</span> <span class="p">);</span>
 </pre></div>
 </div>
 <p>where the (optional) argument of the <code class="docutils literal"><span class="pre">dump</span></code> method is the number of spaces used for each indentation level.</p>
-<p>Print a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object as JSON-formatted text:</p>
+<p>Print a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object as JSON-formatted text (serialization):</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="p">...</span>
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">j</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">.</span><span class="n">dump</span><span class="p">(</span> <span class="mi">2</span> <span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
@@ -281,7 +281,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="basicValueGetSet.html" class="btn btn-neutral float-right" title="Basic value set/access" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="valueConversions.html" class="btn btn-neutral float-right" title="Value conversions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral" title="Extending the JSON interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

@@ -183,11 +183,11 @@
 <h2>Conversion to <code class="xref py py-class docutils literal"><span class="pre">json</span></code><a class="headerlink" href="#conversion-to-json" title="Permalink to this headline">¶</a></h2>
 <p>The value of (the elements of) a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object can be set as follows:</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">myInt</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-<span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="n">myInt</span><span class="p">;</span>                <span class="c1">// j.is_numeric( ) -&gt; true</span>
+<span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="n">myInt</span><span class="p">;</span>          <span class="c1">// j.is_numeric( ) -&gt; true</span>
 
 <span class="kt">double</span> <span class="n">myDouble</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
-<span class="n">json</span> <span class="n">k</span><span class="p">;</span>                        <span class="c1">// k.is_null( ) -&gt; true</span>
-<span class="n">k</span><span class="p">[</span> <span class="mi">0</span> <span class="p">]</span> <span class="o">=</span> <span class="n">myDouble</span><span class="p">;</span>             <span class="c1">// k.is_array, k[ 0 ].is_numeric, j == k[ 0 ] -&gt; true</span>
+<span class="n">json</span> <span class="n">k</span><span class="p">;</span>                  <span class="c1">// k.is_null( ) -&gt; true</span>
+<span class="n">k</span><span class="p">[</span> <span class="mi">0</span> <span class="p">]</span> <span class="o">=</span> <span class="n">myDouble</span><span class="p">;</span>       <span class="c1">// k.is_array( ) &amp;&amp; k[ 0 ].is_numeric( ) &amp;&amp; j == k[ 0 ] -&gt; true</span>
 </pre></div>
 </div>
 <p>However, this does not work (yet):</p>
@@ -242,7 +242,7 @@
 </div>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="c1">// jsonInterface.cpp</span>
 
-<span class="cp">#include</span> <span class="cpf">&quot;jsonInterface.cpp&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;jsonInterface.h&quot;</span><span class="cp"></span>
 
 <span class="kt">void</span> <span class="nf">printDog</span><span class="p">(</span> <span class="p">)</span>
 <span class="p">{</span>
@@ -259,9 +259,9 @@
 <span class="n">j</span><span class="p">[</span> <span class="mi">0</span> <span class="p">];</span>                                             <span class="c1">// &quot;no&quot;</span>
 <span class="n">j</span><span class="p">.</span><span class="n">at</span><span class="p">(</span> <span class="mi">1</span> <span class="p">);</span>                                          <span class="c1">// &quot;yes&quot;</span>
 
-<span class="n">json</span> <span class="n">k</span> <span class="o">=</span> <span class="p">{</span> <span class="p">{</span> <span class="s">&quot;half&quot;</span><span class="p">,</span> <span class="mf">0.5</span> <span class="p">},</span> <span class="p">{</span> <span class="s">&quot;twise&quot;</span><span class="p">,</span> <span class="mf">2.0</span> <span class="p">}</span> <span class="p">};</span>
-<span class="n">k</span><span class="p">[</span> <span class="s">&quot;half&quot;</span> <span class="p">]</span>                                         <span class="c1">// 0.5</span>
-<span class="n">k</span><span class="p">.</span><span class="n">at</span><span class="p">(</span> <span class="s">&quot;twice&quot;</span> <span class="p">)</span>                                     <span class="c1">// 2.0</span>
+<span class="n">json</span> <span class="n">k</span> <span class="o">=</span> <span class="p">{</span> <span class="p">{</span> <span class="s">&quot;half&quot;</span><span class="p">,</span> <span class="mf">0.5</span> <span class="p">},</span> <span class="p">{</span> <span class="s">&quot;twice&quot;</span><span class="p">,</span> <span class="mf">2.0</span> <span class="p">}</span> <span class="p">};</span>
+<span class="n">k</span><span class="p">[</span> <span class="s">&quot;half&quot;</span> <span class="p">];</span>                                        <span class="c1">// 0.5</span>
+<span class="n">k</span><span class="p">.</span><span class="n">at</span><span class="p">(</span> <span class="s">&quot;twice&quot;</span> <span class="p">);</span>                                    <span class="c1">// 2.0</span>
 </pre></div>
 </div>
 <p>However, as discussed in <span class="xref std std-ref">extendingJSON_basics_valueTypes</span>, the returned values are not numbers or strings, but <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects. Thus:</p>
@@ -271,7 +271,7 @@
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">str</span> <span class="o">=</span> <span class="n">no</span> <span class="o">+</span> <span class="s">&quot;, thanks&quot;</span><span class="p">;</span>              <span class="c1">// &quot;no, thanks&quot;</span>
 </pre></div>
 </div>
-<p>The implicit conversion is done by overloading the <code class="docutils literal"><span class="pre">=</span></code> operator. That means that the following won’t work:</p>
+<p>The implicit conversion is done by overloading the <code class="docutils literal"><span class="pre">=</span></code> operator. This means that the following won’t work:</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">str</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span> <span class="n">j</span><span class="p">[</span> <span class="mi">0</span> <span class="p">]</span> <span class="p">)</span> <span class="o">+</span> <span class="s">&quot;, thanks&quot;</span><span class="p">;</span>     <span class="c1">// compile error</span>
 </pre></div>
 </div>

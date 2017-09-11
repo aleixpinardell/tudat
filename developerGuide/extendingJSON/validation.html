@@ -1,0 +1,388 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Validation &mdash; TU Delft Astrodynamic Toolbox  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="TU Delft Astrodynamic Toolbox  documentation" href="../../index.html"/>
+        <link rel="up" title="Extending the JSON interface" href="index.html"/>
+        <link rel="next" title="Adding support for enumerations" href="enumerations.html"/>
+        <link rel="prev" title="Enhanced value set" href="enhancedValueSet.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> TU Delft Astrodynamic Toolbox
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Start Page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation/index.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials and Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Developer Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../githubBasics.html">Github Basics</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Extending the JSON interface</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="basics.html">Basics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="valueConversions.html">Value conversions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enhancedDeserialization.html">Enhanced deserialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enhancedValueAccess.html">Enhanced value access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enhancedValueSet.html">Enhanced value set</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Validation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#validator-options">Validator options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#access-history">Access history</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#unidimensional-array-inference">Unidimensional array inference</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="enumerations.html">Adding support for enumerations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="polymorphicClasses.html">Adding support for polymorphic classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otherTypes.html">Adding support for other types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="unitTesting.html">Unit testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../howToWriteTheWiki.html">How to Write the Wiki</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">TU Delft Astrodynamic Toolbox</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Developer Guide</a> &raquo;</li>
+        
+          <li><a href="index.html">Extending the JSON interface</a> &raquo;</li>
+        
+      <li>Validation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/developerGuide/extendingJSON/validation.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="validation">
+<span id="extendingjson-validation"></span><h1>Validation<a class="headerlink" href="#validation" title="Permalink to this headline">¶</a></h1>
+<p>The validation of the JSON input files provided by the user is made possible by using the <code class="docutils literal"><span class="pre">getValue&lt;</span> <span class="pre">ExpectedType</span> <span class="pre">&gt;</span></code> function and special keys and <code class="xref py py-class docutils literal"><span class="pre">KeyPath</span></code> s, as explained in [REF]. This validator is customizable, i.e. the user can define a set of keys in theit input file that will determine the behaviour of the validator under certain events.</p>
+<div class="section" id="validator-options">
+<h2>Validator options<a class="headerlink" href="#validator-options" title="Permalink to this headline">¶</a></h2>
+<p>The following keys of the <code class="docutils literal"><span class="pre">mainJson</span></code> object can be defined to customize the behaviour of the validator:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">options.defaultValueUsedForMissingKey</span></code>: determines the behaviour of the validator when the <code class="docutils literal"><span class="pre">getValue(</span> <span class="pre">const</span> <span class="pre">json&amp;</span> <span class="pre">j,</span> <span class="pre">const</span> <span class="pre">KeyPath&amp;</span> <span class="pre">keyPath,</span> <span class="pre">const</span> <span class="pre">ValueType&amp;</span> <span class="pre">defaultValue</span> <span class="pre">)</span></code> function is called and <code class="docutils literal"><span class="pre">keyPath</span></code> is undefined. By default, <code class="docutils literal"><span class="pre">defaultValue</span></code> is used without informing the user.</li>
+<li><code class="docutils literal"><span class="pre">options.unusedKey</span></code>: determines the behaviour of the validator when the <code class="docutils literal"><span class="pre">void</span> <span class="pre">heckUnusedKeys(</span> <span class="pre">const</span> <span class="pre">json&amp;</span> <span class="pre">mainJson,</span> <span class="pre">...</span> <span class="pre">)</span></code> function is called and some of the keys defined in <code class="docutils literal"><span class="pre">mainJson</span></code> have not been accessed. This function is called right before integrating the equations of motion, when all the settings objects have been created. By default, a warning is printed for each unused key.</li>
+<li><code class="docutils literal"><span class="pre">options.unidimensionalArrayInference</span></code>: determines the behaviour of the validator when the expected type is <code class="docutils literal"><span class="pre">std::vector&lt;</span> <span class="pre">T</span> <span class="pre">&gt;</span></code> and the object provided by the user is not convertible to <code class="docutils literal"><span class="pre">std::vector&lt;</span> <span class="pre">T</span> <span class="pre">&gt;</span></code> but <em>is</em> convertible to <code class="docutils literal"><span class="pre">T</span></code>. By default, an <code class="docutils literal"><span class="pre">std::vector&lt;</span> <span class="pre">T</span> <span class="pre">&gt;</span></code> containing only one element (the provided element of type <code class="docutils literal"><span class="pre">T</span></code>) is returned without informing the user.</li>
+</ul>
+</div></blockquote>
+<p>These three options are converted to a value of the enum <code class="xref py py-class docutils literal"><span class="pre">ExceptionResponseType</span></code> defined in <code class="xref py py-class docutils literal"><span class="pre">Tudat/External/JsonInterface/Support/errorHandling.h</span></code>. The three possible values are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><code class="docutils literal"><span class="pre">continueSilently</span></code>: allow this validator feature and do not inform the user.</li>
+<li><code class="docutils literal"><span class="pre">printWarning</span></code>: allow this validator feature but print a warning when using it.</li>
+<li><code class="docutils literal"><span class="pre">throwError</span></code>: do not allow this validator feature and terminate throwing an error when trying to use this feature. For <code class="docutils literal"><span class="pre">defaultValueUsedForMissingKey</span></code>, an <code class="xref py py-class docutils literal"><span class="pre">UndefinedKeyError</span></code> will be thrown (i.e. the behaviour of the <code class="docutils literal"><span class="pre">getValue</span></code> function with and without third default value argument will be equivalent). For <code class="docutils literal"><span class="pre">unidimensionalArrayInference</span></code>, an <code class="xref py py-class docutils literal"><span class="pre">IllegalValueError</span></code> will be thrown. For <code class="docutils literal"><span class="pre">unusedKey</span></code>, the error <code class="docutils literal"><span class="pre">std::runtime_error(</span> <span class="pre">&quot;Validation</span> <span class="pre">failed</span> <span class="pre">because</span> <span class="pre">there</span> <span class="pre">are</span> <span class="pre">unsued</span> <span class="pre">keys.&quot;</span> <span class="pre">)</span></code> will be thrown.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="access-history">
+<h2>Access history<a class="headerlink" href="#access-history" title="Permalink to this headline">¶</a></h2>
+<p>The validator feature to check the keys that have not been used is usefult to inform the user about the existence of redundant information in their input file, the use of old key identifeirs that are not used anymore in the current version of Tudat, or the detection of typos when manually writing the input file. This feature would not be necessary if defaultable properties did not exist. However, consider the following:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="p">{</span> <span class="p">{</span> <span class="s">&quot;tyep&quot;</span><span class="p">,</span> <span class="s">&quot;euler&quot;</span> <span class="p">},</span> <span class="p">{</span> <span class="s">&quot;stepSize&quot;</span><span class="o">:</span> <span class="mi">20</span> <span class="p">}</span> <span class="p">};</span>    <span class="c1">// not the typo in the key &quot;tyep&quot;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">type</span> <span class="o">=</span> <span class="n">getValue</span><span class="p">(</span> <span class="n">j</span><span class="p">,</span> <span class="s">&quot;type&quot;</span><span class="p">,</span> <span class="s">&quot;rungeKutta4&quot;</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>This would result in the integrator being used to by of the default type <code class="docutils literal"><span class="pre">rungeKutta4</span></code> even though the intention of the user was to use of type <code class="docutils literal"><span class="pre">euler</span></code>. However, the user will not know about this unless they have configured the validator to warn about the use of default values (wich is off by default). Thus, before integratin the equations of motion, when all the required information has been obtained from the <code class="docutils literal"><span class="pre">mainJson</span></code> object, the call to <code class="docutils literal"><span class="pre">checkUnusedKeys</span></code> will print the following warning (by default):</p>
+<div class="highlight-txt"><div class="highlight"><pre><span></span>Unused key: integrator.tyep
+</pre></div>
+</div>
+<p>allowing the user to quickly identify and fix the problem. The validator can also be configured not to print a warning (this is highly discouraged) or to terminate in case that there are unused keys.</p>
+<p>In order to make this feature possible, the <code class="docutils literal"><span class="pre">json_interface</span></code> has to keep track of all the key paths of <code class="xref py py-class docutils literal"><span class="pre">mainJson</span></code> that have been accessed, and then iterate over all its keys to check whether any of them has not been used. Keeping track of the accessed key paths is done by calling the <code class="docutils literal"><span class="pre">getValue</span></code> function (i.e. using the default value access methods will not keep track of the used keys). The original implementation proposal consisted in defining a special key, e.g. <code class="docutils literal"><span class="pre">#accessedKeyPaths</span></code>, for the <code class="docutils literal"><span class="pre">mainJson</span></code> object, in which an array of <code class="xref py py-class docutils literal"><span class="pre">KeyPath</span></code> s would be stored. However, the <code class="docutils literal"><span class="pre">mainJson</span></code> object is not always accessible in the <code class="docutils literal"><span class="pre">from_json</span></code> functions. For instance, in the following code it <em>is</em> accessible:</p>
+<div class="literal-block-wrapper docutils container" id="simulation-h">
+<div class="code-block-caption"><span class="caption-text"><code class="xref py py-class docutils literal"><span class="pre">simulation.h</span></code></span><a class="headerlink" href="#simulation-h" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;integrator.h&quot;</span><span class="cp"></span>
+
+<span class="kt">void</span> <span class="nf">from_json</span><span class="p">(</span> <span class="k">const</span> <span class="n">json</span><span class="o">&amp;</span> <span class="n">mainJson</span><span class="p">,</span> <span class="n">Simulation</span><span class="o">&amp;</span> <span class="n">simulation</span> <span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">simulation</span><span class="p">.</span><span class="n">integrator</span> <span class="o">=</span>
+      <span class="n">getValue</span><span class="o">&lt;</span> <span class="n">Integrator</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">mainJson</span><span class="p">,</span> <span class="s">&quot;integrator&quot;</span> <span class="p">);</span>  <span class="c1">// integrators::from_json called</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>so the getValue function could potentially modify mainJson to add <code class="docutils literal"><span class="pre">integrator</span></code> as an accessed key, but here the <code class="docutils literal"><span class="pre">mainJson</span></code> object is not accessible:</p>
+<div class="literal-block-wrapper docutils container" id="integrator-h">
+<div class="code-block-caption"><span class="caption-text"><code class="xref py py-class docutils literal"><span class="pre">integrator.h</span></code></span><a class="headerlink" href="#integrator-h" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="k">namespace</span> <span class="n">integrators</span>
+<span class="p">{</span>
+    <span class="kt">void</span> <span class="n">from_json</span><span class="p">(</span> <span class="k">const</span> <span class="n">json</span><span class="o">&amp;</span> <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="n">Integrator</span><span class="o">&amp;</span> <span class="n">integrator</span> <span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">integrator</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">getValue</span><span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="s">&quot;type&quot;</span> <span class="p">);</span>
+        <span class="n">integrator</span><span class="p">.</span><span class="n">stepSize</span> <span class="o">=</span> <span class="n">getValue</span><span class="o">&lt;</span> <span class="kt">double</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="s">&quot;stepSize&quot;</span> <span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>and thus is is not possible for the <code class="docutils literal"><span class="pre">getValue</span></code> to add the <code class="docutils literal"><span class="pre">integrator.type</span></code> and <code class="docutils literal"><span class="pre">integrator.stepSize</span></code> key paths to the <code class="docutils literal"><span class="pre">mainObject</span></code>’s <code class="docutils literal"><span class="pre">#accessedKeyPaths</span></code> special key.</p>
+<p>A possible walk-around this issue could consist in defining the <code class="docutils literal"><span class="pre">#accessedKeyPaths</span></code> for each <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object, and not only for the <code class="docutils literal"><span class="pre">mainJson</span></code>. However, the updated sub-<code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects would still have to be passed back to the <code class="docutils literal"><span class="pre">mainJson</span></code> somehow. Even if this was possible, the definition of the <code class="docutils literal"><span class="pre">from_json</span></code> function, with the first argument as a <code class="docutils literal"><span class="pre">const</span> <span class="pre">json&amp;</span></code> renders this approach unfeasible, as the <code class="docutils literal"><span class="pre">getValue</span></code> function would not be capable of updating it (it will not be possible to update its <code class="docutils literal"><span class="pre">#accessedKeyPaths</span></code> because it is a constant object). Thus, a completely different approach had to be followed, making use of a global variable. This global variable is declared in <code class="xref py py-class docutils literal"><span class="pre">Tudat/External/JsonInterface/Support/valueAccess.h</span></code>:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="k">extern</span> <span class="n">std</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span> <span class="n">KeyPath</span> <span class="o">&gt;</span> <span class="n">accessedKeyPaths</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>This variable is automatically updated when calling the <code class="docutils literal"><span class="pre">getValue</span></code> function. In order to clear the contents of this variable, the function <code class="docutils literal"><span class="pre">clearAccessHistory</span></code> must be called. This is done right after reading a JSON file.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The current implementation has one limitation: it is not possible to keep track of the accessed keys of multiple <code class="docutils literal"><span class="pre">mainJson</span></code> objects simultaneously. Currently, this is not done anywhere in the <code class="docutils literal"><span class="pre">json_interface</span></code>, but if in the feature this is required, it will be neccessary to create a derived class of <code class="xref py py-class docutils literal"><span class="pre">json</span></code> (e.g. <code class="xref py py-class docutils literal"><span class="pre">EnhancedJSON</span></code>) with the <code class="docutils literal"><span class="pre">accessedKeyPaths</span></code> as property and the functions <code class="docutils literal"><span class="pre">getValue</span></code> and <code class="docutils literal"><span class="pre">checkUnusedKeys</span></code> as methods (probably other global functions declared in <code class="xref py py-class docutils literal"><span class="pre">Tudat/External/JsonInterface/Support/valueAccess.h</span></code> would also have to be moved to this class). The <code class="docutils literal"><span class="pre">to_json</span></code> and <code class="docutils literal"><span class="pre">from_json</span></code> methods would have to be updated to take objects of this class as first argument instead of the basic <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects. An attempt to implement this was done at one point during the development of the <code class="docutils literal"><span class="pre">json_interface</span></code>, but it was unsuccessful due to the existance of an <a class="reference external" href="https://github.com/nlohmann/json/issues/608">inheritance bug</a> in the JSON library.</p>
+</div>
+</div>
+<div class="section" id="unidimensional-array-inference">
+<h2>Unidimensional array inference<a class="headerlink" href="#unidimensional-array-inference" title="Permalink to this headline">¶</a></h2>
+<p>As explained above, unidimensional array inference is a capability of the validator to generate a <code class="docutils literal"><span class="pre">std::vector&lt;</span> <span class="pre">T</span> <span class="pre">&gt;</span></code> with one single element when the user provides an object convertible to type <code class="docutils literal"><span class="pre">T</span></code> but an object convertible to type <code class="docutils literal"><span class="pre">std::vector&lt;</span> <span class="pre">T</span> <span class="pre">&gt;</span></code> is expected. This feature is not implemented in the <code class="docutils literal"><span class="pre">getValue</span></code> function, but in the custom implementation of the <code class="xref py py-class docutils literal"><span class="pre">std::vector</span></code>’s <code class="docutils literal"><span class="pre">from_json</span></code> function. This means that the following will work:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">person</span> <span class="o">=</span> <span class="p">{</span> <span class="p">{</span> <span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;Peter&quot;</span> <span class="p">},</span> <span class="p">{</span> <span class="s">&quot;children&quot;</span><span class="p">,</span> <span class="s">&quot;Marc&quot;</span> <span class="p">}</span> <span class="p">};</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&gt;</span> <span class="n">childrenEnhancedAccess</span> <span class="o">=</span>
+  <span class="n">getValue</span><span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&gt;</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">person</span><span class="p">,</span> <span class="s">&quot;children&quot;</span> <span class="p">);</span>            <span class="c1">// { &quot;Marc&quot; }</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&gt;</span> <span class="n">childrenBaiscAccess</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span> <span class="s">&quot;children&quot;</span> <span class="p">];</span>     <span class="c1">// { &quot;Marc&quot; }</span>
+</pre></div>
+</div>
+<p>However, the <code class="docutils literal"><span class="pre">getValue</span></code> function <em>is</em> responsible for checking whether unidimensional array inference has been applied, and for printing a warning or throwing an error depending on the user setting for the key <code class="docutils literal"><span class="pre">options.unidimensionalArrayInference</span></code> of the main object. This is done by performing the following steps:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Get the <code class="docutils literal"><span class="pre">json</span></code> object at the requested key path -&gt; <code class="docutils literal"><span class="pre">originalSubjson</span></code>.</li>
+<li>Convert <code class="docutils literal"><span class="pre">originalSubjson</span></code> to the requested <code class="docutils literal"><span class="pre">ValueType</span></code> -&gt; <code class="docutils literal"><span class="pre">returnObject</span></code>.</li>
+<li>Convert <code class="docutils literal"><span class="pre">returnObject</span></code> back to <code class="docutils literal"><span class="pre">json</span></code> (referred to as <code class="docutils literal"><span class="pre">deconvertedSubjson</span></code>).</li>
+<li>Before returning <code class="docutils literal"><span class="pre">returnObject</span></code>, check if <code class="docutils literal"><span class="pre">!</span> <span class="pre">originalSubjson.is_array(</span> <span class="pre">)</span> <span class="pre">&amp;&amp;</span> <span class="pre">deconvertedSubjson.is_array(</span> <span class="pre">)</span></code>. If this evals to <code class="docutils literal"><span class="pre">true</span></code>, then unidimensional array inference has taken place, and depending on the value of the <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object at the key path <code class="docutils literal"><span class="pre">#root.options.unidimensionalArrayInference</span></code>, a warning may be printed, an error may be thrown or execution may continue silently.</li>
+</ul>
+</div></blockquote>
+<p>This means that, in the previous example, is unidimensional array inference is disabled, when creating the variable <code class="docutils literal"><span class="pre">childrenEnhancedAccess</span></code> using the <code class="docutils literal"><span class="pre">getValue</span></code> function, an <code class="xref py py-class docutils literal"><span class="pre">IllegalValueError</span></code> will be thrown, but when creating <code class="docutils literal"><span class="pre">childrenBaiscAccess</span></code> using the <code class="docutils literal"><span class="pre">[]</span></code> operator or the <code class="docutils literal"><span class="pre">at</span></code> method, no error will be thrown and the user will not be informed about the fact that unidimensional array inference took place.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Unidimensional array inference is currently only implemented for <code class="xref py py-class docutils literal"><span class="pre">std::vector</span></code>, or types that use the <code class="xref py py-class docutils literal"><span class="pre">std::vector</span></code>’s <code class="docutils literal"><span class="pre">from_json</span></code> function in their <code class="docutils literal"><span class="pre">from_json</span></code> function, such as <code class="xref py py-class docutils literal"><span class="pre">Eigen::Matrix</span></code>. In the feature, if this feature is also wanted for other container types, such as <code class="xref py py-class docutils literal"><span class="pre">std::set</span></code>, an overriden <code class="docutils literal"><span class="pre">from_json</span></code> function should be provided.</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>In order to check whether unidimensional array inference has taken place during the call to a <code class="docutils literal"><span class="pre">from_json</span></code> function, the <code class="docutils literal"><span class="pre">getValue</span></code> function converts the converted object of <code class="docutils literal"><span class="pre">ValueType</span></code> back to <code class="xref py py-class docutils literal"><span class="pre">json</span></code> implicitly using the <code class="docutils literal"><span class="pre">to_json</span></code> function. This means that trying to use the <code class="docutils literal"><span class="pre">getValue</span></code> function for a type that does not have a <code class="docutils literal"><span class="pre">to_json</span></code> function will result in a compile error. Consequently, in the <code class="docutils literal"><span class="pre">json_interface</span></code>, all classes for which a <code class="docutils literal"><span class="pre">from_json</span></code> function is declared should also have a <code class="docutils literal"><span class="pre">to_json</span></code>. If the object is never going to be converted to <code class="docutils literal"><span class="pre">json</span></code>, this function could be left empty:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">to_json</span><span class="p">(</span> <span class="n">json</span><span class="o">&amp;</span> <span class="n">j</span><span class="p">,</span> <span class="n">NonJsonableClass</span><span class="o">&amp;</span> <span class="n">nonJsonableObject</span> <span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p class="last">leading to the generation of a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object of value type <code class="docutils literal"><span class="pre">null</span></code>, for which the check on whether unidimensional array inference has been applied will always evaluate to <code class="docutils literal"><span class="pre">false</span></code>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Unidimensional array inference is widely used when working with <code class="xref py py-class docutils literal"><span class="pre">Eigen::Vector</span></code>. An <code class="xref py py-class docutils literal"><span class="pre">Eigen::Vector</span></code> is an <code class="xref py py-class docutils literal"><span class="pre">Eigen::Matrix</span></code> with just one column. The JSON representation of a matrix is an array of arrays (with each array corresponding to a matrix row). Thus, the JSON representation of a row vector is an array of unidimensional arrays. For instance:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span> <span class="n">zeroVector</span> <span class="o">=</span> <span class="n">Eigen</span><span class="o">::</span><span class="n">Vector3d</span><span class="o">::</span><span class="n">Zero</span><span class="p">(</span> <span class="p">);</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">json</span><span class="p">(</span> <span class="n">zeroVector</span> <span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>yields:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">[</span> <span class="mi">0</span> <span class="p">],</span>
+  <span class="p">[</span> <span class="mi">0</span> <span class="p">],</span>
+  <span class="p">[</span> <span class="mi">0</span> <span class="p">]</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>Thus, when the user provides e.g. the JSON array <code class="docutils literal"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></code> and this is converted to an <code class="docutils literal"><span class="pre">Eigen::Vector3d</span></code>, unidimensional array inference is applied for each element, as an array of numbers is expected for each row but a number is found instead. If <code class="docutils literal"><span class="pre">options.unidimensionalArrayInference</span></code> is set to print warnings, this results messages of the type:</p>
+<div class="highlight-txt"><div class="highlight"><pre><span></span>Unidimensional array inferred for key: keyWhereVectorIsStored.0
+Unidimensional array inferred for key: keyWhereVectorIsStored.1
+Unidimensional array inferred for key: keyWhereVectorIsStored.2
+</pre></div>
+</div>
+<p class="last">This could be prevented by providing directly a row vector (in MATLAB, <code class="docutils literal"><span class="pre">rowVector</span> <span class="pre">=</span> <span class="pre">[0;</span> <span class="pre">0;</span> <span class="pre">0]</span></code>) instead of a column vector (in MATLAB <code class="docutils literal"><span class="pre">colVector</span> <span class="pre">=</span> <span class="pre">[0</span> <span class="pre">0</span> <span class="pre">0]</span></code>). However, the built-in MATLAB function <code class="docutils literal"><span class="pre">jsonencode</span></code> returns the same encoded JSON object for both <code class="docutils literal"><span class="pre">rowVector</span></code> and <code class="docutils literal"><span class="pre">colVector</span></code> (i.e. <code class="docutils literal"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></code>). Thus, when using the JSON interface in combination with the MATLAB interface, unidimensional array inference will be applied frequently, since the vectors encoded by MATLAB are always column-vectors and Tudat expects row-vectors almost everywhere when using <code class="xref py py-class docutils literal"><span class="pre">Eigen</span></code>.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="enumerations.html" class="btn btn-neutral float-right" title="Adding support for enumerations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="enhancedValueSet.html" class="btn btn-neutral" title="Enhanced value set" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Delft University of Technology.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

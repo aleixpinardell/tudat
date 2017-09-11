@@ -109,6 +109,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="enhancedValueSet.html">Enhanced value set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="validation.html">Validation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="enumerations.html">Adding support for enumerations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="polymorphicClasses.html">Adding support for polymorphic classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="otherTypes.html">Adding support for other types</a></li>
@@ -193,7 +194,7 @@
 </pre></div>
 </div>
 <p>The main problem of this approach is that, in case that the user didn’t define the key <code class="docutils literal"><span class="pre">type</span></code> for the <code class="docutils literal"><span class="pre">integrator</span></code> object, the thrown value-access error will not provide sufficient information to uniquely identify the source of the problem:</p>
-<div class="highlight-cpp"><div class="highlight"><pre><span></span>libc++abi.dylib: terminating with uncaught exception of type nlohmann::detail::out_of_range:
+<div class="highlight-txt"><div class="highlight"><pre><span></span>libc++abi.dylib: terminating with uncaught exception of type nlohmann::detail::out_of_range:
 [json.exception.out_of_range.403] key &#39;type&#39; not found
 </pre></div>
 </div>
@@ -243,8 +244,8 @@
 </pre></div>
 </div>
 <p>throws an <code class="xref py py-class docutils literal"><span class="pre">UndefinedKeyError</span></code>:</p>
-<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">libc</span><span class="o">++</span><span class="n">abi</span><span class="p">.</span><span class="nl">dylib</span><span class="p">:</span> <span class="n">terminating</span> <span class="n">with</span> <span class="n">uncaught</span> <span class="n">exception</span> <span class="n">of</span> <span class="n">type</span> <span class="n">tudat</span><span class="o">::</span><span class="n">json_interface</span><span class="o">::</span><span class="nl">UndefinedKeyError</span><span class="p">:</span>
-<span class="n">Undefined</span> <span class="nl">key</span><span class="p">:</span> <span class="n">integrator</span><span class="p">.</span><span class="n">errorTolerance</span>
+<div class="highlight-txt"><div class="highlight"><pre><span></span>libc++abi.dylib: terminating with uncaught exception of type tudat::json_interface::UndefinedKeyError:
+Undefined key: integrator.errorTolerance
 </pre></div>
 </div>
 <p>And the following:</p>
@@ -252,9 +253,9 @@
 </pre></div>
 </div>
 <p>throws an <code class="xref py py-class docutils literal"><span class="pre">IllegalValueError</span></code>:</p>
-<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">libc</span><span class="o">++</span><span class="n">abi</span><span class="p">.</span><span class="nl">dylib</span><span class="p">:</span> <span class="n">terminating</span> <span class="n">with</span> <span class="n">uncaught</span> <span class="n">exception</span> <span class="n">of</span> <span class="n">type</span> <span class="n">tudat</span><span class="o">::</span><span class="n">json_interface</span><span class="o">::</span><span class="nl">IllegalValueError</span><span class="p">:</span>
-<span class="n">Could</span> <span class="n">not</span> <span class="n">convert</span> <span class="n">value</span> <span class="n">to</span> <span class="n">expected</span> <span class="n">type</span> <span class="kt">double</span>
-<span class="n">Illegal</span> <span class="n">value</span> <span class="k">for</span> <span class="nl">key</span><span class="p">:</span> <span class="k">export</span><span class="mf">.1</span><span class="p">.</span><span class="n">file</span>
+<div class="highlight-txt"><div class="highlight"><pre><span></span>libc++abi.dylib: terminating with uncaught exception of type tudat::json_interface::IllegalValueError:
+Could not convert value to expected type double
+Illegal value for key: export.1.file
 </pre></div>
 </div>
 <p>Now, image that we have an <code class="xref py py-class docutils literal"><span class="pre">Integrator</span></code> class and we define its <code class="docutils literal"><span class="pre">from_json</span></code> function so that it can be created from <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects:</p>
@@ -415,6 +416,15 @@
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">integrator</span><span class="p">.</span><span class="n">initialTime</span> <span class="o">=</span> <span class="n">getValue</span><span class="o">&lt;</span> <span class="kt">double</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">jsonIntegrator</span><span class="p">,</span> <span class="s">&quot;~&quot;</span> <span class="o">/</span> <span class="s">&quot;initialEpoch&quot;</span> <span class="p">);</span>
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>When printing a <code class="xref py py-class docutils literal"><span class="pre">KeyPath</span></code>, either during the generation of an error or for debugging, its canonical representation is used. Canonical key paths are always absolute (i.e. relative to the <code class="docutils literal"><span class="pre">mainJson</span></code>), so there is no need to print the initial root key (<code class="docutils literal"><span class="pre">~</span></code>) as there is no possible ambiguity. Additionally, the up keys (<code class="docutils literal"><span class="pre">..</span></code>) are removed, popping back the previous key. For instance:</p>
+<div class="last highlight-cpp"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;integrator&quot;</span> <span class="o">/</span> <span class="s">&quot;type&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>                   <span class="c1">// integrator.type</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;~&quot;</span> <span class="o">/</span> <span class="s">&quot;integrator&quot;</span> <span class="o">/</span> <span class="s">&quot;type&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>             <span class="c1">// integrator.type</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;integrator&quot;</span> <span class="o">/</span> <span class="s">&quot;..&quot;</span> <span class="o">/</span> <span class="s">&quot;initialEpoch&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>    <span class="c1">// initialEpoch</span>
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="multi-source-properties">
 <h2>Multi-source properties<a class="headerlink" href="#multi-source-properties" title="Permalink to this headline">¶</a></h2>
@@ -480,7 +490,7 @@
 </div>
 <div class="section" id="enhanced-value-access-for-arrays">
 <h2>Enhanced value access for arrays<a class="headerlink" href="#enhanced-value-access-for-arrays" title="Permalink to this headline">¶</a></h2>
-<p>Imagine that our propagation requires the use of three different integrators for different periods of time. The user provides settings for the different integrators by defining the <code class="docutils literal"><span class="pre">integrator</span></code> key of <code class="docutils literal"><span class="pre">mainJson</span></code> to be an array with three elements, but forgets to define the third one:</p>
+<p>Imagine that our propagation requires the use of three different integrators for different periods of time. The user provides settings for the different integrators by defining the <code class="docutils literal"><span class="pre">integrator</span></code> key of <code class="docutils literal"><span class="pre">mainJson</span></code> to be an array with three elements:</p>
 <div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">[</span>
   <span class="p">{</span>
     <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rungeKutta4&quot;</span><span class="p">,</span>
@@ -499,8 +509,8 @@
 </pre></div>
 </div>
 <p>we get the following error:</p>
-<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">libc</span><span class="o">++</span><span class="n">abi</span><span class="p">.</span><span class="nl">dylib</span><span class="p">:</span> <span class="n">terminating</span> <span class="n">with</span> <span class="n">uncaught</span> <span class="n">exception</span> <span class="n">of</span> <span class="n">type</span> <span class="n">nlohmann</span><span class="o">::</span><span class="n">detail</span><span class="o">::</span><span class="nl">out_of_range</span><span class="p">:</span>
-<span class="p">[</span><span class="n">json</span><span class="p">.</span><span class="n">exception</span><span class="p">.</span><span class="n">out_of_range</span><span class="mf">.401</span><span class="p">]</span> <span class="n">array</span> <span class="n">index</span> <span class="mi">2</span> <span class="n">is</span> <span class="n">out</span> <span class="n">of</span> <span class="n">range</span>
+<div class="highlight-txt"><div class="highlight"><pre><span></span>libc++abi.dylib: terminating with uncaught exception of type nlohmann::detail::out_of_range:
+[json.exception.out_of_range.401] array index 2 is out of range
 </pre></div>
 </div>
 <p>which is useless when trying to identify the source of the problem.</p>
@@ -509,12 +519,50 @@
 </pre></div>
 </div>
 <p>we do get a comprehensible error message:</p>
-<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">libc</span><span class="o">++</span><span class="n">abi</span><span class="p">.</span><span class="nl">dylib</span><span class="p">:</span> <span class="n">terminating</span> <span class="n">with</span> <span class="n">uncaught</span> <span class="n">exception</span> <span class="n">of</span> <span class="n">type</span> <span class="n">tudat</span><span class="o">::</span><span class="n">json_interface</span><span class="o">::</span><span class="nl">UndefinedKeyError</span><span class="p">:</span>
-<span class="n">Undefined</span> <span class="nl">key</span><span class="p">:</span> <span class="n">integrator</span><span class="mf">.2</span>
+<div class="highlight-txt"><div class="highlight"><pre><span></span>libc++abi.dylib: terminating with uncaught exception of type tudat::json_interface::UndefinedKeyError:
+Undefined key: integrator.2
 </pre></div>
 </div>
 <p>Although the functionality is identical for <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects of value type <code class="docutils literal"><span class="pre">object</span></code> and <code class="docutils literal"><span class="pre">array</span></code>, the internal implementation is different and can have consequences for a developer extending the JSON interface. As explained in [REF], the comprehensible error messages are generated by defining the special key <code class="docutils literal"><span class="pre">#keypath</span></code> of the <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects retrieved by using the <code class="docutils literal"><span class="pre">getValue</span></code> function. If the retrieved object is of value type <code class="docutils literal"><span class="pre">object</span></code>, defining this key is trivial. However, if the retrieved object is of value type <code class="docutils literal"><span class="pre">array</span></code>, the key cannot be defined directly, as string keys cannot be defined for <code class="xref py py-class docutils literal"><span class="pre">json</span></code> arrays.</p>
-<p>To overcome this problem, <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects of value type <code class="docutils literal"><span class="pre">array</span></code> are converted first to <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects of value type <code class="docutils literal"><span class="pre">object</span></code>. Then, the special keys <code class="docutils literal"><span class="pre">#keypath</span></code> and <code class="docutils literal"><span class="pre">#root</span></code> <em>can</em> be set. This means that, when calling <code class="docutils literal"><span class="pre">getValue&lt;</span> <span class="pre">json</span> <span class="pre">&gt;(</span> <span class="pre">...</span> <span class="pre">)</span></code>, the returned <code class="xref py py-class docutils literal"><span class="pre">json</span></code> will always be of value type <code class="docutils literal"><span class="pre">object</span></code> or <code class="docutils literal"><span class="pre">primitive</span></code>, but never <code class="docutils literal"><span class="pre">array</span></code>. If one wants to convert</p>
+<p>To overcome this problem, <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects of value type <code class="docutils literal"><span class="pre">array</span></code> are converted first to <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects of value type <code class="docutils literal"><span class="pre">object</span></code>. Then, the special keys <code class="docutils literal"><span class="pre">#keypath</span></code> and <code class="docutils literal"><span class="pre">#root</span></code> <em>can</em> be set. This means that, when calling <code class="docutils literal"><span class="pre">getValue&lt;</span> <span class="pre">json</span> <span class="pre">&gt;(</span> <span class="pre">...</span> <span class="pre">)</span></code>, the returned <code class="xref py py-class docutils literal"><span class="pre">json</span></code> will always be of value type <code class="docutils literal"><span class="pre">object</span></code> or <code class="docutils literal"><span class="pre">primitive</span></code>, but never <code class="docutils literal"><span class="pre">array</span></code>. For <code class="docutils literal"><span class="pre">primitive</span></code> types, there is no need to convert them to <code class="docutils literal"><span class="pre">object</span></code> and define the special keys, as they are unstructured, which means that they cannot store ojects and thus their <code class="docutils literal"><span class="pre">at</span></code> method is undefined.</p>
+<p>The process of converting <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects from value type <code class="docutils literal"><span class="pre">array</span></code> to value type <code class="docutils literal"><span class="pre">object</span></code> is done inside the <code class="docutils literal"><span class="pre">getValue</span></code> function automatically. For instance:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">integrators</span> <span class="o">=</span> <span class="n">getValue</span><span class="o">&lt;</span> <span class="n">json</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">mainJson</span><span class="p">,</span> <span class="s">&quot;integrator&quot;</span> <span class="p">);</span>
+</pre></div>
+</div>
+<p>generate the following <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;0&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rungeKutta4&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;stepSize&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;1&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rungeKutta4&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;stepSize&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;#keypath&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="s2">&quot;~&quot;</span><span class="p">,</span> <span class="s2">&quot;integrator&quot;</span> <span class="p">],</span>
+  <span class="nt">&quot;#root&quot;</span><span class="p">:</span> <span class="p">{}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>where the root objec, i.e. <code class="docutils literal"><span class="pre">mainJson</span></code>, has been omitted in this document. If one wants to check whether the returned object actually represent an array, instead of using the built-in <code class="docutils literal"><span class="pre">is_array</span></code> method, one has to use the function <code class="docutils literal"><span class="pre">bool</span> <span class="pre">isConvertibleToArray(</span> <span class="pre">const</span> <span class="pre">json&amp;</span> <span class="pre">j</span> <span class="pre">)</span></code> defined in <code class="xref py py-class docutils literal"><span class="pre">Tudat/External/JsonInterface/Support/valueAccess.h</span></code>. This function returns <code class="docutils literal"><span class="pre">true</span></code> if <code class="docutils literal"><span class="pre">j</span></code> is of value type <code class="docutils literal"><span class="pre">object</span></code> and all its non-special keys are convertible to <code class="xref py py-class docutils literal"><span class="pre">int</span></code>, or if <code class="docutils literal"><span class="pre">j</span></code> is already of value type <code class="docutils literal"><span class="pre">array</span></code>. After this check, it is safe to call the function <code class="docutils literal"><span class="pre">json</span> <span class="pre">getAsArray(</span> <span class="pre">const</span> <span class="pre">json&amp;</span> <span class="pre">jsonObject</span> <span class="pre">)</span></code> to convert the object back to array type. During this process, the information stored in the special keys is lost, so this is rarely done. Instead, the <code class="docutils literal"><span class="pre">from_json</span></code> function of <code class="xref py py-class docutils literal"><span class="pre">std::vector</span></code> has been overridden so that it is possible to write:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">jsonObject</span> <span class="o">=</span> <span class="n">getValue</span><span class="o">&lt;</span> <span class="n">json</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">mainJson</span><span class="p">,</span> <span class="s">&quot;integrator&quot;</span> <span class="p">);</span>
+<span class="n">jsonObject</span><span class="p">.</span><span class="n">is_array</span><span class="p">(</span> <span class="p">);</span>                                           <span class="c1">// false</span>
+<span class="n">isConvertibleToArray</span><span class="p">(</span> <span class="n">jsonObject</span> <span class="p">);</span>                               <span class="c1">// true</span>
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span> <span class="n">Integrator</span> <span class="o">&gt;</span> <span class="n">integrators</span> <span class="o">=</span> <span class="n">getAs</span><span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span> <span class="n">Integrator</span> <span class="o">&gt;</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">jsonObject</span> <span class="p">);</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects of value type <code class="docutils literal"><span class="pre">array</span></code> (or convertible to array) are not only convertible to <code class="xref py py-class docutils literal"><span class="pre">std::vector</span></code> , they can also be used to create e.g. an <code class="docutils literal"><span class="pre">Eigen::Matrix</span></code> or an <code class="docutils literal"><span class="pre">std::set</span></code>. The <code class="docutils literal"><span class="pre">to_json</span></code> and <code class="docutils literal"><span class="pre">from_json</span></code> functions for <code class="docutils literal"><span class="pre">Eigen::Matrix</span></code> are defined in <code class="xref py py-class docutils literal"><span class="pre">Tudat/External/JsonInterface/Support/valueConversions.h</span></code>, making use of the custom <code class="docutils literal"><span class="pre">from_json</span></code> implementation for <code class="xref py py-class docutils literal"><span class="pre">std::vector</span></code> (i.e. the <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object is first converted to a vector of vectors, and then to an <code class="docutils literal"><span class="pre">Eigen::Matrix</span></code>).</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">No custom implementation of the <code class="docutils literal"><span class="pre">from_json</span></code> function for <code class="docutils literal"><span class="pre">std::set</span></code> is provided by <code class="docutils literal"><span class="pre">json_interface</span></code>, since this type is not used by Tudat (as of now). In the future, if one wants to use the <code class="docutils literal"><span class="pre">getValue</span></code> function with <code class="docutils literal"><span class="pre">std::set</span></code> as template argument, the default <code class="docutils literal"><span class="pre">from_json</span></code> function for <code class="docutils literal"><span class="pre">std::set</span></code> will have to be overridden to allow conversion of <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects of value type <code class="docutils literal"><span class="pre">object</span></code> to <code class="docutils literal"><span class="pre">std::set</span></code>, in a similar way as been done for <code class="docutils literal"><span class="pre">std::vecotr</span></code> in <code class="xref py py-class docutils literal"><span class="pre">Tudat/External/JsonInterface/Support/valueConversions.h</span></code>.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The <code class="docutils literal"><span class="pre">to_json</span></code> function of <code class="docutils literal"><span class="pre">std::map</span></code> and <code class="docutils literal"><span class="pre">std::unordered_map</span></code> have been overridden in <code class="xref py py-class docutils literal"><span class="pre">Tudat/External/JsonInterface/Support/valueConversions.h</span></code>, so that the special keys are not assigned to the converted map.</p>
+</div>
 </div>
 </div>
 

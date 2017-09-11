@@ -337,9 +337,9 @@ Could not convert value to expected type tudat::simulation_setup::EphemerisType
 <p class="first admonition-title">Note</p>
 <p class="last">All the files in which the <code class="docutils literal"><span class="pre">to_json</span></code> and <code class="docutils literal"><span class="pre">from_json</span></code> functions of enumerations and settings file are defined must include the files <code class="xref py py-class docutils literal"><span class="pre">Tudat/External/JsonInterface/Support/valueAccess.h</span></code> and <code class="xref py py-class docutils literal"><span class="pre">Tudat/External/JsonInterface/Support/valueConversions.h</span></code>. The former includes <code class="xref py py-class docutils literal"><span class="pre">Tudat/External/JsonInterface/Support/errorHandling.h</span></code>, exposing the functions <code class="docutils literal"><span class="pre">json_interface::stringFromEnum</span></code> and <code class="docutils literal"><span class="pre">json_interface::enumFromString</span></code>.</p>
 </div>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">When converting an enumeration to or from a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object, the file in which its custom <code class="docutils literal"><span class="pre">to_json</span></code> and <code class="docutils literal"><span class="pre">from_json</span></code> functions are defined must be included. If one forgets to include</p>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">When converting an enumeration to or from a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object, the file in which its custom <code class="docutils literal"><span class="pre">to_json</span></code> and <code class="docutils literal"><span class="pre">from_json</span></code> functions are defined must be included (if the conversion takes place in a different file). If one forgets to include this file, the code will compile without giving any errors or warnings and the default implementation will be used, leading to a run-time error in which it is said that an <code class="xref py py-class docutils literal"><span class="pre">int</span></code> was expected when converting to the enumeration type.</p>
 </div>
 </div>
 </div>

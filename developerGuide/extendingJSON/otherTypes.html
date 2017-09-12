@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Adding support for other types &mdash; TU Delft Astrodynamic Toolbox  documentation</title>
+  <title>Other types &mdash; TU Delft Astrodynamic Toolbox  documentation</title>
   
 
   
@@ -38,7 +38,7 @@
     <link rel="top" title="TU Delft Astrodynamic Toolbox  documentation" href="../../index.html"/>
         <link rel="up" title="Extending the JSON interface" href="index.html"/>
         <link rel="next" title="Unit testing" href="unitTesting.html"/>
-        <link rel="prev" title="Adding support for polymorphic classes" href="polymorphicClasses.html"/> 
+        <link rel="prev" title="Shared pointers" href="sharedPointers.html"/> 
 
   
   <script src="../../_static/js/modernizr.min.js"></script>
@@ -100,9 +100,10 @@
 <li class="toctree-l3"><a class="reference internal" href="enhancedDeserialization.html">Enhanced deserialization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="enhancedValueAccess.html">Enhanced value access</a></li>
 <li class="toctree-l3"><a class="reference internal" href="enhancedValueSet.html">Enhanced value set</a></li>
-<li class="toctree-l3"><a class="reference internal" href="enumerations.html">Adding support for enumerations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="polymorphicClasses.html">Adding support for polymorphic classes</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Adding support for other types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sharedPointers.html">Shared pointers</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Other types</a></li>
 <li class="toctree-l3"><a class="reference internal" href="unitTesting.html">Unit testing</a></li>
 </ul>
 </li>
@@ -157,7 +158,7 @@
         
           <li><a href="index.html">Extending the JSON interface</a> &raquo;</li>
         
-      <li>Adding support for other types</li>
+      <li>Other types</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -176,8 +177,39 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="adding-support-for-other-types">
-<span id="extendingjson-othertypes"></span><h1>Adding support for other types<a class="headerlink" href="#adding-support-for-other-types" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="other-types">
+<span id="extendingjson-othertypes"></span><h1>Other types<a class="headerlink" href="#other-types" title="Permalink to this headline">¶</a></h1>
+<p>Some types that are not used to store settings require different <code class="docutils literal"><span class="pre">to_json</span></code> and <code class="docutils literal"><span class="pre">from_json</span></code> implementations. If these types are prone to be used in different parts of the <code class="docutils literal"><span class="pre">json_interface</span></code>, their <code class="docutils literal"><span class="pre">to_json</span></code> and <code class="docutils literal"><span class="pre">from_json</span></code> should be declared in <code class="xref py py-class docutils literal"><span class="pre">Tudat/External/JsonInterface/Support/valueConversions.h</span></code>. As discussed previously, there are already some functions there, such as custom implementations for <code class="xref py py-class docutils literal"><span class="pre">std::map</span></code> and <code class="xref py py-class docutils literal"><span class="pre">std::unordered_map</span></code> that ignore the special keys, for <code class="xref py py-class docutils literal"><span class="pre">std::vector</span></code> to support unidimensional array inference, for <code class="xref py py-class docutils literal"><span class="pre">Eigen::Matrix</span></code>.</p>
+<p>Additionally, there are functions for <code class="xref py py-class docutils literal"><span class="pre">std::complex</span></code>, so that the following is possible:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="s">&quot;(1,-0.5)&quot;</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">complex</span><span class="o">&lt;</span> <span class="kt">double</span> <span class="o">&gt;</span> <span class="n">complexNumber</span> <span class="o">=</span> <span class="n">j</span><span class="p">;</span>         <span class="c1">// 1 - 0.5i</span>
+</pre></div>
+</div>
+<p>For <code class="xref py py-class docutils literal"><span class="pre">std::pair</span></code>:</p>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span><span class="s"></span>
+<span class="s">  {</span>
+<span class="s">    &quot;0&quot;: 6,</span>
+<span class="s">    &quot;1&quot;: &quot;keplerian&quot;</span>
+<span class="s">  }</span>
+<span class="dl">)</span><span class="s">&quot;</span><span class="n">_json</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span> <span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&gt;</span> <span class="n">pair</span> <span class="o">=</span> <span class="n">j</span><span class="p">;</span>         <span class="c1">// { 6, &quot;keplerian&quot; }</span>
+</pre></div>
+</div>
+<p>And for <code class="xref py py-class docutils literal"><span class="pre">Eigen::Quaterniond</span></code>, so that it can be created directly from an <code class="xref py py-class docutils literal"><span class="pre">Eigen::Matrix3d</span></code> when the provided <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object is of type value <code class="xref py py-class docutils literal"><span class="pre">array</span></code>, or using the function <code class="docutils literal"><span class="pre">spice_interface::computeRotationQuaternionBetweenFrames</span></code> when it is of value type <code class="xref py py-class docutils literal"><span class="pre">object</span></code>. Thus, it is possible to create an <code class="xref py py-class docutils literal"><span class="pre">Eigen::Quaterniond</span></code> from any of these two JSON files:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">[</span> <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span> <span class="p">],</span>
+  <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span> <span class="mi">-1</span> <span class="p">],</span>
+  <span class="p">[</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">-1</span><span class="p">,</span>  <span class="mi">1</span> <span class="p">]</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;originalFrame&quot;</span><span class="p">:</span> <span class="s2">&quot;ECLIPJ2000&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;targetFrame&quot;</span><span class="p">:</span> <span class="s2">&quot;IAU_Earth&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;initialTime&quot;</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </div>
 
 
@@ -193,7 +225,7 @@
         <a href="unitTesting.html" class="btn btn-neutral float-right" title="Unit testing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="polymorphicClasses.html" class="btn btn-neutral" title="Adding support for polymorphic classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="sharedPointers.html" class="btn btn-neutral" title="Shared pointers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

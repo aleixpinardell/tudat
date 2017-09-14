@@ -190,3 +190,98 @@ var Documentation = {
    * highlight the search words provided in the url in the text
    */
   highlightSearchWords : function() {
+    var params = $.getQueryParameters();
+    var terms = (params.highlight) ? params.highlight[0].split(/\s+/) : [];
+    if (terms.length) {
+      var body = $('div.body');
+      if (!body.length) {
+        body = $('body');
+      }
+      window.setTimeout(function() {
+        $.each(terms, function() {
+          body.highlightText(this.toLowerCase(), 'highlighted');
+        });
+      }, 10);
+      $('<p class="highlight-link"><a href="javascript:Documentation.' +
+        'hideSearchWords()">' + _('Hide Search Matches') + '</a></p>')
+          .appendTo($('#searchbox'));
+    }
+  },
+
+  /**
+   * init the domain index toggle buttons
+   */
+  initIndexTable : function() {
+    var togglers = $('img.toggler').click(function() {
+      var src = $(this).attr('src');
+      var idnum = $(this).attr('id').substr(7);
+      $('tr.cg-' + idnum).toggle();
+      if (src.substr(-9) == 'minus.png')
+        $(this).attr('src', src.substr(0, src.length-9) + 'plus.png');
+      else
+        $(this).attr('src', src.substr(0, src.length-8) + 'minus.png');
+    }).css('display', '');
+    if (DOCUMENTATION_OPTIONS.COLLAPSE_INDEX) {
+        togglers.click();
+    }
+  },
+
+  /**
+   * helper function to hide the search marks again
+   */
+  hideSearchWords : function() {
+    $('#searchbox .highlight-link').fadeOut(300);
+    $('span.highlighted').removeClass('highlighted');
+  },
+
+  /**
+   * make the url absolute
+   */
+  makeURL : function(relativeURL) {
+    return DOCUMENTATION_OPTIONS.URL_ROOT + '/' + relativeURL;
+  },
+
+  /**
+   * get the current relative url
+   */
+  getCurrentURL : function() {
+    var path = document.location.pathname;
+    var parts = path.split(/\//);
+    $.each(DOCUMENTATION_OPTIONS.URL_ROOT.split(/\//), function() {
+      if (this == '..')
+        parts.pop();
+    });
+    var url = parts.join('/');
+    return path.substring(url.lastIndexOf('/') + 1, path.length - 1);
+  },
+
+  initOnKeyListeners: function() {
+    $(document).keyup(function(event) {
+      var activeElementType = document.activeElement.tagName;
+      // don't navigate when in search box or textarea
+      if (activeElementType !== 'TEXTAREA' && activeElementType !== 'INPUT' && activeElementType !== 'SELECT') {
+        switch (event.keyCode) {
+          case 37: // left
+            var prevHref = $('link[rel="prev"]').prop('href');
+            if (prevHref) {
+              window.location.href = prevHref;
+              return false;
+            }
+          case 39: // right
+            var nextHref = $('link[rel="next"]').prop('href');
+            if (nextHref) {
+              window.location.href = nextHref;
+              return false;
+            }
+        }
+      }
+    });
+  }
+};
+
+// quick alias for translations
+_ = Documentation.gettext;
+
+$(document).ready(function() {
+  Documentation.init();
+});

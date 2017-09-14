@@ -30,6 +30,8 @@
   
 
   
+    <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
 
   
         <link rel="index" title="Index"
@@ -105,12 +107,14 @@
 <li class="toctree-l3"><a class="reference internal" href="enhancedDeserialization.html">Enhanced deserialization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="enhancedValueAccess.html">Enhanced value access</a></li>
 <li class="toctree-l3"><a class="reference internal" href="enhancedValueSet.html">Enhanced value set</a></li>
-<li class="toctree-l3"><a class="reference internal" href="enumerations.html">Adding support for enumerations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="polymorphicClasses.html">Adding support for polymorphic classes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="otherTypes.html">Adding support for other types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="validation.html">Validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enumerations.html">Enumerations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sharedPointers.html">Shared pointers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="otherTypes.html">Other types</a></li>
 <li class="toctree-l3"><a class="reference internal" href="unitTesting.html">Unit testing</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../extendingMATLAB/index.html">Extending the MATLAB interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howToWriteTheWiki.html">How to Write the Wiki</a></li>
 </ul>
 </li>
@@ -345,7 +349,28 @@
           SphinxRtdTheme.StickyNav.enable();
       });
   </script>
-   
+  
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header .arrow").click(function() {
+            $(this).closest('.toggle').children().not(".header").toggle(400);
+            $(this).toggleClass("open");
+            // $(this).html() == "More" ? $(this).html('Less') : $(this).html('More');
+        });
+        $(".showall").click(function() {
+            $(".toggle > *").show(400);
+            $(".toggle .header .arrow").addClass("open");
+        });
+        $(".hideall").click(function() {
+            $(".toggle > *").hide(400);
+            $(".toggle .header").show(400);
+            $(".toggle .header .arrow").removeClass("open");
+        });
+    });
+</script>
+
 
 </body>
 </html>

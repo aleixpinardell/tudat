@@ -30,6 +30,8 @@
   
 
   
+    <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
 
   
         <link rel="index" title="Index"
@@ -107,6 +109,7 @@
 <li class="toctree-l3"><a class="reference internal" href="unitTesting.html">Unit testing</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../extendingMATLAB/index.html">Extending the MATLAB interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../howToWriteTheWiki.html">How to Write the Wiki</a></li>
 </ul>
 </li>
@@ -177,7 +180,7 @@
             
   <div class="section" id="extending-the-json-interface">
 <span id="extendingjson"></span><h1>Extending the JSON interface<a class="headerlink" href="#extending-the-json-interface" title="Permalink to this headline">¶</a></h1>
-<p>The goal of this page is to document how the JSON interface can be updated to support new/additional features of Tudat.</p>
+<p>The goal of this page is to document how the <a class="reference internal" href="../../tutorials/jsonInterface/index.html#jsoninterface"><span class="std std-ref">JSON Interface</span></a> can be updated to support new/additional features of Tudat.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="basics.html">Basics</a><ul>
@@ -307,7 +310,28 @@
           SphinxRtdTheme.StickyNav.enable();
       });
   </script>
-   
+  
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header .arrow").click(function() {
+            $(this).closest('.toggle').children().not(".header").toggle(400);
+            $(this).toggleClass("open");
+            // $(this).html() == "More" ? $(this).html('Less') : $(this).html('More');
+        });
+        $(".showall").click(function() {
+            $(".toggle > *").show(400);
+            $(".toggle .header .arrow").addClass("open");
+        });
+        $(".hideall").click(function() {
+            $(".toggle > *").hide(400);
+            $(".toggle .header").show(400);
+            $(".toggle .header .arrow").removeClass("open");
+        });
+    });
+</script>
+
 
 </body>
 </html>

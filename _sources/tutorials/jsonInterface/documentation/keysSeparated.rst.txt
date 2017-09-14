@@ -1,0 +1,25 @@
+Simulation
+~~~~~~~~~~
+
+These are the keys that can be defined at root level:
+
+.. include:: keys/simulation.rst
+
+
+Spice
+~~~~~
+
+.. include:: keys/spice.rst
+
+
+Body
+~~~~
+
+.. include:: keys/body.rst
+
+
+Propagator
+~~~~~~~~~~
+
+.. include:: keys/propagator.rst
+

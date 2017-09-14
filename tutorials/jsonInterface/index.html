@@ -30,6 +30,8 @@
   
 
   
+    <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
 
   
         <link rel="index" title="Index"
@@ -37,7 +39,7 @@
         <link rel="search" title="Search" href="../../search.html"/>
     <link rel="top" title="TU Delft Astrodynamic Toolbox  documentation" href="../../index.html"/>
         <link rel="up" title="Tutorials and Documentation" href="../index.html"/>
-        <link rel="next" title="MATLAB Interface" href="../matlabInterface/index.html"/>
+        <link rel="next" title="Documentation" href="documentation/index.html"/>
         <link rel="prev" title="7.3. External Libraries: JSONCPP" href="../tudatFeatures/otherLibraries/jsoncpp.html"/> 
 
   
@@ -95,7 +97,10 @@
 <li class="toctree-l2"><a class="reference internal" href="../prerequiredKnowledge/index.html">Pre-required Knowledge</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../applicationWalkthroughs/index.html">Application Walkthroughs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tudatFeatures/index.html">Tudat Libraries</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">JSON Interface</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">JSON Interface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="documentation/index.html">Documentation</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../matlabInterface/index.html">MATLAB Interface</a></li>
 </ul>
 </li>
@@ -167,7 +172,16 @@
             
   <div class="section" id="json-interface">
 <span id="jsoninterface"></span><h1>JSON Interface<a class="headerlink" href="#json-interface" title="Permalink to this headline">¶</a></h1>
-<p>These pages of the wiki</p>
+<p>These pages of the wiki detail how the JSON interface can be used to run propagations by providing JSON input files and provide a few tutorials showcasing the main features.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="documentation/index.html">Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documentation/basics.html">Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="documentation/keys.html">List of keys</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 
 
@@ -180,7 +194,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../matlabInterface/index.html" class="btn btn-neutral float-right" title="MATLAB Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="documentation/index.html" class="btn btn-neutral float-right" title="Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../tudatFeatures/otherLibraries/jsoncpp.html" class="btn btn-neutral" title="7.3. External Libraries: JSONCPP" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -241,7 +255,28 @@
           SphinxRtdTheme.StickyNav.enable();
       });
   </script>
-   
+  
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header .arrow").click(function() {
+            $(this).closest('.toggle').children().not(".header").toggle(400);
+            $(this).toggleClass("open");
+            // $(this).html() == "More" ? $(this).html('Less') : $(this).html('More');
+        });
+        $(".showall").click(function() {
+            $(".toggle > *").show(400);
+            $(".toggle .header .arrow").addClass("open");
+        });
+        $(".hideall").click(function() {
+            $(".toggle > *").hide(400);
+            $(".toggle .header").show(400);
+            $(".toggle .header .arrow").removeClass("open");
+        });
+    });
+</script>
+
 
 </body>
 </html>

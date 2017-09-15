@@ -198,7 +198,7 @@
 <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span> <span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&gt;</span> <span class="n">pair</span> <span class="o">=</span> <span class="n">j</span><span class="p">;</span>         <span class="c1">// { 6, &quot;keplerian&quot; }</span>
 </pre></div>
 </div>
-<p>And for <code class="xref py py-class docutils literal"><span class="pre">Eigen::Quaterniond</span></code>, so that it can be created directly from an <code class="xref py py-class docutils literal"><span class="pre">Eigen::Matrix3d</span></code> when the provided <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object is of type value <code class="xref py py-class docutils literal"><span class="pre">array</span></code>, or using the function <code class="docutils literal"><span class="pre">spice_interface::computeRotationQuaternionBetweenFrames</span></code> when it is of value type <code class="xref py py-class docutils literal"><span class="pre">object</span></code>. Thus, it is possible to create an <code class="xref py py-class docutils literal"><span class="pre">Eigen::Quaterniond</span></code> from any of these two JSON files:</p>
+<p>And for <code class="xref py py-class docutils literal"><span class="pre">Eigen::Quaterniond</span></code>, so that it can be created directly from an <code class="xref py py-class docutils literal"><span class="pre">Eigen::Matrix3d</span></code> when the provided <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object is of value type <span class="jsontype">array</span>, or using the function <code class="docutils literal"><span class="pre">spice_interface::computeRotationQuaternionBetweenFrames</span></code> when it is of value type <span class="jsontype">object</span>. Thus, it is possible to create an <code class="xref py py-class docutils literal"><span class="pre">Eigen::Quaterniond</span></code> from any of these two JSON files:</p>
 <div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">[</span>
   <span class="p">[</span> <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span> <span class="p">],</span>
   <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>  <span class="mi">1</span><span class="p">,</span> <span class="mi">-1</span> <span class="p">],</span>
@@ -289,8 +289,8 @@
   
  <script type="text/javascript">
     $(document).ready(function() {
-        $(".toggle > *").hide();
-        $(".toggle .header").show();
+        // $(".toggle > *").hide();
+        // $(".toggle .header").show();
         $(".toggle .header .arrow").click(function() {
             $(this).closest('.toggle').children().not(".header").toggle(400);
             $(this).toggleClass("open");

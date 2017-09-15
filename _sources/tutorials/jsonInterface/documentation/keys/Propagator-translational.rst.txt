@@ -1,3 +1,0 @@
-.. role:: arrow
-
-- :literal:`string` :class:`type` (optional) Type of the translational propagator to be used. Possible values: :literal:`"cowell"`, :literal:`"encke"`, :literal:`"gaussKeplerian"`, :literal:`"gaussModifiedEquinoctial"`. Default value: :literal:`"cowell"`.

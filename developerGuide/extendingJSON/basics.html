@@ -227,7 +227,7 @@
 <p>A <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object can have 6 possible value types. The value type of a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object can be inferred during construction, or later through its lifecycle. The value type of a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object can change.</p>
 <blockquote>
 <div><ul>
-<li><p class="first"><code class="docutils literal"><span class="pre">null</span></code></p>
+<li><p class="first"><span class="jsontype">null</span></p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">j</span><span class="p">;</span>                                      <span class="c1">// j.is_null( ) -&gt; true</span>
 
 <span class="n">json</span> <span class="n">k</span> <span class="o">=</span> <span class="p">...</span>                                 <span class="c1">// k.is_null( ) -&gt; false</span>
@@ -235,7 +235,7 @@
 </pre></div>
 </div>
 </li>
-<li><p class="first"><code class="docutils literal"><span class="pre">object</span></code>: similar to <code class="xref py py-class docutils literal"><span class="pre">std::map</span></code>, but with the possibility to mix different value types.</p>
+<li><p class="first"><span class="jsontype">object</span>: similar to <code class="xref py py-class docutils literal"><span class="pre">std::map</span></code>, but with the possibility to mix different value types.</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="p">{</span> <span class="p">{</span> <span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="s">&quot;zero&quot;</span> <span class="p">},</span> <span class="p">{</span> <span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="mi">1</span> <span class="p">}</span> <span class="p">};</span>    <span class="c1">// j.is_object( ) -&gt; true</span>
 <span class="n">j</span><span class="p">[</span> <span class="s">&quot;b&quot;</span> <span class="p">];</span>                                    <span class="c1">// 1</span>
 <span class="n">j</span><span class="p">.</span><span class="n">size</span><span class="p">(</span> <span class="p">);</span>                                   <span class="c1">// 2</span>
@@ -245,7 +245,7 @@
 </pre></div>
 </div>
 </li>
-<li><p class="first"><code class="docutils literal"><span class="pre">array</span></code>: similar to <code class="xref py py-class docutils literal"><span class="pre">std::vector</span></code>, but with the possibility to mix different value types.</p>
+<li><p class="first"><span class="jsontype">array</span>: similar to <code class="xref py py-class docutils literal"><span class="pre">std::vector</span></code>, but with the possibility to mix different value types.</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;one&quot;</span> <span class="p">};</span>                       <span class="c1">// j.is_array( ) -&gt; true</span>
 <span class="n">j</span><span class="p">[</span> <span class="mi">1</span> <span class="p">];</span>                                      <span class="c1">// &quot;one&quot;</span>
 <span class="n">j</span><span class="p">.</span><span class="n">empty</span><span class="p">(</span> <span class="p">);</span>                                  <span class="c1">// false</span>
@@ -259,22 +259,22 @@
 </pre></div>
 </div>
 </li>
-<li><p class="first"><code class="docutils literal"><span class="pre">string</span></code>: similar to <code class="xref py py-class docutils literal"><span class="pre">std::string</span></code>.</p>
+<li><p class="first"><span class="jsontype">string</span>: similar to <code class="xref py py-class docutils literal"><span class="pre">std::string</span></code>.</p>
 </li>
-<li><p class="first"><code class="docutils literal"><span class="pre">number</span></code>: similar to <code class="xref py py-class docutils literal"><span class="pre">double</span></code>, <code class="xref py py-class docutils literal"><span class="pre">float</span></code> or <code class="xref py py-class docutils literal"><span class="pre">int</span></code>.</p>
+<li><p class="first"><span class="jsontype">number</span>: similar to <code class="xref py py-class docutils literal"><span class="pre">double</span></code>, <code class="xref py py-class docutils literal"><span class="pre">float</span></code> or <code class="xref py py-class docutils literal"><span class="pre">int</span></code>.</p>
 </li>
-<li><p class="first"><code class="docutils literal"><span class="pre">boolean</span></code>: similar to <code class="xref py py-class docutils literal"><span class="pre">bool</span></code>.</p>
+<li><p class="first"><span class="jsontype">boolean</span>: similar to <code class="xref py py-class docutils literal"><span class="pre">bool</span></code>.</p>
 </li>
 </ul>
 </div></blockquote>
-<p>The types <code class="docutils literal"><span class="pre">object</span></code> and <code class="docutils literal"><span class="pre">array</span></code> are known as structured types (the method <code class="docutils literal"><span class="pre">is_structured</span></code> will return <code class="docutils literal"><span class="pre">true</span></code>), while the types <code class="docutils literal"><span class="pre">string</span></code>, <code class="docutils literal"><span class="pre">number</span></code> and <code class="docutils literal"><span class="pre">bool</span></code> are known as primitive types (the method <code class="docutils literal"><span class="pre">is_primitive</span></code> will return <code class="docutils literal"><span class="pre">true</span></code>).</p>
+<p>The types <span class="jsontype">object</span> and <span class="jsontype">array</span> are known as structured types (the method <code class="docutils literal"><span class="pre">is_structured</span></code> will return <code class="docutils literal"><span class="pre">true</span></code>), while the types <span class="jsontype">string</span>, <span class="jsontype">number</span> and <span class="jsontype">boolean</span> are known as primitive types (the method <code class="docutils literal"><span class="pre">is_primitive</span></code> will return <code class="docutils literal"><span class="pre">true</span></code>).</p>
 <p>Structured <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects are containers of <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects (of any value type). This means that if we create the following <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object of array type:</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="kt">double</span> <span class="n">aDouble</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">;</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">aString</span> <span class="o">=</span> <span class="s">&quot;two&quot;</span><span class="p">;</span>
 <span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="p">{</span> <span class="n">aDouble</span><span class="p">,</span> <span class="n">aString</span> <span class="p">};</span>
 </pre></div>
 </div>
-<p>then when we access any of its elements (e.g. <code class="docutils literal"><span class="pre">j[</span> <span class="pre">0</span> <span class="pre">]</span></code> or <code class="docutils literal"><span class="pre">j[</span> <span class="pre">1</span> <span class="pre">]</span></code>) we will not get a <code class="xref py py-class docutils literal"><span class="pre">double</span></code> or <code class="xref py py-class docutils literal"><span class="pre">std::string</span></code>, but a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object (with value type <code class="docutils literal"><span class="pre">number</span></code> or <code class="docutils literal"><span class="pre">string</span></code> in this case).</p>
+<p>then when we access any of its elements (e.g. <code class="docutils literal"><span class="pre">j[</span> <span class="pre">0</span> <span class="pre">]</span></code> or <code class="docutils literal"><span class="pre">j[</span> <span class="pre">1</span> <span class="pre">]</span></code>) we will not get a <code class="xref py py-class docutils literal"><span class="pre">double</span></code> or <code class="xref py py-class docutils literal"><span class="pre">std::string</span></code>, but a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object (with value type <span class="jsontype">number</span> or <span class="jsontype">string</span> in this case).</p>
 </div>
 </div>
 
@@ -352,8 +352,8 @@
   
  <script type="text/javascript">
     $(document).ready(function() {
-        $(".toggle > *").hide();
-        $(".toggle .header").show();
+        // $(".toggle > *").hide();
+        // $(".toggle .header").show();
         $(".toggle .header .arrow").click(function() {
             $(this).closest('.toggle').children().not(".header").toggle(400);
             $(this).toggleClass("open");

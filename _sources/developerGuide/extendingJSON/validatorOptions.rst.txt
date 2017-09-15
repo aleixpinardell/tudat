@@ -1,6 +1,0 @@
-.. _extendingJSON_validation:
-
-Validation
-==========
-
-

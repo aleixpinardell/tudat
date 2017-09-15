@@ -213,7 +213,7 @@ Updates or defines <code class="docutils literal"><span class="pre">j[</span> <s
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>this is not possible (yet). This kind of implementation is required only once in the whole <code class="docutils literal"><span class="pre">json_interface</span></code> interface, when converting a <code class="xref py py-class docutils literal"><span class="pre">Simulation</span></code> object to <code class="xref py py-class docutils literal"><span class="pre">json</span></code>, as the information contained in the propagator settings is stored in three different places in the simulation object (part of its information is stored in the key <code class="docutils literal"><span class="pre">propagator</span></code> of the <code class="docutils literal"><span class="pre">mainJson</span></code>, the termination settings are sotred in the key <code class="docutils literal"><span class="pre">termination</span></code> of the <code class="docutils literal"><span class="pre">mainJson</span></code>, and the print interval is stored in the <code class="docutils literal"><span class="pre">options.printInterval</span></code> key path of the <code class="docutils literal"><span class="pre">mainJson</span></code>). To do so, the following implementation was chosen (code has been simplified):</p>
+<p>this is not possible (yet). This kind of implementation is required only once in the whole <code class="docutils literal"><span class="pre">json_interface</span></code> interface, when converting a <code class="xref py py-class docutils literal"><span class="pre">Simulation</span></code> object to <code class="xref py py-class docutils literal"><span class="pre">json</span></code>, as the information contained in the propagator settings is stored in three different places in the simulation object (part of its information is stored in the key <span class="jsonkey">propagator</span> of the <code class="docutils literal"><span class="pre">mainJson</span></code>, the termination settings are sotred in the key <span class="jsonkey">termination</span> of the <code class="docutils literal"><span class="pre">mainJson</span></code>, and the print interval is stored in the <code class="docutils literal"><span class="pre">options.printInterval</span></code> key path of the <code class="docutils literal"><span class="pre">mainJson</span></code>). To do so, the following implementation was chosen (code has been simplified):</p>
 <div class="literal-block-wrapper docutils container" id="simulation-h">
 <div class="code-block-caption"><span class="caption-text"><code class="xref py py-class docutils literal"><span class="pre">simulation.h</span></code></span><a class="headerlink" href="#simulation-h" title="Permalink to this code">¶</a></div>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">to_json</span><span class="p">(</span> <span class="n">json</span><span class="o">&amp;</span> <span class="n">mainJson</span><span class="p">,</span> <span class="k">const</span> <span class="n">Simulation</span><span class="o">&amp;</span> <span class="n">simulation</span> <span class="p">)</span>
@@ -319,8 +319,8 @@ Updates or defines <code class="docutils literal"><span class="pre">j[</span> <s
   
  <script type="text/javascript">
     $(document).ready(function() {
-        $(".toggle > *").hide();
-        $(".toggle .header").show();
+        // $(".toggle > *").hide();
+        // $(".toggle .header").show();
         $(".toggle .header .arrow").click(function() {
             $(this).closest('.toggle').children().not(".header").toggle(400);
             $(this).toggleClass("open");

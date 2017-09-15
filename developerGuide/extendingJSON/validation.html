@@ -266,7 +266,7 @@
 <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="o">&gt;</span> <span class="n">childrenBaiscAccess</span> <span class="o">=</span> <span class="n">person</span><span class="p">[</span> <span class="s">&quot;children&quot;</span> <span class="p">];</span>     <span class="c1">// { &quot;Marc&quot; }</span>
 </pre></div>
 </div>
-<p>However, the <code class="docutils literal"><span class="pre">getValue</span></code> function <em>is</em> responsible for checking whether unidimensional array inference has been applied, and for printing a warning or throwing an error depending on the user setting for the key <code class="docutils literal"><span class="pre">options.unidimensionalArrayInference</span></code> of the main object. This is done by performing the following steps:</p>
+<p>However, the <code class="docutils literal"><span class="pre">getValue</span></code> function <em>is</em> responsible for checking whether unidimensional array inference has been applied, and for printing a warning or throwing an error depending on the user setting for the key <span class="jsonkey">options.unidimensionalArrayInference</span> of the main object. This is done by performing the following steps:</p>
 <blockquote>
 <div><ul class="simple">
 <li>Get the <code class="docutils literal"><span class="pre">json</span></code> object at the requested key path -&gt; <code class="docutils literal"><span class="pre">originalSubjson</span></code>.</li>
@@ -286,7 +286,7 @@
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">to_json</span><span class="p">(</span> <span class="n">json</span><span class="o">&amp;</span> <span class="n">j</span><span class="p">,</span> <span class="n">NonJsonableClass</span><span class="o">&amp;</span> <span class="n">nonJsonableObject</span> <span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
 </pre></div>
 </div>
-<p class="last">leading to the generation of a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object of value type <code class="docutils literal"><span class="pre">null</span></code>, for which the check on whether unidimensional array inference has been applied will always evaluate to <code class="docutils literal"><span class="pre">false</span></code>.</p>
+<p class="last">leading to the generation of a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object of value type <span class="jsontype">null</span>, for which the check on whether unidimensional array inference has been applied will always evaluate to <code class="docutils literal"><span class="pre">false</span></code>.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -388,8 +388,8 @@ Unidimensional array inferred for key: keyWhereVectorIsStored.2
   
  <script type="text/javascript">
     $(document).ready(function() {
-        $(".toggle > *").hide();
-        $(".toggle .header").show();
+        // $(".toggle > *").hide();
+        // $(".toggle .header").show();
         $(".toggle .header .arrow").click(function() {
             $(this).closest('.toggle').children().not(".header").toggle(400);
             $(this).toggleClass("open");

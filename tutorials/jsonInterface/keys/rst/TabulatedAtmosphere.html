@@ -156,7 +156,7 @@
            <div itemprop="articleBody">
             
   <ul class="simple">
-<li><span class="jsontype">number</span> <span class="jsonkey">file</span> (mandatory). File containing atmospheric properties, file should contain four columns of atmospheric data with altitude, density, pressure and temperature, respectively.</li>
+<li><span class="jsontype">path</span> <span class="jsonkey">file</span> (mandatory). File containing atmospheric properties, file should contain four columns of atmospheric data with altitude, density, pressure and temperature, respectively.</li>
 </ul>
 
 
@@ -224,8 +224,8 @@
   
  <script type="text/javascript">
     $(document).ready(function() {
-        // $(".toggle > *").hide();
-        // $(".toggle .header").show();
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
         $(".toggle .header .arrow").click(function() {
             $(this).closest('.toggle').children().not(".header").toggle(400);
             $(this).toggleClass("open");

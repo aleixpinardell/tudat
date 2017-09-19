@@ -39,7 +39,7 @@
         <link rel="search" title="Search" href="../../../search.html"/>
     <link rel="top" title="TU Delft Astrodynamic Toolbox  documentation" href="../../../index.html"/>
         <link rel="up" title="JSON Interface" href="../index.html"/>
-        <link rel="next" title="MATLAB Interface" href="../../matlabInterface/index.html"/>
+        <link rel="next" title="Modular files" href="../modularFiles.html"/>
         <link rel="prev" title="JSON Interface" href="../index.html"/> 
 
   
@@ -99,6 +99,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../../tudatFeatures/index.html">Tudat Libraries</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html">JSON Interface</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">List of keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../modularFiles.html">Modular files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../multicase.html">Multi-case simulations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tutorials/index.html">Tutorials</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../matlabInterface/index.html">MATLAB Interface</a></li>
@@ -187,7 +190,7 @@
 </li>
 <li><p class="first"><span class="jsontype">string</span> <span class="jsonkey">globalFrameOrigin</span> (optional). Used to set the global frame origin for the propagation. Default value: <code class="docutils literal"><span class="pre">&quot;SSB&quot;</span></code>.</p>
 </li>
-<li><p class="first"><span class="jsontype">string</span> <span class="jsonkey">globalFrameOrientation</span> (optional). Used to set the global frame orientation for the propagation. Updates the frame orientation of epehemeris and rotation model settings if not specified. Default value: <code class="docutils literal"><span class="pre">&quot;ECLIPJ2000&quot;</span></code>.</p>
+<li><p class="first"><span class="jsontype">string</span> <span class="jsonkey">globalFrameOrientation</span> (optional). Used to set the global frame orientation for the propagation. Updates the frame orientation of ephemeris and rotation model settings if not specified. Default value: <code class="docutils literal"><span class="pre">&quot;ECLIPJ2000&quot;</span></code>.</p>
 </li>
 <li><p class="first"><span class="jsontype">object</span> <span class="jsonkey">spice</span> (optional). Used to provide Spice settings.</p>
 <blockquote>
@@ -199,7 +202,7 @@
 <li><span class="jsontype">boolean</span> <span class="jsonkey">useStandardKernels</span> (mandatory). Whether the standard kernels should be preloaded.</li>
 <li><span class="jsontype">path[]</span> <span class="jsonkey">alternativeKernels</span> (optional). Additional kernels to load when using standard kernels. Default value: <code class="docutils literal"><span class="pre">[]</span></code>.</li>
 <li><span class="jsontype">path[]</span> <span class="jsonkey">kernels</span> (mandatory if <span class="jsonkey">useStandardKernels</span> set to <code class="docutils literal"><span class="pre">false</span></code>). Kernels to load when not using standard kernels.</li>
-<li><span class="jsontype">boolean</span> <span class="jsonkey">preloadKernels</span> (optional). Whether the kernels should be preloaded from <span class="jsonkey">.initialEpoch</span> - <span class="jsonkey">interpolationOffsets.0</span> to <span class="jsonkey">.finalEpoch</span> + <span class="jsonkey">interpolationOffsets.1</span>. Default value: <code class="docutils literal"><span class="pre">true</span></code>.</li>
+<li><span class="jsontype">boolean</span> <span class="jsonkey">preloadEphemeris</span> (optional). Whether the kernels should be preloaded from <span class="jsonkey">.initialEpoch</span> - <span class="jsonkey">interpolationOffsets.0</span> to <span class="jsonkey">.finalEpoch</span> + <span class="jsonkey">interpolationOffsets.1</span>. Default value: <code class="docutils literal"><span class="pre">true</span></code>.</li>
 <li><span class="jsontype">number</span> <span class="jsonkey">interpolationStep</span> (optional). Step to use for interpolation of ephemeris. Default value: <code class="docutils literal"><span class="pre">300.0</span></code>.</li>
 <li><span class="jsontype">number[2]</span> <span class="jsonkey">interpolationOffsets</span> (optional). Offsets to use for the interpolation. Default value: <code class="docutils literal"><span class="pre">[10*interpolationStep,</span> <span class="pre">10*interpolationStep]</span></code>.</li>
 </ul>
@@ -363,7 +366,7 @@
 <p><span class="arrow">Tabulated Atmosphere</span></p>
 </div>
 <ul class="simple">
-<li><span class="jsontype">number</span> <span class="jsonkey">file</span> (mandatory). File containing atmospheric properties, file should contain four columns of atmospheric data with altitude, density, pressure and temperature, respectively.</li>
+<li><span class="jsontype">path</span> <span class="jsonkey">file</span> (mandatory). File containing atmospheric properties, file should contain four columns of atmospheric data with altitude, density, pressure and temperature, respectively.</li>
 </ul>
 </div>
 <div class="toggle docutils container">
@@ -371,7 +374,7 @@
 <p><span class="arrow">NRLMSISE00 Atmosphere</span></p>
 </div>
 <ul class="simple">
-<li><span class="jsontype">number</span> <span class="jsonkey">spaceWeatherFile</span> (optional). Custom file containing space weather data, with the same format as in <a class="reference external" href="https://celestrak.com/SpaceData/sw19571001.txt">here</a>. If not specified, an (old) version of that file is used.</li>
+<li><span class="jsontype">path</span> <span class="jsonkey">spaceWeatherFile</span> (optional). Custom file containing space weather data, with the same format as in <a class="reference external" href="https://celestrak.com/SpaceData/sw19571001.txt">here</a>. If not specified, an (old) version of that file is used.</li>
 </ul>
 </div>
 </div>
@@ -422,9 +425,9 @@
 <p><span class="arrow">Direct Spice Ephemeris</span></p>
 </div>
 <ul class="simple">
-<li><span class="jsontype">boolean</span> <span class="jsonkey">correctForStellarAbberation</span> (optional). Whether to correct for stellar abberation in retrieved values of (observed state). Default value: <code class="docutils literal"><span class="pre">false</span></code>.</li>
-<li><span class="jsontype">boolean</span> <span class="jsonkey">correctForLightTimeAbberation</span> (optional). Whether to correct for light time in retrieved values of (observed state). Default value: <code class="docutils literal"><span class="pre">false</span></code>.</li>
-<li><span class="jsontype">boolean</span> <span class="jsonkey">convergeLighTimeAbberation</span> (optional). Whether to use single iteration or max. 3 iterations for calculating light time. Default value: <code class="docutils literal"><span class="pre">false</span></code>.</li>
+<li><span class="jsontype">boolean</span> <span class="jsonkey">correctForStellarAberration</span> (optional). Whether to correct for stellar aberration in retrieved values of (observed state). Default value: <code class="docutils literal"><span class="pre">false</span></code>.</li>
+<li><span class="jsontype">boolean</span> <span class="jsonkey">correctForLightTimeAberration</span> (optional). Whether to correct for light time in retrieved values of (observed state). Default value: <code class="docutils literal"><span class="pre">false</span></code>.</li>
+<li><span class="jsontype">boolean</span> <span class="jsonkey">convergeLighTimeAberration</span> (optional). Whether to use single iteration or max. 3 iterations for calculating light time. Default value: <code class="docutils literal"><span class="pre">false</span></code>.</li>
 </ul>
 </div>
 <div class="toggle docutils container">
@@ -438,7 +441,7 @@
 </li>
 <li><p class="first"><span class="jsontype">number</span> <span class="jsonkey">timeStep</span> (mandatory). Time step with which interpolated data from Spice should be created.</p>
 </li>
-<li><p class="first"><span class="jsontype">object</span> <span class="jsonkey">interpolator</span> (optional). Settings to be used for the state interpolation. Default value: <code class="docutils literal"><span class="pre">{</span> <span class="pre">&quot;type&quot;:</span> <span class="pre">&quot;lagrange&quot;,</span> <span class="pre">&quot;order&quot;:</span> <span class="pre">6</span> <span class="pre">}</span></code>.</p>
+<li><p class="first"><span class="jsontype">object</span> <span class="jsonkey">interpolator</span> (optional). Settings to be used for the state interpolation. Default value: <code class="docutils literal"><span class="pre">{&quot;type&quot;:&quot;lagrange&quot;,&quot;order&quot;:6}</span></code>.</p>
 <blockquote>
 <div><div class="toggle docutils container">
 <div class="header docutils container">
@@ -524,8 +527,8 @@
 <ul class="simple">
 <li><span class="jsontype">number</span> <span class="jsonkey">gravitationalParameter</span> (mandatory). Value of the associated gravitational parameter.</li>
 <li><span class="jsontype">number</span> <span class="jsonkey">referenceRadius</span> (mandatory). Value of the associated reference radius.</li>
-<li><span class="jsontype">number[][]</span> <span class="jsonkey">cosineCoefficients</span> (mandatory). Matrix containing the cosine spherical harmonic coefficients (geodesy-normalized). Rows correspond to degrees and columns to orders.</li>
-<li><span class="jsontype">number[][]</span> <span class="jsonkey">sineCoefficients</span> (mandatory). Matrix containing the sine spherical harmonic coefficients (geodesy-normalized). Rows correspond to degrees and columns to orders.</li>
+<li><span class="jsontype">number[][]</span> <span class="jsonkey">cosineCoefficients</span> (mandatory). Matrix containing the cosine spherical harmonic coefficients (geodesy-normalised). Rows correspond to degrees and columns to orders.</li>
+<li><span class="jsontype">number[][]</span> <span class="jsonkey">sineCoefficients</span> (mandatory). Matrix containing the sine spherical harmonic coefficients (geodesy-normalised). Rows correspond to degrees and columns to orders.</li>
 <li><span class="jsontype">string</span> <span class="jsonkey">associatedReferenceFrame</span> (mandatory). Identifier of the associated reference frame, e.g. <code class="docutils literal"><span class="pre">IAU_Earth</span></code>.</li>
 </ul>
 </div>
@@ -936,7 +939,7 @@
 </div>
 <ul class="simple">
 <li><span class="jsontype">boolean</span> <span class="jsonkey">useAllThrustModels</span> (optional). Whether all engines of the associated body are to be combined into a single thrust model. Default value: <code class="docutils literal"><span class="pre">true</span></code>.</li>
-<li><span class="jsontype">string</span> <span class="jsonkey">associatedThroustSource</span> (mandatory if <span class="jsonkey">useAllThrustModels</span> set to <code class="docutils literal"><span class="pre">false</span></code>). Name of engine model from which thrust is to be derived.</li>
+<li><span class="jsontype">string</span> <span class="jsonkey">associatedThrustSource</span> (mandatory if <span class="jsonkey">useAllThrustModels</span> set to <code class="docutils literal"><span class="pre">false</span></code>). Name of engine model from which thrust is to be derived.</li>
 </ul>
 </div>
 </div>
@@ -974,7 +977,7 @@
 </div>
 <ul class="simple">
 <li><span class="jsontype">string</span> <span class="jsonkey">type</span> (mandatory). Method to use for the integration of the equations of motion. Possible values: <code class="docutils literal"><span class="pre">&quot;euler&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;rungeKutta4&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;rungeKuttaVariableStepSize&quot;</span></code>. Default value: <code class="docutils literal"><span class="pre">&quot;rungeKutta4&quot;</span></code>.</li>
-<li><span class="jsontype">number</span> <span class="jsonkey">initialTime</span> (mandatory). Initial value of the independent variable (typically, seconds since J2000).</li>
+<li><span class="jsontype">number</span> <span class="jsonkey">initialTime</span> (optional). Initial value of the independent variable (typically, seconds since J2000). If not provided, will be obtained from <span class="jsonkey">.initialEpoch</span>.</li>
 <li><span class="jsontype">number</span> <span class="jsonkey">saveFrequency</span> (optional). Frequency with which the state is saved to the results map. For instance, a value of <code class="docutils literal"><span class="pre">5</span></code> means that the results are only saved for 1 in every 5 integration steps. Default value: <code class="docutils literal"><span class="pre">1</span></code>.</li>
 <li><span class="jsontype">boolean</span> <span class="jsonkey">assessPropagationTerminationConditionDuringIntegrationSubsteps</span> (optional). Whether the termination conditions defined in <span class="jsonkey">.termination</span> should be assessed after each integrator substep (e.g. for an RK4 integrator, after computing <code class="docutils literal"><span class="pre">k1</span></code>, <code class="docutils literal"><span class="pre">k2</span></code>, <code class="docutils literal"><span class="pre">k3</span></code>…). Not applicable to the Euler integrator. Default value: <code class="docutils literal"><span class="pre">false</span></code>.</li>
 </ul>
@@ -1170,7 +1173,7 @@
 </li>
 <li><p class="first"><span class="jsontype">boolean</span> <span class="jsonkey">onlyFinalStep</span> (optional). Whether to save only the values corresponding to the initial integration step. Does not override <span class="jsonkey">onlyInitialStep</span>. Default value: <code class="docutils literal"><span class="pre">false</span></code>.</p>
 </li>
-<li><p class="first"><span class="jsontype">number</span> <span class="jsonkey">numberalPrecision</span> (optional). Maximum number of significant digits to be used for decimal numbers. Default value: <code class="docutils literal"><span class="pre">16</span></code>.</p>
+<li><p class="first"><span class="jsontype">number</span> <span class="jsonkey">numericalPrecision</span> (optional). Maximum number of significant digits to be used for decimal numbers. Default value: <code class="docutils literal"><span class="pre">16</span></code>.</p>
 </li>
 </ul>
 </div>
@@ -1208,7 +1211,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../matlabInterface/index.html" class="btn btn-neutral float-right" title="MATLAB Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../modularFiles.html" class="btn btn-neutral float-right" title="Modular files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../index.html" class="btn btn-neutral" title="JSON Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -1272,8 +1275,8 @@
   
  <script type="text/javascript">
     $(document).ready(function() {
-        // $(".toggle > *").hide();
-        // $(".toggle .header").show();
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
         $(".toggle .header .arrow").click(function() {
             $(this).closest('.toggle').children().not(".header").toggle(400);
             $(this).toggleClass("open");

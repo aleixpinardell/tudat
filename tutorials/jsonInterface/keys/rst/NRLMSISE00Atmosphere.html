@@ -156,7 +156,7 @@
            <div itemprop="articleBody">
             
   <ul class="simple">
-<li><span class="jsontype">number</span> <span class="jsonkey">spaceWeatherFile</span> (optional). Custom file containing space weather data, with the same format as in <a class="reference external" href="https://celestrak.com/SpaceData/sw19571001.txt">here</a>. If not specified, an (old) version of that file is used.</li>
+<li><span class="jsontype">path</span> <span class="jsonkey">spaceWeatherFile</span> (optional). Custom file containing space weather data, with the same format as in <a class="reference external" href="https://celestrak.com/SpaceData/sw19571001.txt">here</a>. If not specified, an (old) version of that file is used.</li>
 </ul>
 
 
@@ -224,8 +224,8 @@
   
  <script type="text/javascript">
     $(document).ready(function() {
-        // $(".toggle > *").hide();
-        // $(".toggle .header").show();
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
         $(".toggle .header .arrow").click(function() {
             $(this).closest('.toggle').children().not(".header").toggle(400);
             $(this).toggleClass("open");

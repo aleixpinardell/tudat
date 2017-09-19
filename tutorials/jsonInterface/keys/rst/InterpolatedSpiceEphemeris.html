@@ -162,7 +162,7 @@
 </li>
 <li><p class="first"><span class="jsontype">number</span> <span class="jsonkey">timeStep</span> (mandatory). Time step with which interpolated data from Spice should be created.</p>
 </li>
-<li><p class="first"><span class="jsontype">object</span> <span class="jsonkey">interpolator</span> (optional). Settings to be used for the state interpolation. Default value: <code class="docutils literal"><span class="pre">{</span> <span class="pre">&quot;type&quot;:</span> <span class="pre">&quot;lagrange&quot;,</span> <span class="pre">&quot;order&quot;:</span> <span class="pre">6</span> <span class="pre">}</span></code>.</p>
+<li><p class="first"><span class="jsontype">object</span> <span class="jsonkey">interpolator</span> (optional). Settings to be used for the state interpolation. Default value: <code class="docutils literal"><span class="pre">{&quot;type&quot;:&quot;lagrange&quot;,&quot;order&quot;:6}</span></code>.</p>
 <blockquote>
 <div><div class="toggle docutils container">
 <div class="header docutils container">
@@ -240,8 +240,8 @@
   
  <script type="text/javascript">
     $(document).ready(function() {
-        // $(".toggle > *").hide();
-        // $(".toggle .header").show();
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
         $(".toggle .header .arrow").click(function() {
             $(this).closest('.toggle').children().not(".header").toggle(400);
             $(this).toggleClass("open");

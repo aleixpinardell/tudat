@@ -162,7 +162,7 @@
 </li>
 <li><p class="first"><span class="jsontype">string</span> <span class="jsonkey">globalFrameOrigin</span> (optional). Used to set the global frame origin for the propagation. Default value: <code class="docutils literal"><span class="pre">&quot;SSB&quot;</span></code>.</p>
 </li>
-<li><p class="first"><span class="jsontype">string</span> <span class="jsonkey">globalFrameOrientation</span> (optional). Used to set the global frame orientation for the propagation. Updates the frame orientation of epehemeris and rotation model settings if not specified. Default value: <code class="docutils literal"><span class="pre">&quot;ECLIPJ2000&quot;</span></code>.</p>
+<li><p class="first"><span class="jsontype">string</span> <span class="jsonkey">globalFrameOrientation</span> (optional). Used to set the global frame orientation for the propagation. Updates the frame orientation of ephemeris and rotation model settings if not specified. Default value: <code class="docutils literal"><span class="pre">&quot;ECLIPJ2000&quot;</span></code>.</p>
 </li>
 <li><p class="first"><span class="jsontype">object</span> <span class="jsonkey">spice</span> (optional). Used to provide Spice settings.</p>
 <blockquote>
@@ -299,8 +299,8 @@
   
  <script type="text/javascript">
     $(document).ready(function() {
-        // $(".toggle > *").hide();
-        // $(".toggle .header").show();
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
         $(".toggle .header .arrow").click(function() {
             $(this).closest('.toggle').children().not(".header").toggle(400);
             $(this).toggleClass("open");

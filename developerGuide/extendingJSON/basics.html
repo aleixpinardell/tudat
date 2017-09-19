@@ -99,12 +99,12 @@
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Extending the JSON interface</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Basics</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#including-the-library">Including the library</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#serialization-and-deserialization">Serialization and deserialization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#serialisation-and-deserialisation">Serialisation and deserialisation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#value-types">Value types</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="valueConversions.html">Value conversions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="enhancedDeserialization.html">Enhanced deserialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enhancedDeserialization.html">Enhanced deserialisation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="enhancedValueAccess.html">Enhanced value access</a></li>
 <li class="toctree-l3"><a class="reference internal" href="enhancedValueSet.html">Enhanced value set</a></li>
 <li class="toctree-l3"><a class="reference internal" href="validation.html">Validation</a></li>
@@ -187,7 +187,7 @@
             
   <div class="section" id="basics">
 <span id="extendingjson-basics"></span><h1>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h1>
-<p>The external library used by the <a class="reference internal" href="../../tutorials/jsonInterface/index.html#jsoninterface"><span class="std std-ref">JSON Interface</span></a> is <a class="reference external" href="http://github.com/nlohmann/json">JSON for Modern C++</a>. The basic concepts necessary to understand the following sections are provided here.</p>
+<p>The external library used by the <span class="xref std std-ref">jsonInterface</span> is <a class="reference external" href="http://github.com/nlohmann/json">JSON for Modern C++</a>. The basic concepts necessary to understand the following sections are provided here.</p>
 <div class="section" id="including-the-library">
 <h2>Including the library<a class="headerlink" href="#including-the-library" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&quot;json/src/json.hpp&quot;</span><span class="cp"></span>
@@ -195,27 +195,27 @@
 </pre></div>
 </div>
 </div>
-<div class="section" id="serialization-and-deserialization">
-<h2>Serialization and deserialization<a class="headerlink" href="#serialization-and-deserialization" title="Permalink to this headline">¶</a></h2>
-<p>Parse a JSON-formatted <code class="xref py py-class docutils literal"><span class="pre">std::string</span></code> as <code class="xref py py-class docutils literal"><span class="pre">json</span></code> (deserialization):</p>
+<div class="section" id="serialisation-and-deserialisation">
+<h2>Serialisation and deserialisation<a class="headerlink" href="#serialisation-and-deserialisation" title="Permalink to this headline">¶</a></h2>
+<p>Parse a JSON-formatted <code class="xref py py-class docutils literal"><span class="pre">std::string</span></code> as <code class="xref py py-class docutils literal"><span class="pre">json</span></code> (deserialisation):</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">str</span> <span class="o">=</span> <span class="s">&quot;[0, 1, 2]&quot;</span><span class="p">;</span>
 <span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span> <span class="n">str</span> <span class="p">);</span>
 </pre></div>
 </div>
-<p>Parse a JSON file as <code class="xref py py-class docutils literal"><span class="pre">json</span></code> (deserialization):</p>
+<p>Parse a JSON file as <code class="xref py py-class docutils literal"><span class="pre">json</span></code> (deserialisation):</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">filePath</span> <span class="o">=</span> <span class="p">...</span>
 <span class="n">std</span><span class="o">::</span><span class="n">ifstream</span> <span class="n">stream</span><span class="p">(</span> <span class="n">filePath</span> <span class="p">);</span>
 <span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span> <span class="n">stream</span> <span class="p">);</span>
 </pre></div>
 </div>
-<p>Convert a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object to JSON-formatted <code class="xref py py-class docutils literal"><span class="pre">std::string</span></code> (serialization):</p>
+<p>Convert a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object to JSON-formatted <code class="xref py py-class docutils literal"><span class="pre">std::string</span></code> (serialisation):</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="p">...</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">oneLineString</span> <span class="o">=</span> <span class="n">j</span><span class="p">.</span><span class="n">dump</span><span class="p">(</span> <span class="p">);</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">multiLineStringWithIndent</span> <span class="o">=</span> <span class="n">j</span><span class="p">.</span><span class="n">dump</span><span class="p">(</span> <span class="mi">2</span> <span class="p">);</span>
 </pre></div>
 </div>
 <p>where the (optional) argument of the <code class="docutils literal"><span class="pre">dump</span></code> method is the number of spaces used for each indentation level.</p>
-<p>Print a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object as JSON-formatted text (serialization):</p>
+<p>Print a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object as JSON-formatted text (serialisation):</p>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="p">...</span>
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">j</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">.</span><span class="n">dump</span><span class="p">(</span> <span class="mi">2</span> <span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
@@ -352,8 +352,8 @@
   
  <script type="text/javascript">
     $(document).ready(function() {
-        // $(".toggle > *").hide();
-        // $(".toggle .header").show();
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
         $(".toggle .header .arrow").click(function() {
             $(this).closest('.toggle').children().not(".header").toggle(400);
             $(this).toggleClass("open");

@@ -99,6 +99,9 @@
 <li class="toctree-l2"><a class="reference internal" href="../tudatFeatures/index.html">Tudat Libraries</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">JSON Interface</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="keys/index.html">List of keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="modularFiles.html">Modular files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="multicase.html">Multi-case simulations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../matlabInterface/index.html">MATLAB Interface</a></li>
@@ -173,7 +176,7 @@
   <div class="section" id="json-interface">
 <span id="jsoninterface"></span><h1>JSON Interface<a class="headerlink" href="#json-interface" title="Permalink to this headline">¶</a></h1>
 <p>These pages of the wiki detail how the JSON interface can be used to run propagations by providing JSON input files and provide a few tutorials showcasing the main features.</p>
-<p>The application <code class="docutils literal"><span class="pre">json_library</span></code> can be used to run Tudat propagations by providing the path to a JSON input file as command-line argument:</p>
+<p>The application <code class="docutils literal"><span class="pre">json_interface</span></code> can be used to run Tudat propagations by providing the path to a JSON input file as command-line argument:</p>
 <div class="highlight-txt"><div class="highlight"><pre><span></span>tudatBundle/tudat/bin/json_interface main.json
 </pre></div>
 </div>
@@ -181,6 +184,13 @@
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="keys/index.html">List of keys</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modularFiles.html">Modular files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multicase.html">Multi-case simulations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/unperturbedSatellite/index.html">Unperturbed Earth-orbiting satellite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/lifetimeMaximisation/index.html">Perturbed Earth-orbiting satellite lifetime maximisation</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -259,8 +269,8 @@
   
  <script type="text/javascript">
     $(document).ready(function() {
-        // $(".toggle > *").hide();
-        // $(".toggle .header").show();
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
         $(".toggle .header .arrow").click(function() {
             $(this).closest('.toggle').children().not(".header").toggle(400);
             $(this).toggleClass("open");

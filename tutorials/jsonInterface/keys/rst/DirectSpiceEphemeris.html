@@ -156,9 +156,9 @@
            <div itemprop="articleBody">
             
   <ul class="simple">
-<li><span class="jsontype">boolean</span> <span class="jsonkey">correctForStellarAbberation</span> (optional). Whether to correct for stellar abberation in retrieved values of (observed state). Default value: <code class="docutils literal"><span class="pre">false</span></code>.</li>
-<li><span class="jsontype">boolean</span> <span class="jsonkey">correctForLightTimeAbberation</span> (optional). Whether to correct for light time in retrieved values of (observed state). Default value: <code class="docutils literal"><span class="pre">false</span></code>.</li>
-<li><span class="jsontype">boolean</span> <span class="jsonkey">convergeLighTimeAbberation</span> (optional). Whether to use single iteration or max. 3 iterations for calculating light time. Default value: <code class="docutils literal"><span class="pre">false</span></code>.</li>
+<li><span class="jsontype">boolean</span> <span class="jsonkey">correctForStellarAberration</span> (optional). Whether to correct for stellar aberration in retrieved values of (observed state). Default value: <code class="docutils literal"><span class="pre">false</span></code>.</li>
+<li><span class="jsontype">boolean</span> <span class="jsonkey">correctForLightTimeAberration</span> (optional). Whether to correct for light time in retrieved values of (observed state). Default value: <code class="docutils literal"><span class="pre">false</span></code>.</li>
+<li><span class="jsontype">boolean</span> <span class="jsonkey">convergeLighTimeAberration</span> (optional). Whether to use single iteration or max. 3 iterations for calculating light time. Default value: <code class="docutils literal"><span class="pre">false</span></code>.</li>
 </ul>
 
 
@@ -226,8 +226,8 @@
   
  <script type="text/javascript">
     $(document).ready(function() {
-        // $(".toggle > *").hide();
-        // $(".toggle .header").show();
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
         $(".toggle .header .arrow").click(function() {
             $(this).closest('.toggle').children().not(".header").toggle(400);
             $(this).toggleClass("open");

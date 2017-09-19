@@ -304,9 +304,9 @@
 </pre></div>
 </div>
 <p>Thus, when the user provides e.g. the JSON array <code class="docutils literal"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></code> and this is converted to an <code class="docutils literal"><span class="pre">Eigen::Vector3d</span></code>, unidimensional array inference is applied for each element, as an array of numbers is expected for each row but a number is found instead. If <code class="docutils literal"><span class="pre">options.unidimensionalArrayInference</span></code> is set to print warnings, this results messages of the type:</p>
-<div class="highlight-txt"><div class="highlight"><pre><span></span>Unidimensional array inferred for key: keyWhereVectorIsStored.0
-Unidimensional array inferred for key: keyWhereVectorIsStored.1
-Unidimensional array inferred for key: keyWhereVectorIsStored.2
+<div class="highlight-txt"><div class="highlight"><pre><span></span>Unidimensional array inferred for key: keyWhereVectorIsStored[0]
+Unidimensional array inferred for key: keyWhereVectorIsStored[1]
+Unidimensional array inferred for key: keyWhereVectorIsStored[2]
 </pre></div>
 </div>
 <p class="last">This could be prevented by providing directly a row vector (in MATLAB, <code class="docutils literal"><span class="pre">rowVector</span> <span class="pre">=</span> <span class="pre">[0;</span> <span class="pre">0;</span> <span class="pre">0]</span></code>) instead of a column vector (in MATLAB <code class="docutils literal"><span class="pre">colVector</span> <span class="pre">=</span> <span class="pre">[0</span> <span class="pre">0</span> <span class="pre">0]</span></code>). However, the built-in MATLAB function <code class="docutils literal"><span class="pre">jsonencode</span></code> returns the same encoded JSON object for both <code class="docutils literal"><span class="pre">rowVector</span></code> and <code class="docutils literal"><span class="pre">colVector</span></code> (i.e. <code class="docutils literal"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></code>). Thus, when using the JSON interface in combination with the MATLAB interface, unidimensional array inference will be applied frequently, since the vectors encoded by MATLAB are always column-vectors and Tudat expects row-vectors almost everywhere when using <code class="xref py py-class docutils literal"><span class="pre">Eigen</span></code>.</p>

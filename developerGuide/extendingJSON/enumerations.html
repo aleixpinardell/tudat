@@ -216,17 +216,17 @@
 <div class="section" id="built-in-implementation">
 <h2>Built-in implementation<a class="headerlink" href="#built-in-implementation" title="Permalink to this headline">¶</a></h2>
 <p>The JSON for modern C++ library has built-in support for enumerations. For instance:</p>
-<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
 <span class="n">EphemerisType</span> <span class="n">ephemerisType</span> <span class="o">=</span> <span class="n">j</span><span class="p">;</span>                      <span class="c1">// direct_spice_ephemeris</span>
 </pre></div>
 </div>
 <div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">EphemerisType</span> <span class="n">ephemerisType</span> <span class="o">=</span> <span class="n">interpolated_spice</span><span class="p">;</span>
-<span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="n">ephemerisType</span><span class="p">;</span>
+<span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="n">ephemerisType</span><span class="p">;</span>
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">ephemerisType</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>              <span class="c1">// 3</span>
 </pre></div>
 </div>
 <p>However, the built-in implementation uses the value of the enumeration rather than its name. Clearly, it is not convenient for the user having to specify the type of the ephemeris based on how they are listed in the C++ code. Additionally, if the order of the values in the enumeration list changes in the future, converting <code class="docutils literal"><span class="pre">1</span></code> to <code class="xref py py-class docutils literal"><span class="pre">EphemerisType</span></code> may not result in <code class="docutils literal"><span class="pre">direct_spice_ephemeris</span></code> anymore. Thus, a custom implementation is needed, in which the JSON representation of an enumeration is the name of its possible values. For instance:</p>
-<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="s">&quot;direct_spice_ephemeris&quot;</span><span class="p">;</span>
+<div class="highlight-cpp"><div class="highlight"><pre><span></span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span> <span class="n">j</span> <span class="o">=</span> <span class="s">&quot;direct_spice_ephemeris&quot;</span><span class="p">;</span>
 <span class="n">EphemerisType</span> <span class="n">ephemerisType</span> <span class="o">=</span> <span class="n">j</span><span class="p">;</span>
 </pre></div>
 </div>
@@ -234,7 +234,7 @@
 </div>
 <div class="section" id="name-based-implementation">
 <h2>Name-based implementation<a class="headerlink" href="#name-based-implementation" title="Permalink to this headline">¶</a></h2>
-<p>Custom implementations for the <code class="docutils literal"><span class="pre">to_json</span></code> and <code class="docutils literal"><span class="pre">from_json</span></code> functions of all the supported enumerations are provided in the <code class="docutils literal"><span class="pre">json_interface</span></code>. In this way, it is possible to convert <code class="xref py py-class docutils literal"><span class="pre">json</span></code> objects of value type <span class="jsontype">string</span> to <code class="docutils literal"><span class="pre">enum</span></code> and vice versa. However, the string representation for each enum value has to be manually provided. Although it is possible to replace the enumeration value names by identical strings during compile time, this was deemed to complex and, additionally, the enumeration names used in Tudat are not always optimal. For instance, consider this JSON file:</p>
+<p>Custom implementations for the <code class="docutils literal"><span class="pre">to_json</span></code> and <code class="docutils literal"><span class="pre">from_json</span></code> functions of all the supported enumerations are provided in the <code class="docutils literal"><span class="pre">json_interface</span></code>. In this way, it is possible to convert <code class="xref py py-class docutils literal"><span class="pre">nlohmann::json</span></code> objects of value type <span class="jsontype">string</span> to <code class="docutils literal"><span class="pre">enum</span></code> and vice versa. However, the string representation for each enum value has to be manually provided. Although it is possible to replace the enumeration value names by identical strings during compile time, this was deemed to complex and, additionally, the enumeration names used in Tudat are not always optimal. For instance, consider this JSON file:</p>
 <div class="literal-block-wrapper docutils container" id="bodies-json">
 <div class="code-block-caption"><span class="caption-text"><code class="xref py py-class docutils literal"><span class="pre">bodies.h</span></code></span><a class="headerlink" href="#bodies-json" title="Permalink to this code">¶</a></div>
 <div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -305,13 +305,13 @@
 
 <span class="p">...</span>
 
-<span class="c1">//! Convert `EphemerisType` to `json`.</span>
+<span class="c1">//! Convert `EphemerisType` to `nlohmann::json`.</span>
 <span class="kr">inline</span> <span class="kt">void</span> <span class="n">to_json</span><span class="p">(</span> <span class="n">json</span><span class="o">&amp;</span> <span class="n">jsonObject</span><span class="p">,</span> <span class="k">const</span> <span class="n">EphemerisType</span><span class="o">&amp;</span> <span class="n">ephemerisType</span> <span class="p">)</span>
 <span class="p">{</span>
     <span class="n">jsonObject</span> <span class="o">=</span> <span class="n">json_interface</span><span class="o">::</span><span class="n">stringFromEnum</span><span class="p">(</span> <span class="n">ephemerisType</span><span class="p">,</span> <span class="n">ephemerisTypes</span> <span class="p">);</span>
 <span class="p">}</span>
 
-<span class="c1">//! Convert `json` to `EphemerisType`.</span>
+<span class="c1">//! Convert `nlohmann::json` to `EphemerisType`.</span>
 <span class="kr">inline</span> <span class="kt">void</span> <span class="n">from_json</span><span class="p">(</span> <span class="k">const</span> <span class="n">json</span><span class="o">&amp;</span> <span class="n">jsonObject</span><span class="p">,</span> <span class="n">EphemerisType</span><span class="o">&amp;</span> <span class="n">ephemerisType</span> <span class="p">)</span>
 <span class="p">{</span>
     <span class="n">ephemerisType</span> <span class="o">=</span> <span class="n">json_interface</span><span class="o">::</span><span class="n">enumFromString</span><span class="p">(</span> <span class="n">jsonObject</span><span class="p">,</span> <span class="n">ephemerisTypes</span> <span class="p">);</span>
@@ -342,7 +342,7 @@ Could not convert value to expected type tudat::simulation_setup::EphemerisType
 </div>
 <div class="admonition caution">
 <p class="first admonition-title">Caution</p>
-<p class="last">When converting an enumeration to or from a <code class="xref py py-class docutils literal"><span class="pre">json</span></code> object, the file in which its custom <code class="docutils literal"><span class="pre">to_json</span></code> and <code class="docutils literal"><span class="pre">from_json</span></code> functions are defined must be included (if the conversion takes place in a different file). If one forgets to include this file, the code will compile without giving any errors or warnings and the default implementation will be used, leading to a run-time error in which it is said that an <code class="xref py py-class docutils literal"><span class="pre">int</span></code> was expected when converting to the enumeration type.</p>
+<p class="last">When converting an enumeration to or from a <code class="xref py py-class docutils literal"><span class="pre">nlohmann::json</span></code> object, the file in which its custom <code class="docutils literal"><span class="pre">to_json</span></code> and <code class="docutils literal"><span class="pre">from_json</span></code> functions are defined must be included (if the conversion takes place in a different file). If one forgets to include this file, the code will compile without giving any errors or warnings and the default implementation will be used, leading to a run-time error in which it is said that an <code class="xref py py-class docutils literal"><span class="pre">int</span></code> was expected when converting to the enumeration type.</p>
 </div>
 </div>
 </div>

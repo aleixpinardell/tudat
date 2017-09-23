@@ -101,6 +101,7 @@
 <li class="toctree-l3"><a class="reference internal" href="keys/index.html">List of keys</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Modular files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="multicase.html">Multi-case simulations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="customJsonApp.html">Writing custom JSON-based applications</a></li>
 <li class="toctree-l3"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
 </ul>
 </li>
@@ -257,13 +258,13 @@
 <div class="code-block-caption"><span class="caption-text"><code class="xref py py-class docutils literal"><span class="pre">main.json</span></code></span><a class="headerlink" href="#id5" title="Permalink to this code">¶</a></div>
 <div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;termination&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;variable&quot;</span><span class="p">:</span> <span class="s2">&quot;$(variables.json){satellite.altitude}&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;variable&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="s2">&quot;$(variables.json){satellite.altitude}&quot;</span> <span class="p">],</span>
     <span class="nt">&quot;lowerLimit&quot;</span><span class="p">:</span> <span class="mf">110E+3</span>
   <span class="p">}</span>
   <span class="s2">&quot;export&quot;</span><span class="p">:</span> <span class="p">[</span>
     <span class="p">{</span>
       <span class="nt">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;finalAltitude.txt&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;variables&quot;</span><span class="p">:</span> <span class="s2">&quot;$(variables.json){satellite.altitude}&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;variables&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="s2">&quot;$(variables.json){satellite.altitude}&quot;</span> <span class="p">],</span>
       <span class="nt">&quot;onlyFinalStep&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
       <span class="nt">&quot;epochsInFirstColumn&quot;</span><span class="p">:</span> <span class="kc">false</span>
     <span class="p">},</span>
@@ -284,7 +285,7 @@
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>while the string <code class="docutils literal"><span class="pre">&quot;$(variables.json){satellite.drag,satellite.srp}&quot;</span></code> is replace by an array of objects:</p>
+<p>while the string <code class="docutils literal"><span class="pre">&quot;$(variables.json){satellite.drag,satellite.srp}&quot;</span></code> is replaced by an array of objects:</p>
 <div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">[</span>
   <span class="p">{</span>
     <span class="nt">&quot;body&quot;</span><span class="p">:</span> <span class="s2">&quot;satellite&quot;</span><span class="p">,</span>
@@ -301,7 +302,7 @@
 <span class="p">]</span>
 </pre></div>
 </div>
-<p>The key <code class="docutils literal"><span class="pre">export.variables</span></code> expects an array of objects. If unidimensional array inference [REF] is enabled (it is by default), in the first case the object will be automatically converted to an array with only one element. However, if it is turned off, we need to explicitly specify that we want to create an array with one element by writing either <code class="docutils literal"><span class="pre">[</span> <span class="pre">&quot;$(variables.json){satellite.altitude}&quot;</span> <span class="pre">]</span></code> or adding a comma at the end of the special string’s list of variables, as in <code class="docutils literal"><span class="pre">&quot;$(variables.json){satellite.altitude,}&quot;</span></code>.</p>
+<p>The key <code class="docutils literal"><span class="pre">export.variables</span></code> expects an array of objects. Then, we need to explicitly specify that we want to create an array with one element by writing either <code class="docutils literal"><span class="pre">[</span> <span class="pre">&quot;$(variables.json){satellite.altitude}&quot;</span> <span class="pre">]</span></code> or adding a comma at the end of the special string’s list of variables, as in <code class="docutils literal"><span class="pre">&quot;$(variables.json){satellite.altitude,}&quot;</span></code>.</p>
 <p>Now imagine we provide a file containing pre-defined settings for celestial bodies:</p>
 <div class="highlight-txt"><div class="highlight"><pre><span></span>root
 |

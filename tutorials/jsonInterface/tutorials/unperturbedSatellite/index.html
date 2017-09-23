@@ -101,9 +101,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../../keys/index.html">List of keys</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../modularFiles.html">Modular files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../multicase.html">Multi-case simulations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../customJsonApp.html">Writing custom JSON-based applications</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html">Tutorials</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">Unperturbed Earth-orbiting satellite</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../lifetimeMaximisation/index.html">Perturbed Earth-orbiting satellite lifetime maximisation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apolloCapsuleEntry/index.html">Apollo Capsule Entry</a></li>
 </ul>
 </li>
 </ul>
@@ -220,23 +222,27 @@
 </div>
 <p>The first body, <span class="jsonkey">Earth</span>, has the key <span class="jsonkey">useDefaultSettings</span> set to <code class="docutils literal"><span class="pre">true</span></code>, which means that its properties (such as gravitational parameter) will be loaded automatically. For this simple propagation, since we are not considering additional celestial bodies, we can place Earth anywhere, e.g. in the global frame origin (i.e. in the Solar system barycentre). We do that by defining <span class="jsonkey">bodies.Earth.ephemeris</span> to be of type <code class="docutils literal"><span class="pre">constant</span></code> and we use a constant zero state (we also assume it is stationary). The order in which the keys <span class="jsonkey">useDefaultSettings</span> and <span class="jsonkey">ephemeris</span> are defined inside the <span class="jsonkey">bodies.Earth</span> objects is irrelevant: the default settings will always be loaded first, and then the settings specified in the input file (if any) will be overridden.</p>
 <p>The second body, <span class="jsonkey">Asterix</span>, does not specify the key <span class="jsonkey">useDefaultSettings</span>, which defaults to <code class="docutils literal"><span class="pre">false</span></code>. Thus, no properties will be loaded from Spice. Since no perturbations are considered in this propagation, we need not specify a mass or aerodynamic properties. Thus, we only need to provided an <span class="jsonkey">initialState</span>. We can provide directly a vector with the Cartesian components, or an object defining the different keys of a Keplerian state, as shown above.</p>
-<p>Then, we specify the propagator settings. In this case, we are going to propagate the translational state of <span class="jsonkey">Asterix</span> about <span class="jsonkey">Earth</span>, so we define the key <span class="jsonkey">propagator</span> to be:</p>
-<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="nt">&quot;integratedStateType&quot;</span><span class="p">:</span> <span class="s2">&quot;translational&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;centralBodies&quot;</span><span class="p">:</span> <span class="s2">&quot;Earth&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;bodiesToPropagate&quot;</span><span class="p">:</span> <span class="s2">&quot;Asterix&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;accelerations&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;Asterix&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
+<p>Then, we specify the propagator settings. In this case, we are going to propagate the translational state of <span class="jsonkey">Asterix</span> about <span class="jsonkey">Earth</span>, so we define the key <span class="jsonkey">propagators</span> to be:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;integratedStateType&quot;</span><span class="p">:</span> <span class="s2">&quot;translational&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;centralBodies&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="s2">&quot;Earth&quot;</span> <span class="p">],</span>
+    <span class="nt">&quot;bodiesToPropagate&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="s2">&quot;Asterix&quot;</span> <span class="p">],</span>
+    <span class="nt">&quot;accelerations&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;Asterix&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
+          <span class="p">}</span>
+        <span class="p">]</span>
       <span class="p">}</span>
     <span class="p">}</span>
   <span class="p">}</span>
-<span class="p">}</span>
+<span class="p">]</span>
 </pre></div>
 </div>
-<p>Note that the keys <span class="jsonkey">propagator.centralBodies</span> and <span class="jsonkey">propagator.bodiesToPropagate</span> expect an array of strings. However, since unidimensional array inference is enabled by default, we can also provide just a single string. Additionally, we specify the key <span class="jsonkey">propagator.accelerations</span>, an object containing lists of accelerations. The inner keys (in this case, <span class="jsonkey">Earth</span>) are the names of the bodies exerting the accelerations, while the outer keys (in this case, <span class="jsonkey">Asterix</span>), are the names of the bodies undergoing the accelerations. Thus, <span class="jsonkey">accelerations.Asterix.Earth</span> is read as accelerations on Asterix caused by Earth. In this case, the only acceleration is Earth’s point-mass gravity. Thanks to unidimensional array inference, although a list of accelerations is expected, we can simply provide the object <code class="docutils literal"><span class="pre">{</span> <span class="pre">&quot;type&quot;:</span> <span class="pre">&quot;pointMassGravity&quot;</span> <span class="pre">}</span></code>, which is an acceleration object that only requires one key to be defined.</p>
-<p>In this case, some keys of the <span class="jsonkey">propagator</span> have been omitted. For instance, the key <code class="docutils literal"><span class="pre">type</span></code> has not been specified, meaning that the default value <code class="docutils literal"><span class="pre">&quot;cowell&quot;</span></code> is used.</p>
+<p>We specify the key <span class="jsonkey">propagators[0].accelerations</span>, an object containing lists of accelerations. The inner keys (in this case, <span class="jsonkey">Earth</span>) are the names of the bodies exerting the accelerations, while the outer keys (in this case, <span class="jsonkey">Asterix</span>), are the names of the bodies undergoing the accelerations. Thus, <span class="jsonkey">accelerations.Asterix.Earth</span> is read as accelerations on Asterix caused by Earth. In this case, the only acceleration is Earth’s point-mass gravity.</p>
+<p>In this case, some keys of <span class="jsonkey">propagators[0]</span> have been omitted. For instance, the key <code class="docutils literal"><span class="pre">type</span></code> has not been specified, meaning that the default value <code class="docutils literal"><span class="pre">&quot;cowell&quot;</span></code> is used.</p>
 <p>The next step is to define the integrator settings. The initial time is retrieved from the key <span class="jsonkey">initialEpoch</span> defined at root level, so it is sufficient to define the key <span class="jsonkey">integrator</span> to be equal to the following object:</p>
 <div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rungeKutta4&quot;</span><span class="p">,</span>
@@ -324,7 +330,9 @@
 54
 55
 56
-57</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">{</span>
+57
+58
+59</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;initialEpoch&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
   <span class="nt">&quot;finalEpoch&quot;</span><span class="p">:</span> <span class="mi">86400</span><span class="p">,</span>
   <span class="nt">&quot;globalFrameOrientation&quot;</span><span class="p">:</span> <span class="s2">&quot;J2000&quot;</span><span class="p">,</span>
@@ -353,18 +361,20 @@
       <span class="p">}</span>
     <span class="p">}</span>
   <span class="p">},</span>
-  <span class="nt">&quot;propagator&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;integratedStateType&quot;</span><span class="p">:</span> <span class="s2">&quot;translational&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;centralBodies&quot;</span><span class="p">:</span> <span class="s2">&quot;Earth&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;bodiesToPropagate&quot;</span><span class="p">:</span> <span class="s2">&quot;Asterix&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;accelerations&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;Asterix&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
+  <span class="nt">&quot;propagators&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;integratedStateType&quot;</span><span class="p">:</span> <span class="s2">&quot;translational&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;centralBodies&quot;</span><span class="p">:</span> <span class="s2">&quot;Earth&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;bodiesToPropagate&quot;</span><span class="p">:</span> <span class="s2">&quot;Asterix&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;accelerations&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;Asterix&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
+          <span class="p">}</span>
         <span class="p">}</span>
       <span class="p">}</span>
     <span class="p">}</span>
-  <span class="p">},</span>
+  <span class="p">],</span>
   <span class="nt">&quot;integrator&quot;</span><span class="p">:</span> <span class="p">{</span>
     <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rungeKutta4&quot;</span><span class="p">,</span>
     <span class="nt">&quot;stepSize&quot;</span><span class="p">:</span> <span class="mi">10</span>
@@ -388,7 +398,7 @@
 <div class="highlight-txt"><div class="highlight"><pre><span></span>json_inteface main.json
 </pre></div>
 </div>
-<p>we will get a <code class="xref py py-class docutils literal"><span class="pre">stateHistory.txt</span></code> file containing the results, and a <code class="xref py py-class docutils literal"><span class="pre">fullSettings.json</span></code> file containing default settings, inferred unidimensional arrays and some keys are moved to a different place (e.g. <span class="jsonkey">bodies.Asterix.initialState</span> to <span class="jsonkey">propagator[0].initialStates</span>):</p>
+<p>we will get a <code class="xref py py-class docutils literal"><span class="pre">stateHistory.txt</span></code> file containing the results, and a <code class="xref py py-class docutils literal"><span class="pre">fullSettings.json</span></code> file containing default settings and with some keys moved to a different place (e.g. <span class="jsonkey">bodies.Asterix.initialState</span> to <span class="jsonkey">propagators[0].initialStates</span>):</p>
 <div class="literal-block-wrapper docutils container" id="fullsettings-json">
 <div class="code-block-caption"><span class="caption-text"><code class="xref py py-class docutils literal"><span class="pre">fullSettings.json</span></code></span><a class="headerlink" href="#fullsettings-json" title="Permalink to this code">¶</a></div>
 <div class="highlight-json"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
@@ -520,8 +530,7 @@
 127
 128
 129
-130
-131</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">{</span>
+130</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;bodies&quot;</span><span class="p">:</span> <span class="p">{</span>
     <span class="nt">&quot;Asterix&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
     <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -597,10 +606,9 @@
     <span class="nt">&quot;notifyOnPropagationStart&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
     <span class="nt">&quot;notifyOnPropagationTermination&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
     <span class="nt">&quot;tagOutputFilesIfPropagationFails&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
-    <span class="nt">&quot;unidimensionalArrayInference&quot;</span><span class="p">:</span> <span class="s2">&quot;continueSilently&quot;</span><span class="p">,</span>
     <span class="nt">&quot;unusedKey&quot;</span><span class="p">:</span> <span class="s2">&quot;printWarning&quot;</span>
   <span class="p">},</span>
-  <span class="nt">&quot;propagator&quot;</span><span class="p">:</span> <span class="p">[</span>
+  <span class="nt">&quot;propagators&quot;</span><span class="p">:</span> <span class="p">[</span>
     <span class="p">{</span>
       <span class="nt">&quot;accelerations&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="nt">&quot;Asterix&quot;</span><span class="p">:</span> <span class="p">{</span>

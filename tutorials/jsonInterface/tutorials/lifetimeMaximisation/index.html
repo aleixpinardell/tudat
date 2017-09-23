@@ -39,7 +39,7 @@
         <link rel="search" title="Search" href="../../../../search.html"/>
     <link rel="top" title="TU Delft Astrodynamic Toolbox  documentation" href="../../../../index.html"/>
         <link rel="up" title="Tutorials" href="../index.html"/>
-        <link rel="next" title="MATLAB Interface" href="../../../matlabInterface/index.html"/>
+        <link rel="next" title="Apollo Capsule Entry" href="../apolloCapsuleEntry/index.html"/>
         <link rel="prev" title="Unperturbed Earth-orbiting satellite" href="../unperturbedSatellite/index.html"/> 
 
   
@@ -101,9 +101,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../../keys/index.html">List of keys</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../modularFiles.html">Modular files</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../multicase.html">Multi-case simulations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../customJsonApp.html">Writing custom JSON-based applications</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html">Tutorials</a><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="../unperturbedSatellite/index.html">Unperturbed Earth-orbiting satellite</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">Perturbed Earth-orbiting satellite lifetime maximisation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apolloCapsuleEntry/index.html">Apollo Capsule Entry</a></li>
 </ul>
 </li>
 </ul>
@@ -290,41 +292,45 @@ h_{p_f} &amp;\ge 110\text{ km}\end{split}\]</div>
 </div>
 <p>As can be seen, the bodies <span class="jsonkey">Sun</span> and <span class="jsonkey">Moon</span> have no properties other than the <span class="jsonkey">useDefaultSettings</span> set to <code class="docutils literal"><span class="pre">true</span></code>, which means that their properties (such as gravitational parameter, ephemeris, gravitational models) will be loaded automatically from Spice. For <span class="jsonkey">Earth</span>, we also use the default settings, but then we re-define the atmosphere and the spherical harmonic gravity model, since NRLMSISE00 and GGM02C are not used by default. We do this by defining <span class="jsonkey">bodies.Earth.atmosphere</span> and <span class="jsonkey">bodies.Earth.gravityField</span> keys. The order in which the keys <span class="jsonkey">useDefaultSettings</span>, <span class="jsonkey">atmosphere</span> and <span class="jsonkey">gravityField</span> are defined inside the <span class="jsonkey">bodies.Earth</span> objects is irrelevant: the default settings will always be loaded first, and then the settings specified in the input file (if any) will be overridden.</p>
 <p>For the orbiting body, <span class="jsonkey">satellite</span>, we do not specify the key <span class="jsonkey">useDefaultSettings</span>, which defaults to <code class="docutils literal"><span class="pre">false</span></code>. Thus, no properties will be pre-loaded. We provided an <span class="jsonkey">initialState</span> of type <code class="docutils literal"><span class="pre">&quot;keplerian&quot;</span></code>. We need not define the keys <span class="jsonkey">argumentOfPeriapsis</span>, <span class="jsonkey">longitudeOfAscendingNode</span> and <span class="jsonkey">trueAnomaly</span>, which are assumed to be <code class="docutils literal"><span class="pre">0</span></code>. Then we define its constant <span class="jsonkey">mass</span> and <span class="jsonkey">referenceArea</span>. Finally, we add aerodynamics and radiation pressure settings. In both cases, there is no need to specify a key <span class="jsonkey">type</span> because constant aerodynamics coefficients and cannon ball radiation pressure are the default types. For the aerodynamics, we only need to specify the force coefficients (only drag, no lift of side force). For the key <span class="jsonkey">radiationPressure</span>, we provide an object in which each key is the name of the radiating bodies (in this case, only the <span class="jsonkey">Sun</span>). We specify the <span class="jsonkey">radiationPressureCoefficient</span> and a list of <span class="jsonkey">occultingBodies</span> (i.e. bodies which can block the flux from the Sun on the satellite).</p>
-<p>Then, we specify the propagator settings. In this case, we are going to propagate the translational state of <span class="jsonkey">satellite</span> about <span class="jsonkey">Earth</span>, so we define the key <span class="jsonkey">propagator</span> to be:</p>
-<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="nt">&quot;integratedStateType&quot;</span><span class="p">:</span> <span class="s2">&quot;translational&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;centralBodies&quot;</span><span class="p">:</span> <span class="s2">&quot;Earth&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;bodiesToPropagate&quot;</span><span class="p">:</span> <span class="s2">&quot;Asterix&quot;</span><span class="p">,</span>
-  <span class="nt">&quot;accelerations&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;satellite&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;sphericalHarmonicGravity&quot;</span><span class="p">,</span>
-          <span class="nt">&quot;maximumDegree&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
-          <span class="nt">&quot;maximumOrder&quot;</span><span class="p">:</span> <span class="mi">0</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;aerodynamic&quot;</span>
-        <span class="p">}</span>
-      <span class="p">],</span>
-      <span class="nt">&quot;Sun&quot;</span><span class="p">:</span> <span class="p">[</span>
-        <span class="p">{</span>
-          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
-        <span class="p">},</span>
-        <span class="p">{</span>
-          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;cannonBallRadiationPressure&quot;</span>
-        <span class="p">}</span>
-      <span class="p">],</span>
-      <span class="nt">&quot;Moon&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
+<p>Then, we specify the propagator settings. In this case, we are going to propagate the translational state of <span class="jsonkey">satellite</span> about <span class="jsonkey">Earth</span>, so we define the key <span class="jsonkey">propagators</span> to be:</p>
+<div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;integratedStateType&quot;</span><span class="p">:</span> <span class="s2">&quot;translational&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;centralBodies&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="s2">&quot;Earth&quot;</span> <span class="p">],</span>
+    <span class="nt">&quot;bodiesToPropagate&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="s2">&quot;Asterix&quot;</span> <span class="p">],</span>
+    <span class="nt">&quot;accelerations&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;satellite&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;sphericalHarmonicGravity&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;maximumDegree&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+            <span class="nt">&quot;maximumOrder&quot;</span><span class="p">:</span> <span class="mi">0</span>
+          <span class="p">},</span>
+          <span class="p">{</span>
+            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;aerodynamic&quot;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;Sun&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
+          <span class="p">},</span>
+          <span class="p">{</span>
+            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;cannonBallRadiationPressure&quot;</span>
+          <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="nt">&quot;Moon&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">{</span>
+            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
+          <span class="p">}</span>
+        <span class="p">]</span>
       <span class="p">}</span>
     <span class="p">}</span>
   <span class="p">}</span>
-<span class="p">}</span>
+<span class="p">]</span>
 </pre></div>
 </div>
-<p>Note that the keys <span class="jsonkey">propagator.centralBodies</span> and <span class="jsonkey">propagator.bodiesToPropagate</span> expect an array of strings. However, since unidimensional array inference is enabled by default, we can also provide just a single string. Additionally, we specify the key <span class="jsonkey">propagator.accelerations</span>, an object containing lists of accelerations. The inner keys (in this case, <span class="jsonkey">Earth</span>, <span class="jsonkey">Sun</span> and <span class="jsonkey">Moon</span>) are the names of the bodies exerting the accelerations, while the outer keys (in this case, <span class="jsonkey">satellite</span>), are the names of the bodies undergoing the accelerations. Thus, <span class="jsonkey">accelerations.satellite.Earth</span> is read as accelerations on the satellite caused by Earth. In this case, this is a list with two accelerations: the spherical harmonic gravity up to degree 7 and order 0 (i.e. only zonal terms), and the aerodynamic acceleration caused by the atmosphere. For the Sun, we specify the point-mass gravitational attraction and the cannon-ball radiation pressure acceleration. Finally, for the Moon, there is only one acceleration: that caused by the point-mass gravitational attraction.</p>
-<p>In this case, some keys of the <span class="jsonkey">propagator</span> have been omitted. For instance, the key <code class="docutils literal"><span class="pre">type</span></code> has not been specified, meaning that the default value <code class="docutils literal"><span class="pre">&quot;cowell&quot;</span></code> is used.</p>
+<p>We specify the key <span class="jsonkey">propagators[0].accelerations</span>, an object containing lists of accelerations. The inner keys (in this case, <span class="jsonkey">Earth</span>, <span class="jsonkey">Sun</span> and <span class="jsonkey">Moon</span>) are the names of the bodies exerting the accelerations, while the outer keys (in this case, <span class="jsonkey">satellite</span>), are the names of the bodies undergoing the accelerations. Thus, <span class="jsonkey">accelerations.satellite.Earth</span> is read as accelerations on the satellite caused by Earth. In this case, this is a list with two accelerations: the spherical harmonic gravity up to degree 7 and order 0 (i.e. only zonal terms), and the aerodynamic acceleration caused by the atmosphere. For the Sun, we specify the point-mass gravitational attraction and the cannon-ball radiation pressure acceleration. Finally, for the Moon, there is only one acceleration: that caused by the point-mass gravitational attraction.</p>
+<p>In this case, some keys of <span class="jsonkey">propagators[0]</span> have been omitted. For instance, the key <code class="docutils literal"><span class="pre">type</span></code> has not been specified, meaning that the default value <code class="docutils literal"><span class="pre">&quot;cowell&quot;</span></code> is used.</p>
 <p>The next step is to define the integrator settings. The initial time is retrieved from the key <span class="jsonkey">initialEpoch</span> defined at root level. Thus, we define the key <span class="jsonkey">integrator</span> to be equal to the following object:</p>
 <div class="highlight-json"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rungeKuttaVariableStepSize&quot;</span><span class="p">,</span>
@@ -480,7 +486,9 @@ h_{p_f} &amp;\ge 110\text{ km}\end{split}\]</div>
 100
 101
 102
-103</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">{</span>
+103
+104
+105</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;globalFrameOrientation&quot;</span><span class="p">:</span> <span class="s2">&quot;J2000&quot;</span><span class="p">,</span>
   <span class="nt">&quot;spice&quot;</span><span class="p">:</span> <span class="p">{</span>
     <span class="nt">&quot;useStandardKernels&quot;</span><span class="p">:</span> <span class="kc">true</span>
@@ -522,36 +530,38 @@ h_{p_f} &amp;\ge 110\text{ km}\end{split}\]</div>
       <span class="p">}</span>
     <span class="p">}</span>
   <span class="p">},</span>
-  <span class="nt">&quot;propagator&quot;</span><span class="p">:</span> <span class="p">{</span>
-    <span class="nt">&quot;integratedStateType&quot;</span><span class="p">:</span> <span class="s2">&quot;translational&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;centralBodies&quot;</span><span class="p">:</span> <span class="s2">&quot;Earth&quot;</span> <span class="p">,</span>
-    <span class="nt">&quot;bodiesToPropagate&quot;</span><span class="p">:</span> <span class="s2">&quot;satellite&quot;</span><span class="p">,</span>
-    <span class="nt">&quot;accelerations&quot;</span><span class="p">:</span> <span class="p">{</span>
-      <span class="nt">&quot;satellite&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">[</span>
-          <span class="p">{</span>
-            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;sphericalHarmonicGravity&quot;</span><span class="p">,</span>
-            <span class="nt">&quot;maximumDegree&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
-            <span class="nt">&quot;maximumOrder&quot;</span><span class="p">:</span> <span class="mi">0</span>
-          <span class="p">},</span>
-          <span class="p">{</span>
-            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;aerodynamic&quot;</span>
-          <span class="p">}</span>
-        <span class="p">],</span>
-        <span class="nt">&quot;Sun&quot;</span><span class="p">:</span> <span class="p">[</span>
-          <span class="p">{</span>
+  <span class="nt">&quot;propagators&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">&quot;integratedStateType&quot;</span><span class="p">:</span> <span class="s2">&quot;translational&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;centralBodies&quot;</span><span class="p">:</span> <span class="s2">&quot;Earth&quot;</span> <span class="p">,</span>
+      <span class="nt">&quot;bodiesToPropagate&quot;</span><span class="p">:</span> <span class="s2">&quot;satellite&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;accelerations&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">&quot;satellite&quot;</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;sphericalHarmonicGravity&quot;</span><span class="p">,</span>
+              <span class="nt">&quot;maximumDegree&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+              <span class="nt">&quot;maximumOrder&quot;</span><span class="p">:</span> <span class="mi">0</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;aerodynamic&quot;</span>
+            <span class="p">}</span>
+          <span class="p">],</span>
+          <span class="nt">&quot;Sun&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;cannonBallRadiationPressure&quot;</span>
+            <span class="p">}</span>
+          <span class="p">],</span>
+          <span class="nt">&quot;Moon&quot;</span><span class="p">:</span> <span class="p">{</span>
             <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
-          <span class="p">},</span>
-          <span class="p">{</span>
-            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;cannonBallRadiationPressure&quot;</span>
           <span class="p">}</span>
-        <span class="p">],</span>
-        <span class="nt">&quot;Moon&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
         <span class="p">}</span>
       <span class="p">}</span>
     <span class="p">}</span>
-  <span class="p">},</span>
+  <span class="p">],</span>
   <span class="nt">&quot;integrator&quot;</span><span class="p">:</span> <span class="p">{</span>
     <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;rungeKuttaVariableStepSize&quot;</span><span class="p">,</span>
     <span class="nt">&quot;rungeKuttaCoefficientSet&quot;</span><span class="p">:</span> <span class="s2">&quot;rungeKuttaFehlberg78&quot;</span><span class="p">,</span>
@@ -662,7 +672,7 @@ h_{p_f} &amp;\ge 110\text{ km}\end{split}\]</div>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../../matlabInterface/index.html" class="btn btn-neutral float-right" title="MATLAB Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../apolloCapsuleEntry/index.html" class="btn btn-neutral float-right" title="Apollo Capsule Entry" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../unperturbedSatellite/index.html" class="btn btn-neutral" title="Unperturbed Earth-orbiting satellite" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

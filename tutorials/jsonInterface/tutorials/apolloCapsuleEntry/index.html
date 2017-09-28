@@ -39,7 +39,7 @@
         <link rel="search" title="Search" href="../../../../search.html"/>
     <link rel="top" title="TU Delft Astrodynamic Toolbox  documentation" href="../../../../index.html"/>
         <link rel="up" title="Tutorials" href="../index.html"/>
-        <link rel="next" title="MATLAB Interface" href="../../../matlabInterface/index.html"/>
+        <link rel="next" title="Perturbed Earth-orbiting satellite lifetime maximisation using a custom C++ application" href="../lifetimeMaximisationCPP/index.html"/>
         <link rel="prev" title="Perturbed Earth-orbiting satellite lifetime maximisation" href="../lifetimeMaximisation/index.html"/> 
 
   
@@ -106,6 +106,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../unperturbedSatellite/index.html">Unperturbed Earth-orbiting satellite</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../lifetimeMaximisation/index.html">Perturbed Earth-orbiting satellite lifetime maximisation</a></li>
 <li class="toctree-l4 current"><a class="current reference internal" href="#">Apollo Capsule Entry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../lifetimeMaximisationCPP/index.html">Perturbed Earth-orbiting satellite lifetime maximisation using a custom C++ application</a></li>
 </ul>
 </li>
 </ul>
@@ -336,9 +337,9 @@
     <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">cppFilePath</span><span class="p">(</span> <span class="n">__FILE__</span> <span class="p">);</span>
     <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">cppFolder</span> <span class="o">=</span> <span class="n">cppFilePath</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="n">cppFilePath</span><span class="p">.</span><span class="n">find_last_of</span><span class="p">(</span><span class="s">&quot;/</span><span class="se">\\</span><span class="s">&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">);</span>
 
-    <span class="n">ApolloJsonSimulationManager</span> <span class="n">jsonSimulationManager</span><span class="p">;</span>
-    <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">setUpFromJSONFile</span><span class="p">(</span> <span class="n">cppFolder</span> <span class="o">+</span> <span class="s">&quot;apolloCapsuleEntry.json&quot;</span> <span class="p">);</span>
-    <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">run</span><span class="p">(</span> <span class="p">);</span>
+    <span class="n">ApolloJsonSimulationManager</span> <span class="n">jsonSimulationManager</span><span class="p">(</span> <span class="n">cppFolder</span> <span class="o">+</span> <span class="s">&quot;apolloCapsuleEntry.json&quot;</span> <span class="p">);</span>
+    <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">updateSettings</span><span class="p">(</span> <span class="p">);</span>
+    <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">runPropagation</span><span class="p">(</span> <span class="p">);</span>
     <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">exportResults</span><span class="p">(</span> <span class="p">);</span>
 
     <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
@@ -357,7 +358,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../../matlabInterface/index.html" class="btn btn-neutral float-right" title="MATLAB Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../lifetimeMaximisationCPP/index.html" class="btn btn-neutral float-right" title="Perturbed Earth-orbiting satellite lifetime maximisation using a custom C++ application" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../lifetimeMaximisation/index.html" class="btn btn-neutral" title="Perturbed Earth-orbiting satellite lifetime maximisation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

@@ -106,6 +106,7 @@
 <li class="toctree-l4 current"><a class="current reference internal" href="#">Unperturbed Earth-orbiting satellite</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../lifetimeMaximisation/index.html">Perturbed Earth-orbiting satellite lifetime maximisation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="../apolloCapsuleEntry/index.html">Apollo Capsule Entry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../lifetimeMaximisationCPP/index.html">Perturbed Earth-orbiting satellite lifetime maximisation using a custom C++ application</a></li>
 </ul>
 </li>
 </ul>
@@ -332,7 +333,15 @@
 56
 57
 58
-59</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">{</span>
+59
+60
+61
+62
+63
+64
+65
+66
+67</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;initialEpoch&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
   <span class="nt">&quot;finalEpoch&quot;</span><span class="p">:</span> <span class="mi">86400</span><span class="p">,</span>
   <span class="nt">&quot;globalFrameOrientation&quot;</span><span class="p">:</span> <span class="s2">&quot;J2000&quot;</span><span class="p">,</span>
@@ -364,13 +373,19 @@
   <span class="nt">&quot;propagators&quot;</span><span class="p">:</span> <span class="p">[</span>
     <span class="p">{</span>
       <span class="nt">&quot;integratedStateType&quot;</span><span class="p">:</span> <span class="s2">&quot;translational&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;centralBodies&quot;</span><span class="p">:</span> <span class="s2">&quot;Earth&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;bodiesToPropagate&quot;</span><span class="p">:</span> <span class="s2">&quot;Asterix&quot;</span><span class="p">,</span>
+      <span class="nt">&quot;centralBodies&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;Earth&quot;</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;bodiesToPropagate&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;Asterix&quot;</span>
+      <span class="p">],</span>
       <span class="nt">&quot;accelerations&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="nt">&quot;Asterix&quot;</span><span class="p">:</span> <span class="p">{</span>
-          <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
-          <span class="p">}</span>
+          <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+              <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;pointMassGravity&quot;</span>
+            <span class="p">}</span>
+          <span class="p">]</span>
         <span class="p">}</span>
       <span class="p">}</span>
     <span class="p">}</span>
@@ -382,9 +397,11 @@
   <span class="nt">&quot;export&quot;</span><span class="p">:</span> <span class="p">[</span>
     <span class="p">{</span>
       <span class="nt">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;@path(stateHistory.txt)&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;variables&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;state&quot;</span>
-      <span class="p">}</span>
+      <span class="nt">&quot;variables&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+          <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;state&quot;</span>
+        <span class="p">}</span>
+      <span class="p">]</span>
     <span class="p">}</span>
   <span class="p">],</span>
   <span class="nt">&quot;options&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -530,7 +547,8 @@
 127
 128
 129
-130</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">{</span>
+130
+131</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;bodies&quot;</span><span class="p">:</span> <span class="p">{</span>
     <span class="nt">&quot;Asterix&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
     <span class="nt">&quot;Earth&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -582,7 +600,7 @@
     <span class="p">{</span>
       <span class="nt">&quot;epochsInFirstColumn&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
       <span class="nt">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;stateHistory.txt&quot;</span><span class="p">,</span>
-      <span class="nt">&quot;numericalPrecision&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+      <span class="nt">&quot;numericalPrecision&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
       <span class="nt">&quot;onlyFinalStep&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
       <span class="nt">&quot;onlyInitialStep&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
       <span class="nt">&quot;variables&quot;</span><span class="p">:</span> <span class="p">[</span>
@@ -595,6 +613,7 @@
   <span class="nt">&quot;globalFrameOrientation&quot;</span><span class="p">:</span> <span class="s2">&quot;J2000&quot;</span><span class="p">,</span>
   <span class="nt">&quot;globalFrameOrigin&quot;</span><span class="p">:</span> <span class="s2">&quot;SSB&quot;</span><span class="p">,</span>
   <span class="nt">&quot;integrator&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;assessPropagationTerminationConditionDuringIntegrationSubsteps&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
     <span class="nt">&quot;initialTime&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="nt">&quot;saveFrequency&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
     <span class="nt">&quot;stepSize&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>

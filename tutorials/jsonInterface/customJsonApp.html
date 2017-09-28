@@ -183,9 +183,9 @@
 
 <span class="kt">int</span> <span class="nf">main</span><span class="p">(</span> <span class="p">)</span>
 <span class="p">{</span>
-  <span class="n">tudat</span><span class="o">::</span><span class="n">json_interface</span><span class="o">::</span><span class="n">JsonSimulationManager</span><span class="o">&lt;</span> <span class="o">&gt;</span> <span class="n">jsonSimulationManager</span><span class="p">;</span>
-  <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">setUpFromJSONFile</span><span class="p">(</span> <span class="s">&quot;main.json&quot;</span> <span class="p">);</span>
-  <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">run</span><span class="p">(</span> <span class="p">);</span>
+  <span class="n">tudat</span><span class="o">::</span><span class="n">json_interface</span><span class="o">::</span><span class="n">JsonSimulationManager</span><span class="o">&lt;</span> <span class="o">&gt;</span> <span class="n">jsonSimulationManager</span><span class="p">(</span> <span class="s">&quot;main.json&quot;</span> <span class="p">);</span>
+  <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">updateSettings</span><span class="p">(</span> <span class="p">);</span>
+  <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">runPropagation</span><span class="p">(</span> <span class="p">);</span>
   <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">exportResults</span><span class="p">(</span> <span class="p">);</span>
   <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
 <span class="p">}</span>
@@ -207,9 +207,9 @@
 <span class="kt">int</span> <span class="nf">main</span><span class="p">(</span> <span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">*</span> <span class="n">argv</span><span class="p">[</span> <span class="p">]</span> <span class="p">)</span>
 <span class="p">{</span>
   <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">inputPath</span> <span class="o">=</span> <span class="n">argv</span><span class="p">[</span> <span class="mi">1</span> <span class="p">];</span>
-  <span class="n">tudat</span><span class="o">::</span><span class="n">json_interface</span><span class="o">::</span><span class="n">JsonSimulationManager</span><span class="o">&lt;</span> <span class="o">&gt;</span> <span class="n">jsonSimulationManager</span><span class="p">;</span>
-  <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">setUpFromJSONFile</span><span class="p">(</span> <span class="n">inputPath</span> <span class="p">);</span>
-  <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">run</span><span class="p">(</span> <span class="p">);</span>
+  <span class="n">tudat</span><span class="o">::</span><span class="n">json_interface</span><span class="o">::</span><span class="n">JsonSimulationManager</span><span class="o">&lt;</span> <span class="o">&gt;</span> <span class="n">jsonSimulationManager</span><span class="p">(</span> <span class="n">inputPath</span> <span class="p">);</span>
+  <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">updateSettings</span><span class="p">(</span> <span class="p">);</span>
+  <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">runPropagation</span><span class="p">(</span> <span class="p">);</span>
   <span class="n">jsonSimulationManager</span><span class="p">.</span><span class="n">exportResults</span><span class="p">(</span> <span class="p">);</span>
   <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
 <span class="p">}</span>
@@ -219,15 +219,15 @@
 <p>The four basic steps in a JSON-based applications are:</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li>Create a <code class="xref py py-class docutils literal"><span class="pre">JsonSimulationManager</span></code> object (line 6). This class takes two template arguments, the first being the type to be used for the independent variable (the epoch) and the second the scalar type for the state variable (position, velocity, mass, etc.). When these types are not specified, the default values (<code class="xref py py-class docutils literal"><span class="pre">double</span></code>) are used, i.e. <code class="docutils literal"><span class="pre">JsonSimulationManager&lt;</span> <span class="pre">&gt;</span></code> is equivalent to <code class="docutils literal"><span class="pre">JsonSimulationManager&lt;</span> <span class="pre">double,</span> <span class="pre">double</span> <span class="pre">&gt;</span></code>.</li>
-<li>Set up the simulation (line 7). This can be done by providing the absolute or relative path to a JSON file, using the method <code class="docutils literal"><span class="pre">setUpFromJSONFile(</span> <span class="pre">const</span> <span class="pre">std::string&amp;</span> <span class="pre">)</span></code>, or by providing the JSON object directly, using the method <code class="docutils literal"><span class="pre">setUpFromJSONObject(</span> <span class="pre">const</span> <span class="pre">nlohmann::json&amp;</span> <span class="pre">)</span></code>. In this case, the <code class="docutils literal"><span class="pre">nlohmann::json</span></code> object can be created manually or parsed from an input file.</li>
+<li>Create a <code class="xref py py-class docutils literal"><span class="pre">JsonSimulationManager</span></code> object (line 6). This class takes two template arguments, the first being the type to be used for the independent variable (the epoch) and the second the scalar type for the state variable (position, velocity, mass, etc.). When these types are not specified, the default values (<code class="xref py py-class docutils literal"><span class="pre">double</span></code>) are used, i.e. <code class="docutils literal"><span class="pre">JsonSimulationManager&lt;</span> <span class="pre">&gt;</span></code> is equivalent to <code class="docutils literal"><span class="pre">JsonSimulationManager&lt;</span> <span class="pre">double,</span> <span class="pre">double</span> <span class="pre">&gt;</span></code>. The input argument is the absolute or relative path to a JSON file.</li>
 </ol>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">When calling the method <code class="docutils literal"><span class="pre">setUpFromJSONFile(</span> <span class="pre">const</span> <span class="pre">std::string&amp;</span> <span class="pre">)</span></code>, the current working directory is set to the directory in which the specified file is located.</p>
+<p class="last">When creating a <code class="xref py py-class docutils literal"><span class="pre">JsonSimulationManager</span></code> using this constructor, the current working directory is set to the directory in which the specified file is located.</p>
 </div>
-<ol class="arabic simple" start="3">
-<li>Run the simulation (line 8). In addition to integrating the equations of motion, calling the method <code class="docutils literal"><span class="pre">run</span></code> this will also check whether there are unused keys, print messages and/or generate a file with all the settings that are going be used depending on the settings specified in the key <span class="jsonkey">options</span> of the JSON object.</li>
+<ol class="arabic simple" start="2">
+<li>Set up the simulation (line 7). This uses the information contained in the JSON objects parsed from the specified input file to create all the settings objects necessary for the simulation (integrator, bodies, propagator, etc.).</li>
+<li>Run the propagation (line 8). In addition to integrating the equations of motion, calling the method <code class="docutils literal"><span class="pre">run</span></code> this will also check whether there are unused keys, print messages and/or generate a file with all the settings that are going be used depending on the settings specified in the key <span class="jsonkey">options</span> of the JSON object.</li>
 <li>Export the results (line 9). Calling the method <code class="docutils literal"><span class="pre">exportResults</span></code> will generate the output files with the requested results specified in the key <span class="jsonkey">export</span> of the JSON object.</li>
 </ol>
 </div></blockquote>
@@ -243,8 +243,10 @@
  7
  8
  9
-10</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">virtual</span> <span class="kt">void</span> <span class="nf">updateSettingsFromJSONObject</span><span class="p">(</span> <span class="p">)</span>
+10
+11</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="k">virtual</span> <span class="kt">void</span> <span class="nf">updateSettings</span><span class="p">(</span> <span class="p">)</span>
 <span class="p">{</span>
+    <span class="p">...</span>
     <span class="n">resetIntegratorSettings</span><span class="p">(</span> <span class="p">);</span>
     <span class="n">resetSpice</span><span class="p">(</span> <span class="p">);</span>
     <span class="n">resetBodies</span><span class="p">(</span> <span class="p">);</span>              <span class="c1">// must be called after resetIntegratorSettings and resetSpice</span>
@@ -263,7 +265,7 @@
 </ul>
 </div></blockquote>
 <p>In practice, this means that <code class="docutils literal"><span class="pre">resetBodies</span></code> must be called after <code class="docutils literal"><span class="pre">resetIntegratorSettings</span></code> and <code class="docutils literal"><span class="pre">resetSpice</span></code>, and <code class="docutils literal"><span class="pre">resetPropagatorSettings</span></code> must be called after <code class="docutils literal"><span class="pre">resetBodies</span></code> and <code class="docutils literal"><span class="pre">resetExportSettings</span></code>.</p>
-<p>Thus, to avoid undefined behaviour, rather than overriding the <code class="docutils literal"><span class="pre">updateSettingsFromJSONObject</span></code> method, one would override just some of the virtual methods called therein. It is recommended to call the original implementation inside the custom implementations of these methods, and then provide additional steps. For instance, before the <code class="docutils literal"><span class="pre">main</span></code> function:</p>
+<p>Thus, to avoid undefined behaviour, rather than overriding the <code class="docutils literal"><span class="pre">updateSettings</span></code> method, one would override just some of the virtual methods called therein. It is recommended to call the original implementation inside the custom implementations of these methods, and then provide additional steps. For instance, before the <code class="docutils literal"><span class="pre">main</span></code> function:</p>
 <div class="highlight-cpp"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3

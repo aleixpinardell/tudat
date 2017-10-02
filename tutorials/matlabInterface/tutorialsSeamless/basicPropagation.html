@@ -210,7 +210,7 @@
 <span class="n">satellite</span><span class="p">.</span><span class="n">initialState</span><span class="p">.</span><span class="n">inclination</span> <span class="p">=</span> <span class="n">deg2rad</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
 </pre></div>
 </div>
-<p>Note that some of the Keplerian components have been omitted, and thus they are assumed to be zero.</p>
+<p>Note that some of the Keplerian components have been omitted, and thus they are assumed to be zero. The semi-major axis cannot be omitted when providing a Keplerian state.</p>
 <p>Now, we add the bodies to the simulation by calling the method <code class="docutils literal"><span class="pre">addBodies</span></code> of the <code class="docutils literal"><span class="pre">simulation</span></code> object. There exist predefined objects for celestial bodies (namely the Sun, the Moon and the eight planets), so these objects can be added directly without the need to specify their properties:</p>
 <div class="highlight-matlab"><div class="highlight"><pre><span></span><span class="n">simulation</span><span class="p">.</span><span class="n">addBodies</span><span class="p">(</span><span class="n">Earth</span><span class="p">,</span><span class="n">satellite</span><span class="p">);</span>
 </pre></div>
@@ -238,7 +238,7 @@
 <div class="highlight-matlab"><div class="highlight"><pre><span></span><span class="n">simulation</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
 </pre></div>
 </div>
-<p>This method creates a temporary input file and calls the <code class="docutils literal"><span class="pre">json_interface</span></code> application, generating a temporary output file containing the state of the satellite for each integration step. Then, it loads this results into the struct <code class="docutils literal"><span class="pre">results</span></code> of the <code class="docutils literal"><span class="pre">simulation</span></code> object. Finally, all the temporary files are deleted.</p>
+<p>This method creates a temporary input file and calls the <code class="docutils literal"><span class="pre">json_interface</span></code> application, generating a temporary output file containing the state of the satellite for each integration step. Then, it loads these results into the struct <code class="docutils literal"><span class="pre">results</span></code> of the <code class="docutils literal"><span class="pre">simulation</span></code> object. Finally, all the temporary files are deleted.</p>
 <p>After running the simulation, if no specific results have been requested, we can obtain the numerical solution of the equations of motion from <code class="docutils literal"><span class="pre">simulation.results.numericalSolution</span></code>. This is a matrix containing in each row the results of an integration step. The first column contains the epochs, while the columns 2 to 7 contain the associated Cartesian states of the satellite.</p>
 <p>We can use the results to generate a plot of the x, y and z components of the position of the satellite:</p>
 <div class="highlight-matlab"><div class="highlight"><pre><span></span><span class="n">t</span> <span class="p">=</span> <span class="n">simulation</span><span class="p">.</span><span class="n">results</span><span class="p">.</span><span class="n">numericalSolution</span><span class="p">(:,</span><span class="mi">1</span><span class="p">);</span>

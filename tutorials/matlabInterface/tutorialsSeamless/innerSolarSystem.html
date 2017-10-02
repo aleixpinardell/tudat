@@ -188,7 +188,7 @@
             
   <div class="section" id="inner-solar-system-propagation">
 <span id="matlabinterface-tutorialsseamless-innersolarsystem"></span><h1>Inner Solar System Propagation<a class="headerlink" href="#inner-solar-system-propagation" title="Permalink to this headline">¶</a></h1>
-<p>This tutorial describes how to propagate the orbit of the inner Solar system bodies can be propagated using the MATLAB Interface, similar to the example <a class="reference internal" href="../../applicationWalkthroughs/innerSolarSystemPropagation.html#walkthroughsinnersolarsystempropagation"><span class="std std-ref">Inner Solar System Propagation</span></a> written in C++. The code for this example can be found at:</p>
+<p>This tutorial describes how the orbit of the inner Solar system bodies can be propagated using the MATLAB Interface, similar to the example <a class="reference internal" href="../../applicationWalkthroughs/innerSolarSystemPropagation.html#walkthroughsinnersolarsystempropagation"><span class="std std-ref">Inner Solar System Propagation</span></a> written in C++. The code for this example can be found at:</p>
 <div class="highlight-txt"><div class="highlight"><pre><span></span>tudatBundle/matlabInterface/Examples/Seamless/innerSolarSystem.m
 </pre></div>
 </div>
@@ -213,13 +213,13 @@
 <span class="k">for</span> <span class="nb">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">bodyNames</span><span class="p">)</span>
     <span class="k">for</span> <span class="nb">j</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">bodyNames</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">i</span> <span class="o">~=</span> <span class="nb">j</span>
-            <span class="n">accelerations</span><span class="p">.(</span><span class="n">bodyNames</span><span class="p">{</span><span class="nb">j</span><span class="p">}).(</span><span class="n">bodyNames</span><span class="p">{</span><span class="nb">i</span><span class="p">})</span> <span class="p">=</span> <span class="p">{</span><span class="n">PointMassGravity</span><span class="p">()};</span>
+            <span class="n">accelerations</span><span class="p">.(</span><span class="n">bodyNames</span><span class="p">{</span><span class="nb">i</span><span class="p">}).(</span><span class="n">bodyNames</span><span class="p">{</span><span class="nb">j</span><span class="p">})</span> <span class="p">=</span> <span class="p">{</span><span class="n">PointMassGravity</span><span class="p">()};</span>
         <span class="k">end</span>
     <span class="k">end</span>
 <span class="k">end</span>
 </pre></div>
 </div>
-<p>Note that the named of the bodies have been retrieved from <code class="docutils literal"><span class="pre">fieldnames(simulation.bodies)</span></code>.</p>
+<p>Note that the names of the bodies have been retrieved from <code class="docutils literal"><span class="pre">fieldnames(simulation.bodies)</span></code>.</p>
 <p>Then, we create the settings for the propagation. We are going to propagate the translational state of the celestial bodies. Thus, we use a <code class="xref py py-class docutils literal"><span class="pre">TranslationalPropagator</span></code>:</p>
 <div class="highlight-matlab"><div class="highlight"><pre><span></span><span class="n">propagator</span> <span class="p">=</span> <span class="n">TranslationalPropagator</span><span class="p">();</span>
 <span class="n">propagator</span><span class="p">.</span><span class="n">bodiesToPropagate</span> <span class="p">=</span> <span class="n">bodyNames</span><span class="p">;</span>
@@ -238,7 +238,7 @@
 <div class="highlight-matlab"><div class="highlight"><pre><span></span><span class="n">simulation</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
 </pre></div>
 </div>
-<p>This method creates a temporary input file and calls the <code class="docutils literal"><span class="pre">json_interface</span></code> application, generating a temporary output file containing the state of the satellite for each integration step. Then, it loads this results into the struct <code class="docutils literal"><span class="pre">results</span></code> of the <code class="docutils literal"><span class="pre">simulation</span></code> object. Finally, all the temporary files are deleted.</p>
+<p>This method creates a temporary input file and calls the <code class="docutils literal"><span class="pre">json_interface</span></code> application, generating a temporary output file containing the state of the satellite for each integration step. Then, it loads these results into the struct <code class="docutils literal"><span class="pre">results</span></code> of the <code class="docutils literal"><span class="pre">simulation</span></code> object. Finally, all the temporary files are deleted.</p>
 <p>After running the simulation, if no specific results have been requested, we can obtain the numerical solution of the equations of motion from <code class="docutils literal"><span class="pre">simulation.results.numericalSolution</span></code>. This is a matrix containing in each row the results of an integration step. The first column contains the epochs, while the columns 2 to 7 contain the associated Cartesian states of the first propagated body (the Sun), columns 8 to 13 the Cartesian states of the second propagated body (Mercury), and so on. We can retrieve the positions for each body and save them in the struct <code class="docutils literal"><span class="pre">r</span></code> by writing:</p>
 <div class="highlight-matlab"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="nb">i</span> <span class="p">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">bodyNames</span><span class="p">)</span>
     <span class="n">fromIndex</span> <span class="p">=</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="nb">i</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">6</span><span class="p">;</span>

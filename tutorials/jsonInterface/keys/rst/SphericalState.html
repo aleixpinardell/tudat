@@ -142,7 +142,7 @@
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../../../_sources/tutorials/jsonInterface/keys/rst/State.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../../_sources/tutorials/jsonInterface/keys/rst/SphericalState.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -156,20 +156,16 @@
            <div itemprop="articleBody">
             
   <ul class="simple">
-<li><span class="jsontype">string</span> <span class="jsonkey">type</span> (mandatory). Possible values: <code class="docutils literal"><span class="pre">&quot;cartesian&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;keplerian&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;spherical&quot;</span></code>.</li>
+<li><span class="jsontype">number</span> <span class="jsonkey">centralBodyAverageRadius</span> (optional). If not specified, will be retrieved from the corresponding central body specified in the propagator.</li>
+<li><span class="jsontype">number</span> <span class="jsonkey">epoch</span> (optional). If not specified, will be retrieved from the initial epoch of the integrator.</li>
+<li><span class="jsontype">number</span> <span class="jsonkey">radius</span> (mandatory if <span class="jsonkey">altitude</span> undefined).</li>
+<li><span class="jsontype">number</span> <span class="jsonkey">altitude</span> (mandatory if <span class="jsonkey">radius</span> undefined).</li>
+<li><span class="jsontype">number</span> <span class="jsonkey">latitude</span> (optional). Default value: <code class="docutils literal"><span class="pre">0</span></code>.</li>
+<li><span class="jsontype">number</span> <span class="jsonkey">longitude</span> (optional). Default value: <code class="docutils literal"><span class="pre">0</span></code>.</li>
+<li><span class="jsontype">number</span> <span class="jsonkey">speed</span> (mandatory).</li>
+<li><span class="jsontype">number</span> <span class="jsonkey">flightPathAngle</span> (optional). Default value: <code class="docutils literal"><span class="pre">0</span></code>.</li>
+<li><span class="jsontype">number</span> <span class="jsonkey">headingAngle</span> (optional). Default value: <code class="docutils literal"><span class="pre">0</span></code>.</li>
 </ul>
-<div class="toggle docutils container">
-<div class="header docutils container">
-<span class="arrow">Cartesian State</span></div>
-</div>
-<div class="toggle docutils container">
-<div class="header docutils container">
-<span class="arrow">Keplerian State</span></div>
-</div>
-<div class="toggle docutils container">
-<div class="header docutils container">
-<span class="arrow">Spherical State</span></div>
-</div>
 
 
            </div>

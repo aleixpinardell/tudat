@@ -226,7 +226,7 @@
     <span class="p">...</span>
     <span class="n">boost</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span> <span class="n">OblateSphericalBodyShapeSettings</span> <span class="o">&gt;</span> <span class="n">oblateSphericalBodyShapeSettings</span> <span class="o">=</span>
       <span class="n">boost</span><span class="o">::</span><span class="n">dynamic_pointer_cast</span><span class="o">&lt;</span> <span class="n">OblateSphericalBodyShapeSettings</span> <span class="o">&gt;</span><span class="p">(</span> <span class="n">bodyShapeSettings</span> <span class="p">);</span>
-    <span class="n">enforceNonNullPointer</span><span class="p">(</span> <span class="n">oblateSphericalBodyShapeSettings</span> <span class="p">);</span>
+    <span class="n">assertNonNullPointer</span><span class="p">(</span> <span class="n">oblateSphericalBodyShapeSettings</span> <span class="p">);</span>
 
     <span class="n">jsonObject</span><span class="p">[</span> <span class="n">K</span><span class="o">::</span><span class="n">equatorialRadius</span> <span class="p">]</span> <span class="o">=</span> <span class="n">oblateSphericalBodyShapeSettings</span><span class="o">-&gt;</span><span class="n">getEquatorialRadius</span><span class="p">(</span> <span class="p">);</span>
     <span class="n">jsonObject</span><span class="p">[</span> <span class="n">K</span><span class="o">::</span><span class="n">flattening</span> <span class="p">]</span> <span class="o">=</span> <span class="n">oblateSphericalBodyShapeSettings</span><span class="o">-&gt;</span><span class="n">getFlattening</span><span class="p">(</span> <span class="p">);</span>

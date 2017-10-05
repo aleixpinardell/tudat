@@ -189,9 +189,9 @@
 <ol class="arabic simple" start="2">
 <li>Install <a class="reference external" href="https://cmake.org">CMake</a>.</li>
 <li>Install MATLAB R2016b or later.</li>
-<li>After choosing a definitive location for your tudatBundle directory, run the script <code class="xref py py-class docutils literal"><span class="pre">matlabInterface/setup.m</span></code> in MATLAB.</li>
-<li>Run the script <code class="xref py py-class docutils literal"><span class="pre">matlabInterface/build.m</span></code> in MATLAB to compile all the necessary targets for the MATLAB Interface to work.</li>
-<li>If you get an error or prefer to compile the targets manually, you can use Qt Creator. After the project tudatBundle has been built, run the MATLAB Interface’s unit tests by writing in MATLAB’s Command Window:</li>
+<li>After choosing a definitive location for your tudatBundle directory, run the script <code class="xref py py-class docutils literal"><span class="pre">tudatBundle/matlabInterface/setup.m</span></code> in MATLAB.</li>
+<li>Run the script <code class="xref py py-class docutils literal"><span class="pre">tudatBundle/matlabInterface/build.m</span></code> in MATLAB to compile all the necessary targets for the MATLAB Interface to work.</li>
+<li>If you get an error or prefer to compile the targets manually, you can use Qt Creator (see how to <a class="reference internal" href="../../installation/setupDevEnvironment.html#setupdevelopmentenvironment"><span class="std std-ref">Setup Development Environment</span></a>). After the project tudatBundle has been built, run the MATLAB Interface’s unit tests by writing in MATLAB’s Command Window:</li>
 </ol>
 <blockquote>
 <div><div class="highlight-matlab"><div class="highlight"><pre><span></span><span class="n">tudat</span><span class="p">.</span><span class="n">test</span><span class="p">()</span>

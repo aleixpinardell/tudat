@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>&lt;no title&gt; &mdash; TU Delft Astrodynamic Toolbox  documentation</title>
+  <title>List of keys &mdash; TU Delft Astrodynamic Toolbox  documentation</title>
   
 
   
@@ -37,7 +37,10 @@
         <link rel="index" title="Index"
               href="../../../../genindex.html"/>
         <link rel="search" title="Search" href="../../../../search.html"/>
-    <link rel="top" title="TU Delft Astrodynamic Toolbox  documentation" href="../../../../index.html"/> 
+    <link rel="top" title="TU Delft Astrodynamic Toolbox  documentation" href="../../../../index.html"/>
+        <link rel="up" title="JSON Interface" href="../../index.html"/>
+        <link rel="next" title="Modular files" href="../../modularFiles.html"/>
+        <link rel="prev" title="JSON Interface" href="../../index.html"/> 
 
   
   <script src="../../../../_static/js/modernizr.min.js"></script>
@@ -87,10 +90,24 @@
             
             
               <p class="caption"><span class="caption-text">Contents</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../../../index.html">Start Page</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../installation/index.html">Installation Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../index.html">Tutorials and Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">Tutorials and Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../../prerequiredKnowledge/index.html">Pre-required Knowledge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../applicationWalkthroughs/index.html">Application Walkthroughs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../tudatFeatures/index.html">Tudat Libraries</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">JSON Interface</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">List of keys</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../modularFiles.html">Modular files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../multicase.html">Multi-case simulations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../customJsonApp.html">Writing custom JSON-based applications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../matlabInterface/index.html">MATLAB Interface</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../developerGuide/index.html">Developer Guide</a></li>
 </ul>
 
@@ -136,13 +153,17 @@
     
       <li><a href="../../../../index.html">Docs</a> &raquo;</li>
         
-      <li>&lt;no title&gt;</li>
+          <li><a href="../../../index.html">Tutorials and Documentation</a> &raquo;</li>
+        
+          <li><a href="../../index.html">JSON Interface</a> &raquo;</li>
+        
+      <li>List of keys</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../../../../_sources/tutorials/jsonInterface/keys/rst/root.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../../../../_sources/tutorials/jsonInterface/keys/rst/index.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -155,7 +176,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <ul>
+  <div class="section" id="list-of-keys">
+<span id="jsoninterface-keys"></span><h1>List of keys<a class="headerlink" href="#list-of-keys" title="Permalink to this headline">¶</a></h1>
+<p>In this page, an exhaustive list with the possible keys that can be defined in input JSON files for the <code class="docutils literal"><span class="pre">json_interface</span></code> application is provided.</p>
+<p>The type <span class="jsontype">path</span> before a key name denotes that a <span class="jsontype">string</span> such as <code class="docutils literal"><span class="pre">&quot;&#64;path(relPath)&quot;</span></code> has to be provided when using relative paths inside modular files. When providing absolute paths or not using modular files, both <code class="docutils literal"><span class="pre">&quot;&#64;path(file)&quot;</span></code> and <code class="docutils literal"><span class="pre">&quot;file&quot;</span></code> will work.</p>
+<p><span class="jsontype">T[]</span> denotes that an array of <span class="jsontype">T</span> is expected. If no number is indicated, there is no constraint on the size of the array. For instance, <span class="jsontype">number[6]</span> is used for state vectors. A second <span class="jsontype">[]</span> is used to represent matrices, e.g. <span class="jsontype">number[][]</span> corresponds to <code class="xref py py-class docutils literal"><span class="pre">Eigen::MatrixXd</span></code>, and <span class="jsontype">number[3][3]</span> corresponds to <code class="xref py py-class docutils literal"><span class="pre">Eigen::Matrix3d</span></code>. When a vector is expected (i.e. an <code class="xref py py-class docutils literal"><span class="pre">Eigen::Matrix</span></code> with only one row and/or one column), it is possible to provide it as a an array of numbers (e.g. <code class="docutils literal"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">3]</span></code>) only if at least one of the dimensions of the expected <code class="xref py py-class docutils literal"><span class="pre">Eigen::Matrix</span></code> is of fixed size, and this size matches the length of the provided array. If the expected matrix has dynamic size (both for the number of rows and columns), it is mandatory to provide an array of arrays (e.g. <code class="docutils literal"><span class="pre">[[1,</span> <span class="pre">2,</span> <span class="pre">3]]</span></code> will be converted to a matrix of dynamic size 1x3, while <code class="docutils literal"><span class="pre">[[1],</span> <span class="pre">[2],</span> <span class="pre">[3]]</span></code> will be converted to a matrix of dynamic size 3x1).</p>
+<p>Some keys appear twice because they accept different value types (and a different description for each case is provided). For instance, the body’s initial state can be of value type <span class="jsontype">number[6]</span> (where a Cartesian state is assumed), or an <span class="jsontype">object</span> containing keys such as <span class="jsonkey">x</span>, <span class="jsonkey">vy</span>, <span class="jsonkey">semiMajorAxis</span>, <span class="jsonkey">inclination</span>, etc.</p>
+<p>In some parts, key paths are used to refer to the key of a given object in the JSON tree. The different keys are separated by dots. For instance <span class="jsonkey">atmosphere.type</span> refers to the key <span class="jsonkey">type</span> of an <span class="jsontype">object</span> assigned to the key <span class="jsonkey">atmosphere</span>. When the key path is absolute (or in other words relative to the JSON defined in the main input file), the key path starts with a dot (for instance, <span class="jsonkey">.initialEpoch</span> refers to the key <span class="jsonkey">initialEpoch</span> defined directly in the root object of the main input file). When the key path does not start with a dot, it is relative to the context in which it is mentioned. For arrays, the index (starting from zero) is used, so <span class="jsonkey">centralBodies[1]</span> refers to the second body in the <span class="jsontype">array</span> assigned to the key <span class="jsonkey">centralBodies</span>.</p>
+<p><span class="showall">Unfold All</span> <span class="hideall">Fold All</span></p>
+<ul>
 <li><p class="first"><span class="jsontype">number</span> <span class="jsonkey">initialEpoch</span> (optional). Used for the initial time of the integrator (if not provided inside the integrator object) and for interpolation of Spice ephemeris (if Spice enabled and set to preload ephemeris).</p>
 </li>
 <li><p class="first"><span class="jsontype">number</span> <span class="jsonkey">finalEpoch</span> (optional). Used for interpolation of Spice ephemeris (if Spice enabled and set to preload ephemeris) and to create the time-termination condition. If smaller than <span class="jsonkey">initialEpoch</span>, the dynamics will be propagated backwards in time.</p>
@@ -1187,6 +1216,7 @@
 </div></blockquote>
 </li>
 </ul>
+</div>
 
 
            </div>
@@ -1195,6 +1225,15 @@
            </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../../modularFiles.html" class="btn btn-neutral float-right" title="Modular files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../../index.html" class="btn btn-neutral" title="JSON Interface" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

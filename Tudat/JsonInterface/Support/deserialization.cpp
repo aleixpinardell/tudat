@@ -9,7 +9,7 @@
  *
  */
 
-#include <boost/regex.hpp>
+#include <regex>
 
 #include "deserialization.h"
 #include "keys.h"
@@ -133,22 +133,21 @@ void updatePaths( nlohmann::json& jsonObject, const boost::filesystem::path& fil
         std::string str = jsonObject;
 
         // Replace: ${FILE_DIR}, ${FILE_STEM}, ${FILE_NAME}, etc.
-        str = regex_replace( str, boost::regex( R"(\$\{FILE_DIR\})" ), filePath.parent_path( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{FILE_STEM\})" ), filePath.stem( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{FILE_NAME\})" ), filePath.filename( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{PARENT_FILE_DIR\})" ), parentFilePath.parent_path( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{PARENT_FILE_STEM\})" ), parentFilePath.stem( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{PARENT_FILE_NAME\})" ), parentFilePath.filename( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{ROOT_FILE_DIR\})" ), rootFilePath.parent_path( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{ROOT_FILE_STEM\})" ), rootFilePath.stem( ).string( ) );
-        str = regex_replace( str, boost::regex( R"(\$\{ROOT_FILE_NAME\})" ), rootFilePath.filename( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{FILE_DIR\})" ), filePath.parent_path( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{FILE_STEM\})" ), filePath.stem( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{FILE_NAME\})" ), filePath.filename( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{PARENT_FILE_DIR\})" ), parentFilePath.parent_path( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{PARENT_FILE_STEM\})" ), parentFilePath.stem( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{PARENT_FILE_NAME\})" ), parentFilePath.filename( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{ROOT_FILE_DIR\})" ), rootFilePath.parent_path( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{ROOT_FILE_STEM\})" ), rootFilePath.stem( ).string( ) );
+        str = std::regex_replace( str, std::regex( R"(\$\{ROOT_FILE_NAME\})" ), rootFilePath.filename( ).string( ) );
 
         // Fix relative paths
-        boost::cmatch groups;
-        boost::regex_match( str.c_str( ), groups, boost::regex( R"(\@path\((.*)\))" ) );
-        if ( groups[ 1 ].matched )
+        std::smatch groups;
+        if ( std::regex_match( str, groups, std::regex( R"(\@path\((.*)\))" ) ) )
         {
-            const boost::filesystem::path providedPath = std::string( groups[ 1 ] );
+            const boost::filesystem::path providedPath = groups.str( 1 );
             if ( providedPath.is_relative( ) )
             {
                 const boost::filesystem::path rel = boost::filesystem::relative( filePath.parent_path( ), rootFilePath.parent_path( ) );
@@ -311,9 +310,9 @@ void parseModularJSON( nlohmann::json& jsonObject, const boost::filesystem::path
     }
     else if ( jsonObject.is_string( ) )
     {
-        boost::smatch groups;
-        if ( boost::regex_match( jsonObject.get< std::string >( ), groups,
-                                 boost::regex( R"(\$(?:\((.+)\))?(?:\{(.+)\})?)" ) ) )
+        std::smatch groups;
+        if ( std::regex_match( jsonObject.get< std::string >( ), groups,
+                               std::regex( R"(\$(?:\((.+)\))?(?:\{(.+)\})?)" ) ) )
         {
             const std::string file = groups.str( 1 );
             const std::string vars = groups.str( 2 );

@@ -9,7 +9,7 @@
  *
  */
 
-#include <boost/regex.hpp>
+#include <regex>
 
 #include "utilities.h"
 #include "keys.h"
@@ -385,13 +385,12 @@ const std::string Keys::Options::tagOutputFilesIfPropagationFails = "tagOutputFi
 //! Get the int-value of an int-convertible key.
 int indexFromKey( const std::string& key )
 {
-    boost::cmatch groups;
-    boost::regex_match( key.c_str( ), groups, boost::regex( R"(\@(\d+))" ) );
-    if ( groups[ 1 ].matched )
+    std::smatch groups;
+    if ( std::regex_match( key, groups, std::regex( R"(\@(\d+))" ) ) )
     {
         try
         {
-            return std::stoi( groups[ 1 ] );
+            return std::stoi( groups.str( 1 ) );
         }
         catch ( ... ) { }
     }
@@ -404,12 +403,11 @@ KeyPath::KeyPath( const std::string& keyPathStringRepresentation ) : std::vector
     const std::vector< std::string > keys = split( keyPathStringRepresentation, SpecialKeys::dot );
     for ( const std::string key : keys )
     {
-        boost::cmatch groups;
-        boost::regex_match( key.c_str( ), groups, boost::regex( R"((.+?)\[(\d+?)\])" ) );
-        if ( groups[ 1 ].matched && groups[ 2 ].matched )
+        std::smatch groups;
+        if ( std::regex_match( key, groups, std::regex( R"((.+?)\[(\d+?)\])" ) ) )
         {
-            const std::string arrayKey( groups[ 1 ] );
-            const std::string arrayIndex( groups[ 2 ] );
+            const std::string arrayKey = groups.str( 1 );
+            const std::string arrayIndex = groups.str( 2 );
             push_back( arrayKey );
             push_back( "@" + arrayIndex );
         }
